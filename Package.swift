@@ -20,6 +20,8 @@ let package = Package(
     .tcaTestTarget(for: "Filter"),
     .tcaTarget(name: "FormValidation"),
     .tcaTestTarget(for: "FormValidation"),
+    .tcaTarget(name: "Haptics"),
+    .tcaTestTarget(for: "Haptics"),
   ]
 )
 
@@ -54,6 +56,6 @@ extension Package.Dependency {
 
 extension PackageDescription.Product {
   static func singleLibraryForAllTargets(name: String) -> PackageDescription.Product {
-    return .library(name: name, targets: ["Analytics", "Filter", "FormValidation"])
+    return .library(name: name, targets: ["Analytics", "Filter", "FormValidation", "Haptics"])
   }
 }
