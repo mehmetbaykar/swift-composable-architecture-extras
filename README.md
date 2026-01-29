@@ -1,4 +1,117 @@
 # Swift Composable Architecture Extras
 
-Additional utilities for [The Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture).
+![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)
+![Platforms](https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS-blue.svg)
+![CI](https://github.com/mehmetbaykar/swift-composable-architecture-extras/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
+Production-ready reducer patterns and utilities for The Composable Architecture.
+
+## Table of Contents
+
+- [Philosophy](#philosophy)
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Modules](#modules)
+  - [Analytics](#analytics)
+  - [Filter](#filter)
+  - [FormValidation](#formvalidation)
+- [Contributing](#contributing)
+- [Acknowledgments](#acknowledgments)
+- [License](#license)
+
+## Philosophy
+
+These are production-ready patterns extracted from real TCA applications. Each module solves a common problem with minimal API surface and maximum composability.
+
+## Installation
+
+Add the package to your `Package.swift`:
+
+```swift
+dependencies: [
+  .package(url: "https://github.com/mehmetbaykar/swift-composable-architecture-extras.git", from: "1.0.0")
+]
+```
+
+Then add the product to your target:
+
+```swift
+.target(
+  name: "YourTarget",
+  dependencies: [
+    .product(name: "ComposableArchitectureExtras", package: "swift-composable-architecture-extras")
+  ]
+)
+```
+
+## Requirements
+
+| Platform | Minimum Version |
+|----------|-----------------|
+| iOS | 13.0+ |
+| macOS | 10.15+ |
+| tvOS | 13.0+ |
+| watchOS | 6.0+ |
+| Swift | 6.0+ |
+| TCA | 1.23.1+ |
+
+## Modules
+
+### Analytics
+
+A generic analytics reducer that handles provider integration using a declarative result builder syntax. Define events once, track everywhere.
+
+```swift
+AnalyticsReducerOf<Self, AppEvent> { state, action in
+  switch action {
+  case .viewAppeared: .screenViewed(name: "Home")
+  case .dismissed: []
+  }
+}
+```
+
+[Full documentation](Sources/Analytics/README.md)
+
+### Filter
+
+A reducer modifier that conditionally executes the wrapped reducer based on state and action predicates. Perfect for feature flags, boundary enforcement, and action gating.
+
+```swift
+Reduce { state, action in
+  // Business logic
+}
+.filter { state, action in
+  state.isFeatureEnabled
+}
+```
+
+[Full documentation](Sources/Filter/README.md)
+
+### FormValidation
+
+A declarative form validation system with automatic error state management. Define validation rules once, get real-time feedback on every field change.
+
+```swift
+FormValidationReducer(
+  submitAction: \.submitTapped,
+  onFormValidatedAction: .loginSucceeded,
+  validations: [
+    FieldValidation(field: \.email, errorState: \.emailError, rules: [.nonEmpty(fieldName: "Email")])
+  ]
+)
+```
+
+[Full documentation](Sources/FormValidation/README.md)
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Acknowledgments
+
+Built on top of [The Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture) by [Point-Free](https://www.pointfree.co).
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

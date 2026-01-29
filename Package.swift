@@ -1,20 +1,8 @@
 // swift-tools-version: 6.2
 import PackageDescription
 
-let packageName = "swift-composable-architecture-extras"
-let productName = "ComposableArchitectureExtras"
-
-let tcaPackageDependencies: [Package.Dependency] = [
-  .package(
-    url: "https://github.com/pointfreeco/swift-composable-architecture",
-    from: "1.23.1")
-]
-
-let tcaTargetDependencies: Target.Dependency =
-  .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-
 let package = Package(
-  name: packageName,
+  name: "swift-composable-architecture-extras",
   platforms: [
     .iOS(.v13),
     .macOS(.v10_15),
@@ -22,44 +10,50 @@ let package = Package(
     .watchOS(.v6),
   ],
   products: [
-    .library(
-      name: productName,
-      targets: ["FormValidation", "Filter"]
-    )
-
+    .singleLibraryForAllTargets(name: "ComposableArchitectureExtras")
   ],
-  dependencies: tcaPackageDependencies,
+  dependencies: [.tca()],
   targets: [
-    .target(
-      name: "Analytics",
-      dependencies: [
-        tcaTargetDependencies
-      ],
-      exclude: ["README.md"]
-    ),
-    .testTarget(
-      name: "AnalyticsTests",
-      dependencies: ["Analytics"]
-    ),
-    .target(
-      name: "Filter",
-      dependencies: [
-        tcaTargetDependencies
-      ]
-    ),
-    .target(
-      name: "FormValidation",
-      dependencies: [
-        tcaTargetDependencies
-      ]
-    ),
-    .testTarget(
-      name: "FormValidationTests",
-      dependencies: ["FormValidation"]
-    ),
-    .testTarget(
-      name: "FilterTests",
-      dependencies: ["Filter"]
-    ),
+    .tcaTarget(name: "Analytics"),
+    .tcaTestTarget(for: "Analytics"),
+    .tcaTarget(name: "Filter"),
+    .tcaTestTarget(for: "Filter"),
+    .tcaTarget(name: "FormValidation"),
+    .tcaTestTarget(for: "FormValidation"),
   ]
 )
+
+extension PackageDescription.Target {
+  static func tcaTarget(name: String) -> PackageDescription.Target {
+    let tcaTargetDependencies: Target.Dependency =
+      .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+    let excludeReadme: [String] = ["README.md"]
+
+    return .target(
+      name: name,
+      dependencies: [tcaTargetDependencies],
+      exclude: excludeReadme
+    )
+  }
+
+  static func tcaTestTarget(for target: String) -> PackageDescription.Target {
+    return .testTarget(
+      name: "\(target)Tests",
+      dependencies: [.target(name: target)]
+    )
+  }
+}
+
+extension Package.Dependency {
+  static func tca() -> Package.Dependency {
+    return .package(
+      url: "https://github.com/pointfreeco/swift-composable-architecture",
+      from: "1.23.1")
+  }
+}
+
+extension PackageDescription.Product {
+  static func singleLibraryForAllTargets(name: String) -> PackageDescription.Product {
+    return .library(name: name, targets: ["Analytics", "Filter", "FormValidation"])
+  }
+}
