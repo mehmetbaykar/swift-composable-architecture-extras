@@ -22,12 +22,10 @@ struct ArrayTestReducer {
     AnalyticsReducerOf<Self, ArrayTestEvent> { _, action in
       switch action {
       case .multipleEvents:
-        return [
-          .screenViewed(name: "Test"),
-          .buttonTapped(id: "test"),
-        ]
+        ArrayTestEvent.screenViewed(name: "Test")
+        ArrayTestEvent.buttonTapped(id: "test")
       case .emptyArray:
-        return []
+        []
       }
     }
 

@@ -4,22 +4,20 @@ extension Reducer {
   @inlinable
   public func analyticsOnChange<Value: Equatable & Sendable, Event: Sendable>(
     of toValue: @escaping @Sendable (State) -> Value,
-    _ toAnalyticsEvents: @escaping @Sendable (Value, Value) -> [Event]
+    @AnalyticsEventBuilder<Event> _ builder: @escaping @Sendable (Value, Value) -> [Event]
   ) -> _OnChangeAnalyticsReducer<Self, Value, Event> {
     _OnChangeAnalyticsReducer(
       base: self,
       toValue: toValue,
       isDuplicate: ==,
-      toAnalyticsEvents: toAnalyticsEvents
+      toAnalyticsEvents: builder
     )
   }
 }
 
 public struct _OnChangeAnalyticsReducer<
   Base: Reducer, Value: Equatable & Sendable, Event: Sendable
->:
-  Reducer
-{
+>: Reducer {
   @usableFromInline
   let base: Base
 

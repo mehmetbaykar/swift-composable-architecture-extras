@@ -29,7 +29,7 @@ struct OnChangeTestReducer {
       }
     }
     .analyticsOnChange(of: \.count) { oldValue, newValue in
-      [OnChangeTestEvent.countChanged(old: oldValue, new: newValue)]
+      OnChangeTestEvent.countChanged(old: oldValue, new: newValue)
     }
   }
 }
@@ -52,7 +52,7 @@ struct OnChangeEmptyArrayTestReducer {
         return .none
       }
     }
-    .analyticsOnChange(of: \.count) { _, _ -> [OnChangeTestEvent] in
+    .analyticsOnChange(of: \.count) { (_, _) -> [OnChangeTestEvent] in
       []
     }
   }

@@ -23,11 +23,11 @@ struct SingleEventTestReducer {
     AnalyticsReducerOf<Self, SingleEventTestEvent> { _, action in
       switch action {
       case .increment:
-        return .buttonTapped(id: "increment")
+        .buttonTapped(id: "increment")
       case .decrement:
-        return .buttonTapped(id: "decrement")
+        .buttonTapped(id: "decrement")
       case .noAnalytics:
-        return nil
+        []
       }
     }
 
