@@ -18,7 +18,7 @@ struct HapticsReducerTests {
       let store = TestStore(initialState: TestReducer.State()) {
         TestReducer()
       } withDependencies: {
-        $0.feedbackGenerator = AnyFeedbackGeneratorClient(collector.client)
+        $0.feedbackGenerator = collector.client
       }
 
       await store.send(.selectIndex(1)) {
@@ -42,7 +42,7 @@ struct HapticsReducerTests {
       let store = TestStore(initialState: TestReducer.State(selectedIndex: 5)) {
         TestReducer()
       } withDependencies: {
-        $0.feedbackGenerator = AnyFeedbackGeneratorClient(collector.client)
+        $0.feedbackGenerator = collector.client
       }
 
       await store.send(.selectIndex(5))
@@ -62,7 +62,7 @@ struct HapticsReducerTests {
       let store = TestStore(initialState: TestReducer.State(isHapticsEnabled: false)) {
         TestReducer()
       } withDependencies: {
-        $0.feedbackGenerator = AnyFeedbackGeneratorClient(collector.client)
+        $0.feedbackGenerator = collector.client
       }
 
       await store.send(.increment) {
@@ -80,7 +80,7 @@ struct HapticsReducerTests {
       let store = TestStore(initialState: TestReducer.State(isHapticsEnabled: true)) {
         TestReducer()
       } withDependencies: {
-        $0.feedbackGenerator = AnyFeedbackGeneratorClient(collector.client)
+        $0.feedbackGenerator = collector.client
       }
 
       await store.send(.increment) {
@@ -104,7 +104,7 @@ struct HapticsReducerTests {
       let store = TestStore(initialState: TestReducer.State(isHapticsEnabled: true)) {
         TestReducer()
       } withDependencies: {
-        $0.feedbackGenerator = AnyFeedbackGeneratorClient(collector.client)
+        $0.feedbackGenerator = collector.client
       }
 
       await store.send(.increment) {
@@ -135,7 +135,7 @@ struct HapticsReducerTests {
       let store = TestStore(initialState: TestReducer.State()) {
         TestReducer()
       } withDependencies: {
-        $0.feedbackGenerator = AnyFeedbackGeneratorClient(collector.client)
+        $0.feedbackGenerator = collector.client
       }
 
       await store.send(.selectIndex(1)) {
