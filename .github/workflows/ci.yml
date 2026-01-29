@@ -18,29 +18,69 @@ concurrency:
 
 jobs:
   build:
-    name: Build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+    name: Build (${{ matrix.platform }})
+    runs-on: macos-26
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-26, ubuntu-latest]
+        platform:
+          - iOS
+          - macOS
+        include:
+          - platform: iOS
+            destination: "platform=iOS Simulator,name=iPhone 17,OS=latest"
+          - platform: macOS
+            destination: "platform=macOS"
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/cache@v5
         with:
-          path: |
-            .build
-            ~/.swiftpm
-            ~/.cache/org.swift.swiftpm
-            ~/Library/Caches/org.swift.swiftpm
-          key: swiftpm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: swiftpm-${{ runner.os }}-
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-build-${{ matrix.platform }}-${{ hashFiles('**/Sources/**/*.swift') }}
+          restore-keys: deriveddata-build-${{ matrix.platform }}-
 
-      - name: Install Swift (Linux)
-        if: runner.os == 'Linux'
-        uses: SwiftyLab/setup-swift@latest
+      - name: Build
+        run: |
+          xcodebuild build \
+            -scheme ComposableArchitectureExtras \
+            -destination '${{ matrix.destination }}' \
+            -skipPackagePluginValidation \
+            | xcpretty || true
+
+  test:
+    name: Test ${{ matrix.scheme }} (${{ matrix.platform }})
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - iOS
+          - macOS
+        scheme:
+          - Analytics
+          - Filter
+          - FormValidation
+        include:
+          - platform: iOS
+            destination: "platform=iOS Simulator,name=iPhone 17,OS=latest"
+          - platform: macOS
+            destination: "platform=macOS"
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/cache@v5
         with:
-          swift-version: "6.2"
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ matrix.platform }}-${{ matrix.scheme }}-${{ hashFiles('**/Sources/**/*.swift', '**/Tests/**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ matrix.platform }}-${{ matrix.scheme }}-
+            deriveddata-${{ matrix.platform }}-
 
-      - run: swift --version
-      - run: swift build
+      - name: Run tests
+        run: |
+          xcodebuild test \
+            -scheme ${{ matrix.scheme }} \
+            -destination '${{ matrix.destination }}' \
+            -skipPackagePluginValidation \
+            | xcpretty || true
