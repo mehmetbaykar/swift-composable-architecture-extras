@@ -52,7 +52,7 @@ jobs:
             | xcpretty || true
 
   test:
-    name: Test ${{ matrix.scheme }} (${{ matrix.platform }})
+    name: Test (${{ matrix.platform }})
     runs-on: macos-26
     strategy:
       fail-fast: false
@@ -61,12 +61,6 @@ jobs:
           - iOS
           - macOS
           - watchOS
-        scheme:
-          - Analytics
-          - Filter
-          - FormValidation
-          - Haptics
-          - Printers
         include:
           - platform: iOS
             destination: "platform=iOS Simulator,name=iPhone 17,OS=latest"
@@ -80,15 +74,14 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ matrix.platform }}-${{ matrix.scheme }}-${{ hashFiles('**/Sources/**/*.swift', '**/Tests/**/*.swift') }}
-          restore-keys: |
-            deriveddata-${{ matrix.platform }}-${{ matrix.scheme }}-
-            deriveddata-${{ matrix.platform }}-
+          key: deriveddata-test-${{ matrix.platform }}-${{ hashFiles('**/Sources/**/*.swift', '**/Tests/**/*.swift') }}
+          restore-keys: deriveddata-test-${{ matrix.platform }}-
 
       - name: Run tests
         run: |
           xcodebuild test \
-            -scheme ${{ matrix.scheme }} \
+            -scheme AllTests \
+            -testPlan AllTests \
             -destination '${{ matrix.destination }}' \
             -skipPackagePluginValidation \
             | xcpretty || true

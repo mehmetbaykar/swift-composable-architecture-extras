@@ -1,0 +1,57 @@
+{
+  "configurations" : [
+    {
+      "id" : "9A8B7C6D-5E4F-3A2B-1C0D-9E8F7A6B5C4D",
+      "name" : "Default",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AnalyticsTests",
+        "name" : "AnalyticsTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FilterTests",
+        "name" : "FilterTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FormValidationTests",
+        "name" : "FormValidationTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "HapticsTests",
+        "name" : "HapticsTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PrintersTests",
+        "name" : "PrintersTests"
+      }
+    }
+  ],
+  "version" : 1
+}
