@@ -4,11 +4,14 @@ import PackageDescription
 let packageName = "swift-composable-architecture-extras"
 let productName = "ComposableArchitectureExtras"
 
-let packageDependencies: [Package.Dependency] = [
+let tcaPackageDependencies: [Package.Dependency] = [
   .package(
     url: "https://github.com/pointfreeco/swift-composable-architecture",
     from: "1.23.1")
 ]
+
+let tcaTargetDependencies: Target.Dependency =
+  .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
 
 let package = Package(
   name: packageName,
@@ -23,29 +26,37 @@ let package = Package(
     )
 
   ],
-  dependencies: packageDependencies,
+  dependencies: tcaPackageDependencies,
   targets: [
+    .target(
+      name: "Analytics",
+      dependencies: [
+        tcaTargetDependencies
+      ]
+    ),
+    .testTarget(
+      name: "AnalyticsTests",
+      dependencies: ["Analytics"]
+    ),
     .target(
       name: "Filter",
       dependencies: [
-        .product(
-          name: "ComposableArchitecture",
-          package: "swift-composable-architecture"
-        )
+        tcaTargetDependencies
       ]
     ),
     .target(
       name: "FormValidation",
       dependencies: [
-        .product(
-          name: "ComposableArchitecture",
-          package: "swift-composable-architecture"
-        )
+        tcaTargetDependencies
       ]
     ),
     .testTarget(
       name: "FormValidationTests",
       dependencies: ["FormValidation"]
+    ),
+    .testTarget(
+      name: "FilterTests",
+      dependencies: ["Filter"]
     ),
   ]
 )
