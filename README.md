@@ -16,6 +16,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [Analytics](#analytics)
   - [Filter](#filter)
   - [FormValidation](#formvalidation)
+  - [Haptics](#haptics)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -103,6 +104,20 @@ FormValidationReducer(
 ```
 
 [Full documentation](Sources/FormValidation/README.md)
+
+### Haptics
+
+A universal haptics module that provides state-triggered haptic feedback across iOS, macOS, and watchOS. Trigger haptics declaratively when state changes.
+
+```swift
+Reduce { state, action in
+  // Business logic
+}
+.haptics(.selection, triggerOnChangeOf: \.selectedIndex)
+.haptics(.impactMedium(), triggerOnChangeOf: \.count, isEnabled: \.hapticsEnabled)
+```
+
+[Full documentation](Sources/Haptics/README.md)
 
 ## Contributing
 
