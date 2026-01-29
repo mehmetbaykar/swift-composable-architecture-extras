@@ -1,21 +1,21 @@
 ## Analytics
 
-A generic analytics module for TCA that handles provider integration and reducer composition.
+A generic analytics module for TCA that handles provider integration and reducer composition using a declarative result builder syntax.
 
 ## Quick Start
 
 ```swift
-// 1. Define events
 enum AppEvent: Sendable { case screenViewed(name: String) }
 
-// 2. Create provider
 extension AnalyticsClient where Event == AppEvent {
   static var myProvider: Self { .init { event in print("Track: \(event)") } }
 }
 
-// 3. Use in reducer
 AnalyticsReducerOf<Self, AppEvent> { state, action in
-  action == .viewAppeared ? .screenViewed(name: "Home") : nil
+  switch action {
+  case .viewAppeared: .screenViewed(name: "Home")
+  case .dismissed: []
+  }
 }
 ```
 
@@ -32,12 +32,161 @@ enum AppEvent: Sendable {
 }
 ```
 
-## Firebase Provider
+## Result Builder Syntax
+
+The `@AnalyticsEventBuilder` supports all standard Swift control flow.
+
+### Single Event
 
 ```swift
-import ComposableArchitectureExtras
-import FirebaseAnalytics
+case .viewAppeared:
+  .screenViewed(name: state.screenName)
+```
 
+### No Event
+
+```swift
+case .dismissed:
+  []
+```
+
+### Multiple Events
+
+Use explicit type on separate lines:
+
+```swift
+case .checkoutCompleted:
+  AppEvent.buttonClicked(id: "checkout")
+  AppEvent.purchase(productId: state.productId, amount: state.total)
+```
+
+Or use array literal:
+
+```swift
+case .checkoutCompleted:
+  [.buttonClicked(id: "checkout"), .purchase(productId: state.productId, amount: state.total)]
+```
+
+### Conditional
+
+```swift
+case .logoutTapped:
+  if state.hasActiveSubscription {
+    .featureUsed(name: "subscriber_logout")
+  }
+```
+
+### If-Else
+
+```swift
+case .purchaseTapped:
+  if state.isFirstPurchase {
+    .featureUsed(name: "first_purchase")
+  } else {
+    .featureUsed(name: "repeat_purchase")
+  }
+```
+
+### Loops
+
+```swift
+case .itemsAdded(let items):
+  for item in items {
+    .featureUsed(name: "item_added_\(item.id)")
+  }
+```
+
+## State Change Tracking
+
+Track events when state values change with `analyticsOnChange`:
+
+```swift
+Reduce { state, action in
+  // Business logic
+}
+.analyticsOnChange(of: \.itemCount) { oldCount, newCount in
+  if newCount > oldCount {
+    .featureUsed(name: "item_added")
+  } else {
+    .featureUsed(name: "item_removed")
+  }
+}
+```
+
+## Full Example
+
+```swift
+@Reducer
+struct CartReducer {
+  @ObservableState
+  struct State: Equatable {
+    var items: [Item] = []
+    var hasActiveSubscription = false
+    var productId = ""
+    var total: Decimal = 0
+  }
+
+  enum Action {
+    case viewAppeared
+    case loginTapped
+    case signUpTapped
+    case checkoutCompleted
+    case itemsAdded([Item])
+    case logoutTapped
+  }
+
+  var body: some ReducerOf<Self> {
+    AnalyticsReducerOf<Self, AppEvent> { state, action in
+      switch action {
+      case .viewAppeared:
+        .screenViewed(name: "Cart")
+      case .loginTapped:
+        .login(method: "email")
+      case .signUpTapped:
+        .signUp(method: "email")
+      case .checkoutCompleted:
+        AppEvent.buttonClicked(id: "checkout")
+        AppEvent.purchase(productId: state.productId, amount: state.total)
+      case .itemsAdded(let items):
+        for item in items {
+          .featureUsed(name: "item_added_\(item.id)")
+        }
+      case .logoutTapped:
+        if state.hasActiveSubscription {
+          .featureUsed(name: "subscriber_logout")
+        } else {
+          []
+        }
+      }
+    }
+
+    Reduce { state, action in
+      switch action {
+      case .viewAppeared, .loginTapped, .signUpTapped, .checkoutCompleted, .logoutTapped:
+        return .none
+      case .itemsAdded(let items):
+        state.items.append(contentsOf: items)
+        return .none
+      }
+    }
+    .analyticsOnChange(of: \.items.count) { old, new in
+      if new > old {
+        .featureUsed(name: "cart_item_added")
+      } else if new < old {
+        .featureUsed(name: "cart_item_removed")
+      } else {
+        []
+      }
+    }
+  }
+}
+```
+
+## Example Provider Implementations
+
+### Firebase
+
+```swift
 extension AnalyticsClient where Event == AppEvent {
   static var firebase: Self {
     .init { event in
@@ -62,12 +211,9 @@ extension AnalyticsClient where Event == AppEvent {
 }
 ```
 
-## Amplitude Provider
+### Amplitude
 
 ```swift
-import ComposableArchitectureExtras
-import AmplitudeSwift
-
 extension AnalyticsClient where Event == AppEvent {
   static var amplitude: Self {
     let client = Amplitude(configuration: Configuration(apiKey: "YOUR_API_KEY"))
@@ -80,9 +226,7 @@ extension AnalyticsClient where Event == AppEvent {
       case .signUp(let method):
         client.track(eventType: "User Signed Up", eventProperties: ["method": method])
       case .purchase(let productId, let amount):
-        client.track(eventType: "Purchase Completed", eventProperties: [
-          "product_id": productId, "amount": amount
-        ])
+        client.track(eventType: "Purchase", eventProperties: ["product_id": productId, "amount": amount])
       case .featureUsed(let name):
         client.track(eventType: "Feature Used", eventProperties: ["feature_name": name])
       case .buttonClicked(let id):
@@ -90,98 +234,6 @@ extension AnalyticsClient where Event == AppEvent {
       }
     }
   }
-}
-```
-
-## Using Reducers
-
-### AnalyticsReducerOf
-
-Track events based on actions using the `AnalyticsReducerOf<Self, Event>` typealias:
-
-```swift
-import ComposableArchitecture
-import ComposableArchitectureExtras
-
-@Reducer
-struct FeatureReducer {
-  @ObservableState
-  struct State: Equatable {
-    var isLoggedIn = false
-    var screenName = "Feature"
-  }
-
-  enum Action {
-    case viewAppeared
-    case loginTapped
-    case logoutTapped
-  }
-
-  var body: some ReducerOf<Self> {
-    AnalyticsReducerOf<Self, AppEvent> { state, action in
-      switch action {
-      case .viewAppeared: return .screenViewed(name: state.screenName)
-      case .loginTapped: return .login(method: "email")
-      case .logoutTapped: return nil
-      }
-    }
-    Reduce { state, action in
-      switch action {
-      case .viewAppeared:
-        return .none
-      case .loginTapped:
-        state.isLoggedIn = true
-        return .none
-      case .logoutTapped:
-        state.isLoggedIn = false
-        return .none
-      }
-    }
-  }
-}
-```
-
-### Multiple Events
-
-Return an array when a single action should track multiple events:
-
-```swift
-AnalyticsReducerOf<Self, AppEvent> { state, action in
-  switch action {
-  case .checkoutCompleted:
-    return [
-      .buttonClicked(id: "checkout_complete"),
-      .purchase(productId: state.productId, amount: state.total)
-    ]
-  case .viewAppeared: return .screenViewed(name: "Checkout")
-  default: return nil
-  }
-}
-```
-
-### analyticsOnChange
-
-Track events when state values change:
-
-```swift
-@Reducer
-struct CartReducer {
-  var body: some ReducerOf<Self> {
-    Reduce { state, action in
-      // Cart logic
-    }
-    .analyticsOnChange(of: \.itemCount) { oldCount, newCount in
-      newCount > oldCount ? .featureUsed(name: "cart_item_added") : .featureUsed(name: "cart_item_removed")
-    }
-  }
-}
-```
-
-Multiple events can also be returned:
-
-```swift
-.analyticsOnChange(of: \.cartTotal) { oldTotal, newTotal in
-  [.featureUsed(name: "cart_updated"), .purchase(productId: "cart", amount: newTotal)]
 }
 ```
 

@@ -8,15 +8,10 @@ public struct AnalyticsReducer<State, Action, Event: Sendable>: Reducer {
   @Dependency(\.analyticsClient) var analyticsClient
 
   @inlinable
-  public init(_ toAnalyticsEvent: @escaping @Sendable (State, Action) -> Event?) {
-    self.toAnalyticsEvents = { state, action in
-      toAnalyticsEvent(state, action).map { [$0] } ?? []
-    }
-  }
-
-  @inlinable
-  public init(_ toAnalyticsEvents: @escaping @Sendable (State, Action) -> [Event]) {
-    self.toAnalyticsEvents = toAnalyticsEvents
+  public init(
+    @AnalyticsEventBuilder<Event> _ builder: @escaping @Sendable (State, Action) -> [Event]
+  ) {
+    self.toAnalyticsEvents = builder
   }
 
   @inlinable
