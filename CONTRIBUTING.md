@@ -50,4 +50,4 @@ Each module should:
 
 ## Questions?
 
-Open a [Discussion](https://github.com/mehmetbaykar/swift-composable-architecture-extras/discussions) or [Issue](https://github.com/mehmetbaykar/swift-composable-architecture-extras/issues).
+Open a [Issue](https://github.com/mehmetbaykar/swift-composable-architecture-extras/issues).
