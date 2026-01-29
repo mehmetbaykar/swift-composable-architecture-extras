@@ -208,7 +208,7 @@ func selectionHapticTriggersOnTabChange() async {
   let store = TestStore(initialState: TabBarReducer.State()) {
     TabBarReducer()
   } withDependencies: {
-    $0.feedbackGenerator = AnyFeedbackGeneratorClient(collector.client)
+    $0.feedbackGenerator = collector.client
   }
 
   await store.send(.selectTab(.search)) {
@@ -230,7 +230,7 @@ struct MyApp: App {
         store: Store(initialState: AppReducer.State()) {
           AppReducer()
         } withDependencies: {
-          $0.feedbackGenerator = AnyFeedbackGeneratorClient(.live)
+          $0.feedbackGenerator = .live
         }
       )
     }

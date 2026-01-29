@@ -1,4 +1,6 @@
+import Dependencies
 import Foundation
+import XCTestDynamicOverlay
 
 public struct FeedbackGeneratorClient: Sendable {
   public var prepare: @Sendable (HapticFeedback) async -> Void
@@ -167,5 +169,29 @@ extension FeedbackGeneratorClient {
       prepare: { _ in },
       generate: { _ in }
     )
+  }
+}
+
+extension FeedbackGeneratorClient: TestDependencyKey {
+  public static var testValue: Self {
+    Self(
+      prepare: { _ in
+        XCTFail("Unimplemented: FeedbackGeneratorClient.prepare")
+      },
+      generate: { _ in
+        XCTFail("Unimplemented: FeedbackGeneratorClient.generate")
+      }
+    )
+  }
+
+  public static var previewValue: Self {
+    .consoleLogger()
+  }
+}
+
+extension DependencyValues {
+  public var feedbackGenerator: FeedbackGeneratorClient {
+    get { self[FeedbackGeneratorClient.self] }
+    set { self[FeedbackGeneratorClient.self] = newValue }
   }
 }
