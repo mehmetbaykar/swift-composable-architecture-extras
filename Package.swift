@@ -22,13 +22,16 @@ let package = Package(
     .tcaTestTarget(for: "FormValidation"),
     .tcaTarget(name: "Haptics"),
     .tcaTestTarget(for: "Haptics"),
+    .tcaTarget(name: "Printers"),
+    .tcaTestTarget(for: "Printers"),
   ]
 )
 
 extension PackageDescription.Target {
   static func tcaTarget(name: String) -> PackageDescription.Target {
-    let tcaTargetDependencies: Target.Dependency =
-      .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+    let tcaTargetDependencies: Target.Dependency = .product(
+      name: "ComposableArchitecture",
+      package: "swift-composable-architecture")
     let excludeReadme: [String] = ["README.md"]
 
     return .target(
@@ -56,6 +59,14 @@ extension Package.Dependency {
 
 extension PackageDescription.Product {
   static func singleLibraryForAllTargets(name: String) -> PackageDescription.Product {
-    return .library(name: name, targets: ["Analytics", "Filter", "FormValidation", "Haptics"])
+    return .library(
+      name: name,
+      targets: [
+        "Analytics",
+        "Filter",
+        "FormValidation",
+        "Haptics",
+        "Printers",
+      ])
   }
 }

@@ -17,6 +17,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [Filter](#filter)
   - [FormValidation](#formvalidation)
   - [Haptics](#haptics)
+  - [Printers](#printers)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -118,6 +119,22 @@ Reduce { state, action in
 ```
 
 [Full documentation](Sources/Haptics/README.md)
+
+### Printers
+
+Debug printing utilities with customizable action filtering and formatted output.
+
+```swift
+Reduce { state, action in
+  // Business logic
+}
+._printChanges(.prettyConsole(
+  allowedActions: .not(.init { if case .binding = $0 { true } else { false } }),
+  showTimestamp: true
+))
+```
+
+[Full documentation](Sources/Printers/README.md)
 
 ## Contributing
 
