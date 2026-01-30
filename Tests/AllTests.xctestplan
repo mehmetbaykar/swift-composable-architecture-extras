@@ -24,6 +24,14 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "ScreenAwakeTests",
+        "name" : "ScreenAwakeTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "FilterTests",
         "name" : "FilterTests"
       }
