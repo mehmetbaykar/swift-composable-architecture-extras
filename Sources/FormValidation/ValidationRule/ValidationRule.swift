@@ -34,8 +34,9 @@ public struct ValidationRule<Value> {
 
   /// Creates a new validation rule with the placeholder replaced by the actual field name.
   ///
-  /// This is called automatically by `FieldValidation` when the rule's error message
-  /// contains the `fieldNamePlaceholder` constant.
+  /// This method is called on all rules by `FieldValidation` during initialization.
+  /// If the error message contains the `fieldNamePlaceholder` constant, it will be
+  /// replaced with the provided field name. Rules without the placeholder remain unchanged.
   ///
   /// - Parameter fieldName: The formatted field name to inject into the error message
   /// - Returns: A new `ValidationRule` with the field name substituted in the error message

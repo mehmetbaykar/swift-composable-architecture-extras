@@ -220,6 +220,81 @@ struct ValidationRuleTests {
       #expect(rule.errorMessage == "Selection should not be empty")
     }
   }
+
+  @Suite("Auto Field Name Rules Validation Logic")
+  struct AutoFieldNameRulesValidationLogicTests {
+
+    @Test func `nonEmpty auto rule validates correctly`() {
+      let rule: ValidationRule<String> = .nonEmpty()
+
+      #expect(rule.validate("something") == true)
+      #expect(rule.validate("") == false)
+    }
+
+    @Test func `greaterOrEqual auto rule validates correctly`() {
+      let rule: ValidationRule<Int> = .greaterOrEqual(to: 18)
+
+      #expect(rule.validate(18) == true)
+      #expect(rule.validate(19) == true)
+      #expect(rule.validate(17) == false)
+    }
+
+    @Test func `isEqual auto rule validates correctly`() {
+      let rule: ValidationRule<String> = .isEqual(to: "expected")
+
+      #expect(rule.validate("expected") == true)
+      #expect(rule.validate("different") == false)
+    }
+
+    @Test func `nonOptional auto rule validates correctly`() {
+      let rule: ValidationRule<Int?> = .nonOptional()
+
+      #expect(rule.validate(10) == true)
+      #expect(rule.validate(nil) == false)
+    }
+
+    @Test func `auto rules behave identically to explicit rules - nonEmpty`() {
+      let autoRule: ValidationRule<String> = .nonEmpty()
+      let explicitRule: ValidationRule<String> = .nonEmpty(fieldName: "Test")
+
+      let testValues = ["", "a", "test", "   "]
+
+      for value in testValues {
+        #expect(
+          autoRule.validate(value) == explicitRule.validate(value),
+          "Validation differs for value: '\(value)'"
+        )
+      }
+    }
+
+    @Test func `auto rules behave identically to explicit rules - greaterOrEqual`() {
+      let autoRule: ValidationRule<Int> = .greaterOrEqual(to: 10)
+      let explicitRule: ValidationRule<Int> = .greaterOrEqual(to: 10, fieldName: "Test")
+
+      let testValues = [0, 5, 9, 10, 11, 100]
+
+      for value in testValues {
+        #expect(
+          autoRule.validate(value) == explicitRule.validate(value),
+          "Validation differs for value: \(value)"
+        )
+      }
+    }
+
+    @Test func `auto rules behave identically to explicit rules - isEqual`() {
+      let autoRule: ValidationRule<Int> = .isEqual(to: 42)
+      let explicitRule: ValidationRule<Int> = .isEqual(to: 42, fieldName: "Test")
+
+      let testValues = [0, 41, 42, 43, 100]
+
+      for value in testValues {
+        #expect(
+          autoRule.validate(value) == explicitRule.validate(value),
+          "Validation differs for value: \(value)"
+        )
+      }
+    }
+  }
 }
 
 private func assertFailure<Value>(for rule: ValidationRule<Value>, with value: Value) {

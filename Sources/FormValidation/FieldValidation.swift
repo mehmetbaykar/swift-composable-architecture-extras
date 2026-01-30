@@ -13,7 +13,9 @@ public struct FieldValidation<State> {
   ) {
     self.binding = binding
 
-    // Extract field name and enrich rules that contain the placeholder
+    // Extract field name from keypath and enrich all rules.
+    // Rules containing the fieldNamePlaceholder will have it replaced with the actual name.
+    // Rules without the placeholder remain unchanged.
     let fieldName = extractFieldName(from: field)
     let enrichedRules = rules.map { rule in
       rule.withFieldName(fieldName)
