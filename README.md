@@ -18,6 +18,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [FormValidation](#formvalidation)
   - [Haptics](#haptics)
   - [Printers](#printers)
+  - [ScreenAwake](#screenawake)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -135,6 +136,19 @@ Reduce { state, action in
 ```
 
 [Full documentation](Sources/Printers/README.md)
+
+### ScreenAwake
+
+Prevents device screen from auto-locking during specific app states. Works across iOS, tvOS, macOS, and watchOS with platform-appropriate implementations.
+
+```swift
+Reduce { state, action in
+  // Business logic
+}
+.screenAwake(when: \.isPlaying)
+```
+
+[Full documentation](Sources/ScreenAwake/README.md)
 
 ## Contributing
 

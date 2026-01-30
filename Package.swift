@@ -16,6 +16,8 @@ let package = Package(
   targets: [
     .tcaTarget(name: "Analytics"),
     .tcaTestTarget(for: "Analytics"),
+    .tcaTarget(name: "ScreenAwake"),
+    .tcaTestTarget(for: "ScreenAwake"),
     .tcaTarget(name: "Filter"),
     .tcaTestTarget(for: "Filter"),
     .tcaTarget(name: "FormValidation"),
@@ -63,6 +65,7 @@ extension PackageDescription.Product {
       name: name,
       targets: [
         "Analytics",
+        "ScreenAwake",
         "Filter",
         "FormValidation",
         "Haptics",
