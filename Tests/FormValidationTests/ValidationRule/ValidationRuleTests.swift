@@ -130,6 +130,96 @@ struct ValidationRuleTests {
       assertFailure(for: rule, with: nil)
     }
   }
+
+  @Suite("WithFieldName")
+  struct WithFieldNameTests {
+
+    @Test func `replaces placeholder with field name`() {
+      let rule: ValidationRule<String> = .init(
+        error: "\(fieldNamePlaceholder) should not be empty",
+        validation: { !$0.isEmpty }
+      )
+
+      let enrichedRule = rule.withFieldName("Email")
+
+      #expect(enrichedRule.errorMessage == "Email should not be empty")
+    }
+
+    @Test func `leaves error unchanged when no placeholder present`() {
+      let rule: ValidationRule<String> = .init(
+        error: "Custom error message",
+        validation: { !$0.isEmpty }
+      )
+
+      let enrichedRule = rule.withFieldName("Email")
+
+      #expect(enrichedRule.errorMessage == "Custom error message")
+    }
+
+    @Test func `preserves validation logic after enrichment`() {
+      let rule: ValidationRule<String> = .init(
+        error: "\(fieldNamePlaceholder) error",
+        validation: { $0.count >= 3 }
+      )
+
+      let enrichedRule = rule.withFieldName("Name")
+
+      #expect(enrichedRule.validate("ab") == false)
+      #expect(enrichedRule.validate("abc") == true)
+    }
+  }
+
+  @Suite("Auto Field Name Rules")
+  struct AutoFieldNameRulesTests {
+
+    @Test func `nonEmpty auto rule has placeholder`() {
+      let rule: ValidationRule<String> = .nonEmpty()
+
+      #expect(rule.errorMessage.contains(fieldNamePlaceholder))
+    }
+
+    @Test func `greaterOrEqual auto rule has placeholder`() {
+      let rule: ValidationRule<Int> = .greaterOrEqual(to: 18)
+
+      #expect(rule.errorMessage.contains(fieldNamePlaceholder))
+    }
+
+    @Test func `isEqual auto rule has placeholder`() {
+      let rule: ValidationRule<String> = .isEqual(to: "test")
+
+      #expect(rule.errorMessage.contains(fieldNamePlaceholder))
+    }
+
+    @Test func `nonOptional auto rule has placeholder`() {
+      let rule: ValidationRule<String?> = .nonOptional()
+
+      #expect(rule.errorMessage.contains(fieldNamePlaceholder))
+    }
+
+    @Test func `enriched nonEmpty rule generates correct message`() {
+      let rule: ValidationRule<String> = .nonEmpty().withFieldName("Email")
+
+      #expect(rule.errorMessage == "Email should not be empty")
+    }
+
+    @Test func `enriched greaterOrEqual rule generates correct message`() {
+      let rule: ValidationRule<Int> = .greaterOrEqual(to: 18).withFieldName("Age")
+
+      #expect(rule.errorMessage == "Age should be greater or equal to 18")
+    }
+
+    @Test func `enriched isEqual rule generates correct message`() {
+      let rule: ValidationRule<String> = .isEqual(to: "US").withFieldName("Country")
+
+      #expect(rule.errorMessage == "Country should be US")
+    }
+
+    @Test func `enriched nonOptional rule generates correct message`() {
+      let rule: ValidationRule<String?> = .nonOptional().withFieldName("Selection")
+
+      #expect(rule.errorMessage == "Selection should not be empty")
+    }
+  }
 }
 
 private func assertFailure<Value>(for rule: ValidationRule<Value>, with value: Value) {

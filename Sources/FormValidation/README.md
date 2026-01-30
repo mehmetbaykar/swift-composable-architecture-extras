@@ -31,7 +31,7 @@ struct LoginReducer {
         FieldValidation(
           field: \.email,
           errorState: \.emailError,
-          rules: [.nonEmpty(fieldName: "Email")]
+          rules: [.nonEmpty()]  // Field name auto-derived: "Email should not be empty"
         )
       ]
     )
@@ -61,7 +61,7 @@ struct State: Equatable {
 FieldValidation(
   field: \.username,
   errorState: \.usernameError,
-  rules: [.nonEmpty(fieldName: "Username")]
+  rules: [.nonEmpty()]  // Auto: "Username should not be empty"
 )
 ```
 
@@ -78,7 +78,7 @@ struct State: Equatable {
 
 FieldValidation(
   field: \.username,
-  rules: [.nonEmpty(fieldName: "Username")]
+  rules: [.nonEmpty()]  // Auto: "Username should not be empty"
 )
 ```
 
@@ -88,13 +88,18 @@ Supported literal types: `String`, `Int`, `Double`, `Bool`.
 
 ### Built-in Rules
 
+All built-in rules support **automatic field name extraction** from the keypath. The field name is derived from the property name and formatted for display (e.g., `\.userEmail` → "User Email").
+
 #### nonEmpty
 
 Validates that a collection is not empty.
 
 ```swift
-// Default message: "Username should not be empty"
-.nonEmpty(fieldName: "Username")
+// Auto field name (recommended): Error derived from keypath
+.nonEmpty()  // "Username should not be empty" for \.username
+
+// Explicit field name: Override the auto-derived name
+.nonEmpty(fieldName: "Email Address")  // "Email Address should not be empty"
 ```
 
 #### length
@@ -102,7 +107,7 @@ Validates that a collection is not empty.
 Validates minimum length of a collection.
 
 ```swift
-// Custom message required
+// Custom message required (no auto field name)
 .length(min: 8, error: "Password must be at least 8 characters")
 ```
 
@@ -111,8 +116,11 @@ Validates minimum length of a collection.
 Validates that a comparable value meets a minimum threshold.
 
 ```swift
-// Default message: "Age should be greater or equal to 18"
-.greaterOrEqual(to: 18, fieldName: "Age")
+// Auto field name: Error derived from keypath
+.greaterOrEqual(to: 18)  // "Age should be greater or equal to 18" for \.age
+
+// Explicit field name
+.greaterOrEqual(to: 18, fieldName: "Your Age")
 ```
 
 #### isEqual
@@ -120,7 +128,10 @@ Validates that a comparable value meets a minimum threshold.
 Validates exact equality.
 
 ```swift
-// Default message: "Country should be US"
+// Auto field name
+.isEqual(to: "US")  // "Country should be US" for \.country
+
+// Explicit field name
 .isEqual(to: "US", fieldName: "Country")
 
 // Custom message
@@ -132,7 +143,10 @@ Validates exact equality.
 Validates that an optional value is not nil.
 
 ```swift
-// Custom message required
+// Auto field name
+.nonOptional()  // "Selection should not be empty" for \.selection
+
+// Custom message
 .nonOptional("Please select an option")
 ```
 
@@ -157,7 +171,31 @@ extension ValidationRule where Value == String {
 FieldValidation(
   field: \.email,
   errorState: \.emailError,
-  rules: [.nonEmpty(fieldName: "Email"), .validEmail]
+  rules: [.nonEmpty(), .validEmail]
+)
+```
+
+### Custom Rules with Auto Field Name
+
+You can create custom rules that also support automatic field name injection using the `fieldNamePlaceholder` constant:
+
+```swift
+extension ValidationRule where Value == String {
+  static func matchesPattern(_ pattern: String) -> Self {
+    .init(
+      error: "\(fieldNamePlaceholder) has an invalid format",
+      validation: { value in
+        value.range(of: pattern, options: .regularExpression) != nil
+      }
+    )
+  }
+}
+
+// Usage - field name will be injected automatically
+FieldValidation(
+  field: \.postalCode,
+  errorState: \.postalCodeError,
+  rules: [.matchesPattern(#"^\d{5}$"#)]  // "Postal Code has an invalid format"
 )
 ```
 
@@ -166,6 +204,7 @@ FieldValidation(
 - **On binding change**: Only the changed field is validated
 - **On submit**: All fields are validated
 - **Multiple rules**: First failing rule's error is shown
+- **Auto field name**: The field name is extracted from the keypath and formatted (camelCase → "Title Case")
 
 ## Full Example
 
@@ -205,28 +244,28 @@ struct RegistrationReducer {
           field: \.email,
           errorState: \.emailError,
           rules: [
-            .nonEmpty(fieldName: "Email"),
+            .nonEmpty(),  // "Email should not be empty"
             .validEmail
           ]
         ),
         FieldValidation(
           field: \.password,
           rules: [
-            .nonEmpty(fieldName: "Password"),
+            .nonEmpty(),  // "Password should not be empty"
             .length(min: 8, error: "Password must be at least 8 characters")
           ]
         ),
         FieldValidation(
           field: \.age,
           rules: [
-            .greaterOrEqual(to: 18, fieldName: "Age")
+            .greaterOrEqual(to: 18)  // "Age should be greater or equal to 18"
           ]
         ),
         FieldValidation(
           field: \.selectedCountry,
           errorState: \.countryError,
           rules: [
-            .nonOptional("Please select a country")
+            .nonOptional()  // "Selected Country should not be empty"
           ]
         )
       ]

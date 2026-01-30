@@ -13,9 +13,15 @@ public struct FieldValidation<State> {
   ) {
     self.binding = binding
 
+    // Extract field name and enrich rules that contain the placeholder
+    let fieldName = extractFieldName(from: field)
+    let enrichedRules = rules.map { rule in
+      rule.withFieldName(fieldName)
+    }
+
     self._validate = { state in
       let value = state[keyPath: field]
-      let validationError = rules.validate(value)
+      let validationError = enrichedRules.validate(value)
 
       state[keyPath: errorState] = validationError
 
