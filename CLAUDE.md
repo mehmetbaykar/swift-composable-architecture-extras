@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing form validation utilities for TCA applications. Includes `FormValidation` module with declarative field validation rules and reducer integration.
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns and utilities for TCA applications. Includes 6 modules: **Analytics** (event tracking), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **Printers** (debug output), and **ScreenAwake** (display management).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -12,95 +12,298 @@ Swift Composable Architecture Extras - A Swift Package providing form validation
 - Clean: `swift package clean`
 <!-- END AUTO-MANAGED -->
 
+## Package Configuration
+<!-- AUTO-MANAGED: package-config -->
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 6 modules)
+- **TCA Version**: 1.23.1+ (< 2.0.0)
+- **Swift Version**: 6.0+
+- **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
+<!-- END AUTO-MANAGED -->
+
 ## Architecture
 <!-- AUTO-MANAGED: architecture -->
 ```
 Sources/
-├── FormValidation/          # Core form validation module
-│   ├── Export.swift
+├── Analytics/               # Event tracking with declarative result builder syntax
+│   ├── Dependency/          # AnalyticsClient, AnyAnalyticsClient (type-erased wrapper)
+│   ├── Reducer/             # AnalyticsReducer, OnChangeAnalyticsReducer
+│   └── ResultBuilder/       # AnalyticsEventBuilder for declarative event mapping
+│
+├── Filter/                  # Conditional reducer execution based on predicates
+│   └── Reducer/
+│       └── FilterReducer.swift
+│
+├── FormValidation/          # Declarative form validation with automatic error management
 │   ├── FieldValidation.swift
 │   ├── FormValidationReducer.swift
 │   ├── Extensions/
 │   ├── ValidatableField/
 │   └── ValidationRule/
-└── Filter/                  # Additional utilities
+│
+├── Haptics/                 # Universal haptic feedback across all Apple platforms
+│   ├── Dependency/          # FeedbackGeneratorClient, HapticFeedback enum
+│   └── Reducer/             # HapticsReducer (.haptics modifier)
+│
+├── Printers/                # Debug printing with customizable filtering and formatting
+│   ├── ActionFilter.swift   # Composable filter combinators (.all, .not, .anyOf, .allExcept)
+│   └── Printers/            # PrettyPrinter, JSONPrinter, Internal/ utilities
+│
+└── ScreenAwake/             # Prevent screen auto-lock during specific states
+    ├── Dependency/          # DeviceScreenAwake (platform-specific implementations)
+    └── Reducer/             # ScreenAwakeReducer (.screenAwake modifier)
 
 Tests/
-└── FormValidationTests/
-    ├── FieldValidation/
-    │   └── FieldValidationTests.swift    # Unit tests for FieldValidation core logic
-    ├── Reducer/
-    │   ├── TestReducer.swift             # Test fixture reducer
-    │   ├── IntFieldTests.swift           # IntField validation tests
-    │   ├── StringFieldTests.swift        # StringField validation tests
-    │   └── SubmitFlowTests.swift         # Form submission flow tests
-    └── ValidationRule/
+├── AllTests.xctestplan     # 6 parallel test targets
+├── AnalyticsTests/         # Provider tests (Firebase, Amplitude), reducer tests, builder tests
+├── FilterTests/            # Reducer integration tests
+├── FormValidationTests/    # Unit + integration tests for validation
+├── HapticsTests/           # Platform-specific haptic feedback tests
+├── PrintersTests/          # PrettyPrinter, ActionFilter tests
+└── ScreenAwakeTests/       # Trigger behavior, call sequence tests
+```
+<!-- END AUTO-MANAGED -->
+
+## Module Reference
+<!-- AUTO-MANAGED: modules -->
+
+### Analytics
+**Purpose**: Provider-agnostic event tracking with declarative result builder syntax
+
+**Key Features**:
+- Two reducer strategies: action-based (`AnalyticsReducer`) and state-change tracking (`OnChangeAnalyticsReducer`)
+- Result builder for declarative event generation with loops and conditionals
+- Multi-provider support via `merge()` and type-erased `AnyAnalyticsClient`
+- Built-in providers: `.consoleLogger()`, `.noop()`
+
+**Usage Pattern**:
+```swift
+AnalyticsReducerOf<Self, AppEvent> { state, action in
+  switch action {
+  case .viewAppeared: .screenViewed(name: "Home")
+  case .checkout:
+    AppEvent.buttonClicked(id: "checkout")
+    AppEvent.purchase(productId: state.id)
+  }
+}
+```
+
+### Filter
+**Purpose**: Conditional reducer execution based on state/action predicates
+
+**Usage Pattern**:
+```swift
+Reduce { state, action in ... }
+  .filter { state, action in state.isFeatureEnabled }
+```
+
+### FormValidation
+**Purpose**: Declarative form validation with automatic error state management
+
+**Key Features**:
+- `FieldValidation`: Coordinates validation for fields with rules
+- `FormValidationReducer`: TCA integration with binding-triggered validation
+- `ValidatableField<T>`: Optional wrapper combining value + error state
+- Built-in rules: `.nonEmpty()`, `.length(min:)`, `.greaterOrEqual()`, `.isEqual()`, `.nonOptional()`
+
+**Usage Pattern**:
+```swift
+FormValidationReducer(
+  submitAction: \.submit,
+  onFormValidatedAction: .success,
+  validations: [
+    FieldValidation(field: \.email, errorState: \.emailError, rules: [.nonEmpty(fieldName: "Email")])
+  ]
+)
+```
+
+### Haptics
+**Purpose**: State-triggered haptic feedback across all Apple platforms
+
+**Platform Support**:
+- iOS: 9 feedback types (success, warning, error, 5 impact styles, selection)
+- macOS: 3 types (alignment, levelChange, generic)
+- watchOS: 9 types (notification, directions, etc.)
+- tvOS: no-op
+
+**Usage Pattern**:
+```swift
+Reduce { state, action in ... }
+  .haptics(.selection, triggerOnChangeOf: \.selectedTab)
+  .haptics(.impactMedium(), triggerOnChangeOf: \.count, isEnabled: \.isHapticsEnabled)
+```
+
+### Printers
+**Purpose**: Debug printing with customizable action filtering and formatted output
+
+**Key Features**:
+- `PrettyPrinter`: Box-drawing console output with diff visualization
+- `JSONPrinter`: Single-line JSON for log aggregation
+- `ActionFilter`: Composable combinators (`.all`, `.not()`, `.anyOf()`, `.allExcept()`)
+- Debouncing support to prevent console spam
+
+**Usage Pattern**:
+```swift
+Reduce { state, action in ... }
+  ._printChanges(.prettyConsole(
+    allowedActions: .allExcept(.init { if case .binding = $0 { true } else { false } }),
+    showTimestamp: true
+  ))
+```
+
+### ScreenAwake
+**Purpose**: Prevent device screen auto-locking during specific app states
+
+**Platform Implementations**:
+- iOS/tvOS: `UIApplication.shared.isIdleTimerDisabled`
+- macOS: `IOPMAssertionCreateWithName` (IOKit power assertions)
+- watchOS: no-op (not supported)
+
+**Usage Pattern**:
+```swift
+Reduce { state, action in ... }
+  .screenAwake(when: \.isPlaying)
 ```
 <!-- END AUTO-MANAGED -->
 
 ## Testing Patterns
 <!-- AUTO-MANAGED: patterns -->
+
 ### Test Organization
-- **FieldValidation tests**: Unit tests for `FieldValidation` struct validation logic without TCA integration
-- **Reducer tests**: Integration tests using `TestStore` with `FormValidationReducer` and TCA bindings
-- Tests organized by validation rule type using `@Suite` attributes
-- Each suite targets a specific field type (IntField, StringField) or flow (SubmitFlow)
-- Nested suites group related validation rule tests
+- **6 parallel test targets** in `AllTests.xctestplan`
+- **Unit tests**: Direct validation testing without TCA overhead (e.g., `FieldValidation/`)
+- **Integration tests**: `TestStore`-based reducer testing with `@MainActor` isolation
+- **Nested `@Suite`** attributes for hierarchical test grouping
+- Each module has `Reducer/TestReducer.swift` fixture
 
-### Test Structure
-- **Unit tests** (`FieldValidation/`): Direct validation testing with mutable state and `validate()` calls
-- **Integration tests** (`Reducer/`): TCA integration testing marked `@MainActor`
-- Use `TestStore` with initial state and reducer for integration tests
-- Test state mutations using trailing closure syntax: `await store.send(.action) { $0.field = value }`
-- Verify validation errors set on binding changes
-- Verify error clearing when valid values provided
+### TestStore Patterns
+```swift
+// Standard setup
+let store = TestStore(initialState: State(), reducer: Reducer.init)
 
-### FieldValidation Unit Testing
-- Tests `FieldValidation.validate(state:)` directly without reducer overhead
-- Successful validation sets error to nil and returns true
-- Failed validation sets first failing rule error and returns false
-- Uses custom test helpers: `.alwaysTrue()` and `.alwaysFalse(withID:)`
+// With dependency injection
+let store = TestStore(initialState: State()) {
+  Reducer()
+} withDependencies: {
+  $0.feedbackGenerator = collector.client
+}
 
-### Validation Rule Testing
-- **GreaterOrEqualRule**: Tests boundary conditions (below, equal, above threshold)
-- **LengthRule**: Tests minimum length validation with string boundaries
-- **IsEqualRule**: Tests exact string matching
-- **ErrorTransitions**: Tests sequential validation rule application
+// State mutation assertions
+await store.send(.action) {
+  $0.field = value
+  $0.error = "Expected error"
+}
 
-### Submit Flow Testing
-- Tests form submission with invalid fields (shows all errors, no effect)
-- Tests partial validation (shows remaining errors)
-- Tests successful validation (clears errors, emits success action with `await store.receive(\.formValidationSucceed)`)
+// Effect reception
+await store.receive(\.formValidationSucceed)
+```
 
-### Common Test Fixture
-- `TestReducer` provides consistent test setup with:
-  - `stringField` and `intField` state
-  - `stringFieldError` and `intFieldError` optional error strings
-  - `FormValidationReducer` integration with multiple `FieldValidation` rules
-  - Success action: `.formValidationSucceed`
+### Mock/Recording Patterns
+Thread-safe collectors for dependency verification:
+- `EventCollector` (Analytics): Tracks analytics events
+- `FeedbackCollector` (Haptics): Records generated/prepared haptic feedback
+- `RecordingDeviceScreenAwake` (ScreenAwake): Tracks enable/disable calls
+
+**Pattern**:
+```swift
+@MainActor
+final class RecordingDependency: Sendable {
+  enum Call: Equatable, Sendable { case enable, case disable }
+  nonisolated(unsafe) var calls: [Call] = []
+
+  var dependency: DependencyType { ... }
+}
+```
+
+### Platform-Specific Testing
+```swift
+#if os(iOS)
+  #expect(collector.feedbacks == [.selection])
+#elseif os(macOS)
+  #expect(collector.feedbacks == [.alignment])
+#elseif os(watchOS)
+  #expect(collector.feedbacks == [.watchClick])
+#endif
+```
+
+### FormValidation-Specific Testing
+- **FieldValidation tests**: Direct `validate(state:)` testing
+- **Validation rules**: Boundary tests (below, equal, above threshold)
+- **Submit flow**: Invalid → partial → fully valid progression
+- **Test helpers**: `.alwaysTrue()` and `.alwaysFalse(withID:)` rules
 <!-- END AUTO-MANAGED -->
 
 ## Conventions
 <!-- AUTO-MANAGED: conventions -->
+
 ### Imports
-- `import FormValidation` for unit tests (FieldValidation tests)
-- `import ComposableArchitecture` for TCA integration tests (Reducer tests)
+- `import ComposableArchitecture` for TCA integration tests
 - `import Testing` for Swift Testing framework
-- `@testable import FormValidation` for test fixtures only (TestReducer)
+- `@testable import ModuleName` for test fixtures only
 
 ### Test Naming
-- Test function names use backticks for natural language descriptions
+- Backtick natural language: `` `binding with value below 18 shows error` ``
 - Format: `` `action with condition shows/clears expected result` ``
-- Examples: `` `binding with value below 18 shows error` ``, `` `submit with all valid fields clears errors and emits success` ``
 
-### Error Messages
-- Error messages specific to validation rule and field
-- Format: "[Field] should be [condition]" or "[Rule] error"
-- Examples: "Intfield should be greater or equal to 18", "Min length error"
+### Reducer Modifier Pattern
+All modules provide chainable reducer modifiers:
+```swift
+extension Reducer {
+  public func moduleName(...) -> some ReducerOf<Self> {
+    _InternalReducer(base: self, ...)
+  }
+}
+```
+
+### Dependency Pattern
+```swift
+@DependencyClient
+public struct Client: Sendable {
+  public var method: @Sendable () async -> Void
+}
+
+extension Client: DependencyKey {
+  public static var liveValue: Client { ... }
+}
+
+extension DependencyValues {
+  public var client: Client { ... }
+}
+```
+
+### Error Messages (FormValidation)
+- Format: "[Field] should be [condition]" or custom message
+- Examples: "Email should not be empty", "Age should be greater or equal to 18"
+<!-- END AUTO-MANAGED -->
+
+## TCA Integration Conventions
+<!-- AUTO-MANAGED: tca-conventions -->
+
+### Reducer Structure
+- Use `@Reducer` macro for all reducer definitions
+- Implement `var body: some ReducerOf<Self>` for composition
+- Order: `BindingReducer()` → feature logic → utility reducers (filter, haptics, etc.)
+
+### State and Actions
+- Mark state with `@ObservableState` and `Equatable`
+- Use `BindableAction` protocol for form-like features
+- Leverage `CaseKeyPath` for action routing
+
+### Effects
+- `.none`: Pure state changes
+- `.run { }`: Async side effects with dependency capture
+- `.send(action)`: Immediate action emission
+- Capture dependencies: `return .run { [dependency] _ in ... }`
+
+### Performance
+- Mark public API with `@inlinable` for composition performance
+- Use `@usableFromInline` for internal helpers crossed module boundaries
 <!-- END AUTO-MANAGED -->
 
 ## Dependencies
 <!-- AUTO-MANAGED: dependencies -->
-- **ComposableArchitecture** (v1.23.1+): Core TCA framework for reducer composition and state management
-- **Swift Testing**: Native Swift testing framework for test organization and execution
+- **ComposableArchitecture** (v1.23.1+): Core TCA framework
+- **Dependencies** / **DependenciesMacros**: Dependency injection (via TCA)
+- **XCTestDynamicOverlay**: Test doubles (via TCA)
+- **CustomDump**: Diff visualization in Printers module (via TCA)
+- **Swift Testing**: Native Swift testing framework
 <!-- END AUTO-MANAGED -->
