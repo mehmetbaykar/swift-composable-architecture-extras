@@ -10,10 +10,11 @@ let package = Package(
     .watchOS(.v6),
   ],
   products: [
-    .singleLibraryForAllTargets(name: "ComposableArchitectureExtras")
+    .singleUmbrellaLibrary(name: "ComposableArchitectureExtras")
   ],
   dependencies: [.tca()],
   targets: [
+    .umbrellaTarget(name: "ComposableArchitectureExtras"),
     .tcaTarget(name: "Analytics"),
     .tcaTestTarget(for: "Analytics"),
     .tcaTarget(name: "ScreenAwake"),
@@ -30,6 +31,21 @@ let package = Package(
 )
 
 extension PackageDescription.Target {
+
+  static func umbrellaTarget(name: String) -> PackageDescription.Target {
+    return .target(
+      name: name,
+      dependencies: [
+        "Analytics",
+        "Filter",
+        "FormValidation",
+        "Haptics",
+        "Printers",
+        "ScreenAwake",
+      ]
+    )
+  }
+
   static func tcaTarget(name: String) -> PackageDescription.Target {
     let tcaTargetDependencies: Target.Dependency = .product(
       name: "ComposableArchitecture",
@@ -60,16 +76,11 @@ extension Package.Dependency {
 }
 
 extension PackageDescription.Product {
-  static func singleLibraryForAllTargets(name: String) -> PackageDescription.Product {
+  static func singleUmbrellaLibrary(name: String) -> PackageDescription.Product {
     return .library(
       name: name,
       targets: [
-        "Analytics",
-        "ScreenAwake",
-        "Filter",
-        "FormValidation",
-        "Haptics",
-        "Printers",
+        name
       ])
   }
 }
