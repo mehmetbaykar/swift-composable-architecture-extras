@@ -26,16 +26,24 @@ public struct AnyAnalyticsClient: Sendable {
 
 extension AnyAnalyticsClient: DependencyKey {
   public static var liveValue: Self {
-    .init(send: { _ in })
+    .init(send: { _ in
+      unimplemented(
+        "AnyAnalyticsClient.send - You must provide your own analytics client implementation.")
+    })
   }
 
   public static var testValue: Self {
     .init(send: { _ in
-      XCTestDynamicOverlay.XCTFail("Unimplemented: \(Self.self).send")
+      unimplemented(
+        "Unimplemented: \(Self.self).send")
     })
   }
 
   public static var previewValue: Self {
+    .console
+  }
+
+  public static var console: Self {
     .init(send: { event in
       #if DEBUG
         print("[Analytics] \(event)")
