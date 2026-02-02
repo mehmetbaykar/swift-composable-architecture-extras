@@ -37,6 +37,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Skip Macro Validation
+        run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
+
       - uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
@@ -45,11 +48,11 @@ jobs:
 
       - name: Build
         run: |
+          set -o pipefail
           xcodebuild build \
-            -scheme swift-composable-architecture-extras \
+            -scheme ComposableArchitectureExtras \
             -destination '${{ matrix.destination }}' \
-            -skipPackagePluginValidation \
-            | xcpretty || true
+            | xcpretty
 
   test:
     name: Test (${{ matrix.platform }})
@@ -71,6 +74,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Skip Macro Validation
+        run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
+
       - uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
@@ -79,8 +85,8 @@ jobs:
 
       - name: Run tests
         run: |
+          set -o pipefail
           xcodebuild test \
-            -scheme swift-composable-architecture-extras \
+            -scheme ComposableArchitectureExtras \
             -destination '${{ matrix.destination }}' \
-            -skipPackagePluginValidation \
-            | xcpretty || true
+            | xcpretty
