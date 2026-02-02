@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns and utilities for TCA applications. Includes 6 modules: **Analytics** (event tracking), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **Printers** (debug output), and **ScreenAwake** (display management).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns and utilities for TCA applications. Includes 7 modules: **Analytics** (event tracking), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,7 +14,7 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 6 modules)
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 7 modules)
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
 - **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
@@ -48,18 +48,24 @@ Sources/
 │   ├── ActionFilter.swift   # Composable filter combinators (.all, .not, .anyOf, .allExcept)
 │   └── Printers/            # PrettyPrinter, JSONPrinter, Internal/ utilities
 │
-└── ScreenAwake/             # Prevent screen auto-lock during specific states
-    ├── Dependency/          # DeviceScreenAwake (platform-specific implementations)
-    └── Reducer/             # ScreenAwakeReducer (.screenAwake modifier)
+├── ScreenAwake/             # Prevent screen auto-lock during specific states
+│   ├── Dependency/          # DeviceScreenAwake (platform-specific implementations)
+│   └── Reducer/             # ScreenAwakeReducer (.screenAwake modifier)
+│
+└── ScreenBrightness/        # State-triggered screen brightness control
+    ├── Dependency/          # ScreenBrightnessClient (iOS-only, others no-op)
+    ├── Model/               # BrightnessLevel enum
+    └── Reducer/             # ScreenBrightnessReducer (.screenBrightness modifier)
 
 Tests/
-├── AllTests.xctestplan     # 6 parallel test targets
+├── AllTests.xctestplan     # 7 parallel test targets
 ├── AnalyticsTests/         # Provider tests (Firebase, Amplitude), reducer tests, builder tests
 ├── FilterTests/            # Reducer integration tests
 ├── FormValidationTests/    # Unit + integration tests for validation
 ├── HapticsTests/           # Platform-specific haptic feedback tests
 ├── PrintersTests/          # PrettyPrinter, ActionFilter tests
-└── ScreenAwakeTests/       # Trigger behavior, call sequence tests
+├── ScreenAwakeTests/       # Trigger behavior, call sequence tests
+└── ScreenBrightnessTests/  # Brightness level, reducer trigger tests
 ```
 <!-- END AUTO-MANAGED -->
 
@@ -163,13 +169,31 @@ Reduce { state, action in ... }
 Reduce { state, action in ... }
   .screenAwake(when: \.isPlaying)
 ```
+
+### ScreenBrightness
+**Purpose**: State-triggered screen brightness control with automatic restoration
+
+**Platform Support**:
+- iOS: Full support via `UIScreen.main.brightness`
+- macOS/watchOS/tvOS: no-op (no public APIs exist)
+
+**Key Features**:
+- `BrightnessLevel`: Preset levels (`.low`, `.medium`, `.high`, `.max`) and `.custom(Double)`
+- `.automatic`: Restores original brightness captured before first change
+- Smart single-shot restoration pattern
+
+**Usage Pattern**:
+```swift
+Reduce { state, action in ... }
+  .screenBrightness(level: \.brightnessLevel)
+```
 <!-- END AUTO-MANAGED -->
 
 ## Testing Patterns
 <!-- AUTO-MANAGED: patterns -->
 
 ### Test Organization
-- **6 parallel test targets** in `AllTests.xctestplan`
+- **7 parallel test targets** in `AllTests.xctestplan`
 - **Unit tests**: Direct validation testing without TCA overhead (e.g., `FieldValidation/`)
 - **Integration tests**: `TestStore`-based reducer testing with `@MainActor` isolation
 - **Nested `@Suite`** attributes for hierarchical test grouping
@@ -202,6 +226,7 @@ Thread-safe collectors for dependency verification:
 - `EventCollector` (Analytics): Tracks analytics events
 - `FeedbackCollector` (Haptics): Records generated/prepared haptic feedback
 - `RecordingDeviceScreenAwake` (ScreenAwake): Tracks enable/disable calls
+- `RecordingScreenBrightnessClient` (ScreenBrightness): Tracks brightness level changes
 
 **Pattern**:
 ```swift
