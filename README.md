@@ -19,6 +19,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [Haptics](#haptics)
   - [Printers](#printers)
   - [ScreenAwake](#screenawake)
+  - [ScreenBrightness](#screenbrightness)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -149,6 +150,21 @@ Reduce { state, action in
 ```
 
 [Full documentation](Sources/ScreenAwake/README.md)
+
+### ScreenBrightness
+
+State-triggered screen brightness control for TCA applications. Automatically adjusts screen brightness based on state changes with smart restoration to original brightness.
+
+```swift
+Reduce { state, action in
+  // Business logic
+}
+.screenBrightness(level: \.brightnessLevel)
+```
+
+> **Platform Support**: iOS only. macOS, watchOS, and tvOS compile but are no-ops (no public brightness APIs exist).
+
+[Full documentation](Sources/ScreenBrightness/README.md)
 
 ## Star History
 
