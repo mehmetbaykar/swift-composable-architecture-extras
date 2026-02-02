@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: |
           xcodebuild build \
-            -scheme ComposableArchitectureExtras \
+            -scheme swift-composable-architecture-extras \
             -destination '${{ matrix.destination }}' \
             -skipPackagePluginValidation \
             | xcpretty || true
@@ -80,8 +80,7 @@ jobs:
       - name: Run tests
         run: |
           xcodebuild test \
-            -scheme AllTests \
-            -testPlan AllTests \
+            -scheme swift-composable-architecture-extras \
             -destination '${{ matrix.destination }}' \
             -skipPackagePluginValidation \
             | xcpretty || true
