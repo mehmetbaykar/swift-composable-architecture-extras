@@ -258,6 +258,8 @@ struct MyApp: App {
 }
 ```
 
+> **Note**: If you don't register a client, events are silently discarded (noop). In tests, unregistered usage triggers `XCTFail`. In SwiftUI previews, events print to console.
+
 ## Built-in Providers
 
 - `consoleLogger()` – Prints events in DEBUG builds
