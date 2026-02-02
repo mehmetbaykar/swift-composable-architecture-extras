@@ -59,6 +59,14 @@
         "identifier" : "PrintersTests",
         "name" : "PrintersTests"
       }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ScreenBrightnessTests",
+        "name" : "ScreenBrightnessTests"
+      }
     }
   ],
   "version" : 1
