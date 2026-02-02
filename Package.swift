@@ -17,8 +17,6 @@ let package = Package(
     .umbrellaTarget(name: "ComposableArchitectureExtras"),
     .tcaTarget(name: "Analytics"),
     .tcaTestTarget(for: "Analytics"),
-    .tcaTarget(name: "ScreenAwake"),
-    .tcaTestTarget(for: "ScreenAwake"),
     .tcaTarget(name: "Filter"),
     .tcaTestTarget(for: "Filter"),
     .tcaTarget(name: "FormValidation"),
@@ -27,6 +25,10 @@ let package = Package(
     .tcaTestTarget(for: "Haptics"),
     .tcaTarget(name: "Printers"),
     .tcaTestTarget(for: "Printers"),
+    .tcaTarget(name: "ScreenAwake"),
+    .tcaTestTarget(for: "ScreenAwake"),
+    .tcaTarget(name: "ScreenBrightness"),
+    .tcaTestTarget(for: "ScreenBrightness"),
   ]
 )
 
@@ -42,6 +44,7 @@ extension PackageDescription.Target {
         "Haptics",
         "Printers",
         "ScreenAwake",
+        "ScreenBrightness",
       ]
     )
   }
@@ -79,8 +82,7 @@ extension PackageDescription.Product {
   static func singleUmbrellaLibrary(name: String) -> PackageDescription.Product {
     return .library(
       name: name,
-      targets: [
-        name
-      ])
+      targets: [name]
+    )
   }
 }
