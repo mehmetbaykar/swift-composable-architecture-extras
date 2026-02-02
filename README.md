@@ -150,6 +150,10 @@ Reduce { state, action in
 
 [Full documentation](Sources/ScreenAwake/README.md)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=mehmetbaykar/swift-composable-architecture-extras&type=date&legend=top-left)](https://www.star-history.com/#mehmetbaykar/swift-composable-architecture-extras&type=date&legend=top-left)
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
