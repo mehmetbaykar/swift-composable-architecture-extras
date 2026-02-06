@@ -4,3 +4,4 @@
 @_exported import Haptics
 @_exported import Printers
 @_exported import ScreenAwake
+@_exported import ScreenBrightness

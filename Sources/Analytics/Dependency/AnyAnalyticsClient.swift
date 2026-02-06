@@ -24,14 +24,7 @@ public struct AnyAnalyticsClient: Sendable {
   }
 }
 
-extension AnyAnalyticsClient: DependencyKey {
-  public static var liveValue: Self {
-    .init(send: { _ in
-      unimplemented(
-        "AnyAnalyticsClient.send - You must provide your own analytics client implementation.")
-    })
-  }
-
+extension AnyAnalyticsClient: TestDependencyKey {
   public static var testValue: Self {
     .init(send: { _ in
       unimplemented(

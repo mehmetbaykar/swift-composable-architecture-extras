@@ -258,7 +258,7 @@ struct MyApp: App {
 }
 ```
 
-> **Note**: If you don't register a client, events are silently discarded (noop). In tests, unregistered usage triggers `XCTFail`. In SwiftUI previews, events print to console.
+> **Note**: If you don't register a live client for similator or real device, you will receive the purple warning from swift-dependencies library.
 
 ## Built-in Providers
 

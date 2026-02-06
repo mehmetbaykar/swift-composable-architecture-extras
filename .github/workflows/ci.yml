@@ -23,27 +23,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - iOS
-          - macOS
-          - watchOS
+        platform: [iOS, macOS, tvOS, watchOS]
         include:
           - platform: iOS
             destination: "platform=iOS Simulator,name=iPhone 17,OS=latest"
           - platform: macOS
             destination: "platform=macOS"
+          - platform: tvOS
+            destination: "platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest"
           - platform: watchOS
             destination: "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm),OS=latest"
     steps:
       - uses: actions/checkout@v6
 
-      - name: Skip Macro Validation
-        run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
-
       - uses: actions/cache@v5
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-build-${{ matrix.platform }}-${{ hashFiles('**/Sources/**/*.swift') }}
+          key: deriveddata-build-${{ matrix.platform }}-${{ hashFiles('**/Sources/**/*.swift', '**/Tests/**/*.swift') }}
           restore-keys: deriveddata-build-${{ matrix.platform }}-
 
       - name: Build
@@ -52,6 +48,7 @@ jobs:
           xcodebuild build \
             -scheme ComposableArchitectureExtras \
             -destination '${{ matrix.destination }}' \
+            -skipMacroValidation \
             | xcpretty
 
   test:
@@ -60,22 +57,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - iOS
-          - macOS
-          - watchOS
+        platform: [iOS, macOS, tvOS, watchOS]
         include:
           - platform: iOS
             destination: "platform=iOS Simulator,name=iPhone 17,OS=latest"
           - platform: macOS
             destination: "platform=macOS"
+          - platform: tvOS
+            destination: "platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest"
           - platform: watchOS
             destination: "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm),OS=latest"
     steps:
       - uses: actions/checkout@v6
-
-      - name: Skip Macro Validation
-        run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
 
       - uses: actions/cache@v5
         with:
@@ -83,10 +76,11 @@ jobs:
           key: deriveddata-test-${{ matrix.platform }}-${{ hashFiles('**/Sources/**/*.swift', '**/Tests/**/*.swift') }}
           restore-keys: deriveddata-test-${{ matrix.platform }}-
 
-      - name: Run tests
+      - name: Test
         run: |
           set -o pipefail
           xcodebuild test \
-            -scheme ComposableArchitectureExtras \
+            -scheme AllTests \
             -destination '${{ matrix.destination }}' \
+            -skipMacroValidation \
             | xcpretty
