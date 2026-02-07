@@ -14,12 +14,12 @@ struct AppInfoClientTests {
     @Test func `custom implementation returns expected values`() {
       let client = AppInfoClient(
         appVersion: { "2.0.0" },
-        buildNumber: { "42" },
+        buildNumber: { 42 },
         bundleIdentifier: { "com.example.app" }
       )
 
       #expect(client.appVersion() == "2.0.0")
-      #expect(client.buildNumber() == "42")
+      #expect(client.buildNumber() == 42)
       #expect(client.bundleIdentifier() == "com.example.app")
     }
 
@@ -27,7 +27,7 @@ struct AppInfoClientTests {
       let client = AppInfoClient.noop
 
       #expect(client.appVersion() == "")
-      #expect(client.buildNumber() == "")
+      #expect(client.buildNumber() == 0)
       #expect(client.bundleIdentifier() == nil)
     }
   }
@@ -40,14 +40,14 @@ struct AppInfoClientTests {
       withDependencies {
         $0.appInfo = AppInfoClient(
           appVersion: { "1.5.0" },
-          buildNumber: { "100" },
+          buildNumber: { 100 },
           bundleIdentifier: { "com.test.bundle" }
         )
       } operation: {
         @Dependency(\.appInfo) var appInfo
 
         #expect(appInfo.appVersion() == "1.5.0")
-        #expect(appInfo.buildNumber() == "100")
+        #expect(appInfo.buildNumber() == 100)
         #expect(appInfo.bundleIdentifier() == "com.test.bundle")
       }
     }
@@ -59,7 +59,7 @@ struct AppInfoClientTests {
         @Dependency(\.appInfo) var appInfo
 
         #expect(appInfo.appVersion() == "")
-        #expect(appInfo.buildNumber() == "")
+        #expect(appInfo.buildNumber() == 0)
         #expect(appInfo.bundleIdentifier() == nil)
       }
     }
