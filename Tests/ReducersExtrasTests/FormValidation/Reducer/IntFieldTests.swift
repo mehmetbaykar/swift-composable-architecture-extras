@@ -11,8 +11,8 @@ struct IntFieldTests {
 
     @Test func `binding with value below 18 shows error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(),
-        reducer: TestReducer.init
+        initialState: FormValidationTestReducer.State(),
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.intField, 17)) {
@@ -23,13 +23,13 @@ struct IntFieldTests {
 
     @Test func `binding with value exactly 18 clears error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(
+        initialState: FormValidationTestReducer.State(
           stringField: "",
           intField: 0,
           stringFieldError: nil,
           intFieldError: "Intfield should be greater or equal to 18"
         ),
-        reducer: TestReducer.init
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.intField, 18)) {
@@ -40,13 +40,13 @@ struct IntFieldTests {
 
     @Test func `binding with value above 18 clears error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(
+        initialState: FormValidationTestReducer.State(
           stringField: "",
           intField: 0,
           stringFieldError: nil,
           intFieldError: "Intfield should be greater or equal to 18"
         ),
-        reducer: TestReducer.init
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.intField, 21)) {
@@ -57,13 +57,13 @@ struct IntFieldTests {
 
     @Test func `submit with zero shows age error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(
+        initialState: FormValidationTestReducer.State(
           stringField: "Test1",
           intField: 0,
           stringFieldError: nil,
           intFieldError: nil
         ),
-        reducer: TestReducer.init
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.submitForm) {

@@ -3,7 +3,7 @@ import ComposableArchitecture
 @testable import ScreenBrightness
 
 @Reducer
-struct TestFeature {
+struct ScreenBrightnessTestFeature {
   @ObservableState
   struct State: Equatable {
     var brightnessLevel: BrightnessLevel = .automatic

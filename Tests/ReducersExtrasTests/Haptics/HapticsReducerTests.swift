@@ -16,8 +16,8 @@
       func hapticTriggersOnChange() async {
         let collector = FeedbackCollector()
 
-        let store = TestStore(initialState: TestReducer.State()) {
-          TestReducer()
+        let store = TestStore(initialState: HapticsTestReducer.State()) {
+          HapticsTestReducer()
         } withDependencies: {
           $0.feedbackGenerator = collector.client
         }
@@ -40,8 +40,8 @@
       func noHapticWhenUnchanged() async {
         let collector = FeedbackCollector()
 
-        let store = TestStore(initialState: TestReducer.State(selectedIndex: 5)) {
-          TestReducer()
+        let store = TestStore(initialState: HapticsTestReducer.State(selectedIndex: 5)) {
+          HapticsTestReducer()
         } withDependencies: {
           $0.feedbackGenerator = collector.client
         }
@@ -60,8 +60,8 @@
       func hapticBlockedWhenDisabled() async {
         let collector = FeedbackCollector()
 
-        let store = TestStore(initialState: TestReducer.State(isHapticsEnabled: false)) {
-          TestReducer()
+        let store = TestStore(initialState: HapticsTestReducer.State(isHapticsEnabled: false)) {
+          HapticsTestReducer()
         } withDependencies: {
           $0.feedbackGenerator = collector.client
         }
@@ -78,8 +78,8 @@
       func hapticTriggersWhenEnabled() async {
         let collector = FeedbackCollector()
 
-        let store = TestStore(initialState: TestReducer.State(isHapticsEnabled: true)) {
-          TestReducer()
+        let store = TestStore(initialState: HapticsTestReducer.State(isHapticsEnabled: true)) {
+          HapticsTestReducer()
         } withDependencies: {
           $0.feedbackGenerator = collector.client
         }
@@ -102,8 +102,8 @@
       func hapticBehaviorChangesWithEnabledState() async {
         let collector = FeedbackCollector()
 
-        let store = TestStore(initialState: TestReducer.State(isHapticsEnabled: true)) {
-          TestReducer()
+        let store = TestStore(initialState: HapticsTestReducer.State(isHapticsEnabled: true)) {
+          HapticsTestReducer()
         } withDependencies: {
           $0.feedbackGenerator = collector.client
         }
@@ -133,8 +133,8 @@
       func multipleChainedHaptics() async {
         let collector = FeedbackCollector()
 
-        let store = TestStore(initialState: TestReducer.State()) {
-          TestReducer()
+        let store = TestStore(initialState: HapticsTestReducer.State()) {
+          HapticsTestReducer()
         } withDependencies: {
           $0.feedbackGenerator = collector.client
         }

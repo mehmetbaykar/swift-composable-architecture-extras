@@ -11,8 +11,8 @@ struct StringFieldTests {
 
     @Test func `binding with string shorter than 5 characters shows length error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(),
-        reducer: TestReducer.init
+        initialState: FormValidationTestReducer.State(),
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.stringField, "test")) {
@@ -23,8 +23,8 @@ struct StringFieldTests {
 
     @Test func `binding with string exactly 5 characters passes length rule`() async {
       let store = TestStore(
-        initialState: TestReducer.State(),
-        reducer: TestReducer.init
+        initialState: FormValidationTestReducer.State(),
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.stringField, "tests")) {
@@ -35,13 +35,13 @@ struct StringFieldTests {
 
     @Test func `submit with empty string shows length error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(
+        initialState: FormValidationTestReducer.State(
           stringField: "",
           intField: 18,
           stringFieldError: nil,
           intFieldError: nil
         ),
-        reducer: TestReducer.init
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.submitForm) {
@@ -56,8 +56,8 @@ struct StringFieldTests {
 
     @Test func `binding with string passing length but not equal shows isEqual error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(),
-        reducer: TestReducer.init
+        initialState: FormValidationTestReducer.State(),
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.stringField, "wrong")) {
@@ -68,13 +68,13 @@ struct StringFieldTests {
 
     @Test func `binding with exact match Test1 clears error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(
+        initialState: FormValidationTestReducer.State(
           stringField: "",
           intField: 0,
           stringFieldError: "Min length error",
           intFieldError: nil
         ),
-        reducer: TestReducer.init
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.stringField, "Test1")) {
@@ -85,13 +85,13 @@ struct StringFieldTests {
 
     @Test func `submit with wrong value shows isEqual error`() async {
       let store = TestStore(
-        initialState: TestReducer.State(
+        initialState: FormValidationTestReducer.State(
           stringField: "wrong",
           intField: 18,
           stringFieldError: nil,
           intFieldError: nil
         ),
-        reducer: TestReducer.init
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.submitForm) {
@@ -106,8 +106,8 @@ struct StringFieldTests {
 
     @Test func `error transitions from length to isEqual to cleared`() async {
       let store = TestStore(
-        initialState: TestReducer.State(),
-        reducer: TestReducer.init
+        initialState: FormValidationTestReducer.State(),
+        reducer: FormValidationTestReducer.init
       )
 
       await store.send(.set(\.stringField, "ab")) {
