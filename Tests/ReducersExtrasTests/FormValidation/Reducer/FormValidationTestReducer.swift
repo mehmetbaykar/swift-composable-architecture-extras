@@ -3,7 +3,7 @@ import ComposableArchitecture
 @testable import FormValidation
 
 @Reducer
-struct TestReducer {
+struct FormValidationTestReducer {
   @ObservableState
   struct State: Equatable {
     var stringField = ""
@@ -33,7 +33,7 @@ struct TestReducer {
   }
 }
 
-extension FieldValidation where State == TestReducer.State {
+extension FieldValidation where State == FormValidationTestReducer.State {
   static var minLength5: FieldValidation {
     FieldValidation(
       field: \.stringField,

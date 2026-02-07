@@ -16,56 +16,16 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "AnalyticsTests",
-        "name" : "AnalyticsTests"
+        "identifier" : "DependenciesExtrasTests",
+        "name" : "DependenciesExtrasTests"
       }
     },
     {
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "ScreenAwakeTests",
-        "name" : "ScreenAwakeTests"
-      }
-    },
-    {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "FilterTests",
-        "name" : "FilterTests"
-      }
-    },
-    {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "FormValidationTests",
-        "name" : "FormValidationTests"
-      }
-    },
-    {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "HapticsTests",
-        "name" : "HapticsTests"
-      }
-    },
-    {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "PrintersTests",
-        "name" : "PrintersTests"
-      }
-    },
-    {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "ScreenBrightnessTests",
-        "name" : "ScreenBrightnessTests"
+        "identifier" : "ReducersExtrasTests",
+        "name" : "ReducersExtrasTests"
       }
     }
   ],

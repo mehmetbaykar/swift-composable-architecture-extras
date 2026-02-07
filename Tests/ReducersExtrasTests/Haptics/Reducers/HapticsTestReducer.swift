@@ -4,7 +4,7 @@
   @testable import Haptics
 
   @Reducer
-  struct TestReducer {
+  struct HapticsTestReducer {
     @ObservableState
     struct State: Equatable {
       var selectedIndex: Int = 0

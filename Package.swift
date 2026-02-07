@@ -14,29 +14,37 @@ let package = Package(
   ],
   dependencies: [.tca()],
   targets: [
-    .umbrellaTarget(name: "ComposableArchitectureExtras"),
+    .mainUmbrellaTarget(),
+    .reducersUmbrellaTarget(),
+    .umbrellaTestTarget(for: "ReducersExtras"),
+    .dependenciesUmbrellaTarget(),
+    .umbrellaTestTarget(for: "DependenciesExtras"),
     .tcaTarget(name: "Analytics"),
-    .tcaTestTarget(for: "Analytics"),
+    .tcaTarget(name: "AppInfo"),
     .tcaTarget(name: "Filter"),
-    .tcaTestTarget(for: "Filter"),
     .tcaTarget(name: "FormValidation"),
-    .tcaTestTarget(for: "FormValidation"),
     .tcaTarget(name: "Haptics"),
-    .tcaTestTarget(for: "Haptics"),
     .tcaTarget(name: "Printers"),
-    .tcaTestTarget(for: "Printers"),
     .tcaTarget(name: "ScreenAwake"),
-    .tcaTestTarget(for: "ScreenAwake"),
     .tcaTarget(name: "ScreenBrightness"),
-    .tcaTestTarget(for: "ScreenBrightness"),
   ]
 )
 
 extension PackageDescription.Target {
 
-  static func umbrellaTarget(name: String) -> PackageDescription.Target {
+  static func mainUmbrellaTarget() -> PackageDescription.Target {
     return .target(
-      name: name,
+      name: "ComposableArchitectureExtras",
+      dependencies: [
+        "ReducersExtras",
+        "DependenciesExtras",
+      ]
+    )
+  }
+
+  static func reducersUmbrellaTarget() -> PackageDescription.Target {
+    return .target(
+      name: "ReducersExtras",
       dependencies: [
         "Analytics",
         "Filter",
@@ -45,6 +53,15 @@ extension PackageDescription.Target {
         "Printers",
         "ScreenAwake",
         "ScreenBrightness",
+      ]
+    )
+  }
+
+  static func dependenciesUmbrellaTarget() -> PackageDescription.Target {
+    return .target(
+      name: "DependenciesExtras",
+      dependencies: [
+        "AppInfo"
       ]
     )
   }
@@ -62,12 +79,13 @@ extension PackageDescription.Target {
     )
   }
 
-  static func tcaTestTarget(for target: String) -> PackageDescription.Target {
+  static func umbrellaTestTarget(for target: String) -> PackageDescription.Target {
     return .testTarget(
       name: "\(target)Tests",
       dependencies: [.target(name: target)]
     )
   }
+
 }
 
 extension Package.Dependency {

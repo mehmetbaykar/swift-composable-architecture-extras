@@ -4,7 +4,7 @@ import Testing
 @testable import ScreenAwake
 
 @Reducer
-private struct TestFeature {
+private struct ScreenAwakeTestFeature {
   @ObservableState
   struct State: Equatable {
     var isPlaying = false
@@ -42,8 +42,8 @@ struct ScreenAwakeReducerTests {
       let recorder = RecordingDeviceScreenAwake()
 
       let store = TestStore(
-        initialState: TestFeature.State(isPlaying: false),
-        reducer: TestFeature.init
+        initialState: ScreenAwakeTestFeature.State(isPlaying: false),
+        reducer: ScreenAwakeTestFeature.init
       ) {
         $0.deviceScreenAwake = recorder.dependency
       }
@@ -59,8 +59,8 @@ struct ScreenAwakeReducerTests {
       let recorder = RecordingDeviceScreenAwake()
 
       let store = TestStore(
-        initialState: TestFeature.State(isPlaying: true),
-        reducer: TestFeature.init
+        initialState: ScreenAwakeTestFeature.State(isPlaying: true),
+        reducer: ScreenAwakeTestFeature.init
       ) {
         $0.deviceScreenAwake = recorder.dependency
       }
@@ -76,8 +76,8 @@ struct ScreenAwakeReducerTests {
       let recorder = RecordingDeviceScreenAwake()
 
       let store = TestStore(
-        initialState: TestFeature.State(isPlaying: false),
-        reducer: TestFeature.init
+        initialState: ScreenAwakeTestFeature.State(isPlaying: false),
+        reducer: ScreenAwakeTestFeature.init
       ) {
         $0.deviceScreenAwake = recorder.dependency
       }
@@ -91,8 +91,8 @@ struct ScreenAwakeReducerTests {
       let recorder = RecordingDeviceScreenAwake()
 
       let store = TestStore(
-        initialState: TestFeature.State(isPlaying: true),
-        reducer: TestFeature.init
+        initialState: ScreenAwakeTestFeature.State(isPlaying: true),
+        reducer: ScreenAwakeTestFeature.init
       ) {
         $0.deviceScreenAwake = recorder.dependency
       }
@@ -111,8 +111,8 @@ struct ScreenAwakeReducerTests {
       let recorder = RecordingDeviceScreenAwake()
 
       let store = TestStore(
-        initialState: TestFeature.State(isPlaying: false),
-        reducer: TestFeature.init
+        initialState: ScreenAwakeTestFeature.State(isPlaying: false),
+        reducer: ScreenAwakeTestFeature.init
       ) {
         $0.deviceScreenAwake = recorder.dependency
       }
@@ -128,8 +128,8 @@ struct ScreenAwakeReducerTests {
       let recorder = RecordingDeviceScreenAwake()
 
       let store = TestStore(
-        initialState: TestFeature.State(isPlaying: false),
-        reducer: TestFeature.init
+        initialState: ScreenAwakeTestFeature.State(isPlaying: false),
+        reducer: ScreenAwakeTestFeature.init
       ) {
         $0.deviceScreenAwake = recorder.dependency
       }

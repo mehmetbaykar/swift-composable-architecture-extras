@@ -15,8 +15,8 @@ struct ScreenBrightnessReducerTests {
       let recorder = RecordingScreenBrightnessClient()
 
       let store = TestStore(
-        initialState: TestFeature.State(),
-        reducer: TestFeature.init
+        initialState: ScreenBrightnessTestFeature.State(),
+        reducer: ScreenBrightnessTestFeature.init
       ) {
         $0.screenBrightness = recorder.client
       }
@@ -32,8 +32,8 @@ struct ScreenBrightnessReducerTests {
       let recorder = RecordingScreenBrightnessClient()
 
       let store = TestStore(
-        initialState: TestFeature.State(brightnessLevel: .high),
-        reducer: TestFeature.init
+        initialState: ScreenBrightnessTestFeature.State(brightnessLevel: .high),
+        reducer: ScreenBrightnessTestFeature.init
       ) {
         $0.screenBrightness = recorder.client
       }
@@ -49,8 +49,8 @@ struct ScreenBrightnessReducerTests {
       let recorder = RecordingScreenBrightnessClient()
 
       let store = TestStore(
-        initialState: TestFeature.State(brightnessLevel: .max),
-        reducer: TestFeature.init
+        initialState: ScreenBrightnessTestFeature.State(brightnessLevel: .max),
+        reducer: ScreenBrightnessTestFeature.init
       ) {
         $0.screenBrightness = recorder.client
       }
@@ -64,8 +64,8 @@ struct ScreenBrightnessReducerTests {
       let recorder = RecordingScreenBrightnessClient()
 
       let store = TestStore(
-        initialState: TestFeature.State(),
-        reducer: TestFeature.init
+        initialState: ScreenBrightnessTestFeature.State(),
+        reducer: ScreenBrightnessTestFeature.init
       ) {
         $0.screenBrightness = recorder.client
       }
@@ -86,8 +86,8 @@ struct ScreenBrightnessReducerTests {
       let recorder = RecordingScreenBrightnessClient()
 
       let store = TestStore(
-        initialState: TestFeature.State(),
-        reducer: TestFeature.init
+        initialState: ScreenBrightnessTestFeature.State(),
+        reducer: ScreenBrightnessTestFeature.init
       ) {
         $0.screenBrightness = recorder.client
       }
@@ -104,8 +104,8 @@ struct ScreenBrightnessReducerTests {
       let recorder = RecordingScreenBrightnessClient()
 
       let store = TestStore(
-        initialState: TestFeature.State(),
-        reducer: TestFeature.init
+        initialState: ScreenBrightnessTestFeature.State(),
+        reducer: ScreenBrightnessTestFeature.init
       ) {
         $0.screenBrightness = recorder.client
       }
