@@ -142,18 +142,22 @@ public struct FeedbackGeneratorClient: Sendable {
 
 extension FeedbackGeneratorClient {
   public static func consoleLogger(prefix: String = "[Haptics]") -> Self {
-    Self(
-      prepare: { feedback in
-        #if DEBUG
-          print("\(prefix) prepare: \(feedback)")
-        #endif
-      },
-      generate: { feedback in
-        #if DEBUG
-          print("\(prefix) generate: \(feedback)")
-        #endif
-      }
-    )
+    #if os(tvOS)
+      return .noop()
+    #else
+      return Self(
+        prepare: { feedback in
+          #if DEBUG
+            print("\(prefix) prepare: \(feedback)")
+          #endif
+        },
+        generate: { feedback in
+          #if DEBUG
+            print("\(prefix) generate: \(feedback)")
+          #endif
+        }
+      )
+    #endif
   }
 
   public static func noop() -> Self {
@@ -166,14 +170,21 @@ extension FeedbackGeneratorClient {
 
 extension FeedbackGeneratorClient: TestDependencyKey {
   public static var testValue: Self {
-    Self(
-      prepare: { _ in
-        XCTFail("Unimplemented: FeedbackGeneratorClient.prepare")
-      },
-      generate: { _ in
-        XCTFail("Unimplemented: FeedbackGeneratorClient.generate")
-      }
-    )
+    #if os(tvOS)
+      Self(
+        prepare: { _ in },
+        generate: { _ in }
+      )
+    #else
+      Self(
+        prepare: { _ in
+          XCTFail("Unimplemented: FeedbackGeneratorClient.prepare")
+        },
+        generate: { _ in
+          XCTFail("Unimplemented: FeedbackGeneratorClient.generate")
+        }
+      )
+    #endif
   }
 
   public static var previewValue: Self {
