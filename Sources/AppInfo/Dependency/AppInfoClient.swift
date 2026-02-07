@@ -5,7 +5,7 @@ import Foundation
 @DependencyClient
 public struct AppInfoClient: Sendable {
   public var appVersion: @Sendable () -> String = { "" }
-  public var buildNumber: @Sendable () -> String = { "" }
+  public var buildNumber: @Sendable () -> Int = { 0 }
   public var bundleIdentifier: @Sendable () -> String? = { nil }
 }
 
@@ -21,7 +21,7 @@ extension AppInfoClient: TestDependencyKey {
   public static var noop: AppInfoClient {
     .init(
       appVersion: { "" },
-      buildNumber: { "" },
+      buildNumber: { 0 },
       bundleIdentifier: { nil }
     )
   }
@@ -29,15 +29,23 @@ extension AppInfoClient: TestDependencyKey {
 
 extension AppInfoClient: DependencyKey {
   public static var liveValue: AppInfoClient {
-    AppInfoClient(
+    .bundle(.main)
+  }
+
+  public static func bundle(_ bundle: Bundle) -> AppInfoClient {
+    let get: @Sendable (String) -> String = {
+      bundle.object(forInfoDictionaryKey: $0) as? String ?? ""
+    }
+
+    return .init(
       appVersion: {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        get("CFBundleShortVersionString")
       },
       buildNumber: {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        Int(get("CFBundleVersion")) ?? 0
       },
       bundleIdentifier: {
-        Bundle.main.bundleIdentifier
+        get("CFBundleIdentifier")
       }
     )
   }

@@ -16,7 +16,7 @@ struct DependenciesExtrasTests {
     withDependencies {
       $0.appInfo = AppInfoClient(
         appVersion: { "1.0.0" },
-        buildNumber: { "1" },
+        buildNumber: { 1 },
         bundleIdentifier: { "com.test" }
       )
     } operation: {

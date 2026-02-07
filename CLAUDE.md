@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns and utilities for TCA applications. Includes 7 modules: **Analytics** (event tracking), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 8 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,7 +14,8 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 7 modules)
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 8 modules)
+- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules)
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
 - **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
@@ -24,10 +25,21 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 <!-- AUTO-MANAGED: architecture -->
 ```
 Sources/
+├── ComposableArchitectureExtras/  # Main umbrella (@_exported import ReducersExtras + DependenciesExtras)
+│
+├── ReducersExtras/                # Internal umbrella for reducer modules
+│   └── ReducersExtras.swift       # @_exported imports all 7 reducer modules
+│
+├── DependenciesExtras/            # Internal umbrella for dependency-only modules
+│   └── DependenciesExtras.swift   # @_exported imports AppInfo
+│
 ├── Analytics/               # Event tracking with declarative result builder syntax
 │   ├── Dependency/          # AnalyticsClient, AnyAnalyticsClient (type-erased wrapper)
 │   ├── Reducer/             # AnalyticsReducer, OnChangeAnalyticsReducer
 │   └── ResultBuilder/       # AnalyticsEventBuilder for declarative event mapping
+│
+├── AppInfo/                 # App bundle metadata (version, build, bundle ID)
+│   └── Dependency/          # AppInfoClient (reads from Bundle.main)
 │
 ├── Filter/                  # Conditional reducer execution based on predicates
 │   └── Reducer/
@@ -58,19 +70,41 @@ Sources/
     └── Reducer/             # ScreenBrightnessReducer (.screenBrightness modifier)
 
 Tests/
-├── AllTests.xctestplan     # 7 parallel test targets
-├── AnalyticsTests/         # Provider tests (Firebase, Amplitude), reducer tests, builder tests
-├── FilterTests/            # Reducer integration tests
-├── FormValidationTests/    # Unit + integration tests for validation
-├── HapticsTests/           # Platform-specific haptic feedback tests
-├── PrintersTests/          # PrettyPrinter, ActionFilter tests
-├── ScreenAwakeTests/       # Trigger behavior, call sequence tests
-└── ScreenBrightnessTests/  # Brightness level, reducer trigger tests
+├── AllTests.xctestplan              # 2 umbrella test targets
+├── ReducersExtrasTests/             # All reducer module tests + umbrella verification
+│   ├── ReducersExtrasTests.swift    # Umbrella re-export verification
+│   ├── Analytics/                   # Provider tests (Firebase, Amplitude), reducer, builder
+│   ├── Filter/                      # Reducer integration tests
+│   ├── FormValidation/              # Unit + integration tests for validation
+│   ├── Haptics/                     # Platform-specific haptic feedback tests
+│   ├── Printers/                    # PrettyPrinter, ActionFilter tests
+│   ├── ScreenAwake/                 # Trigger behavior, call sequence tests
+│   └── ScreenBrightness/            # Brightness level, reducer trigger tests
+└── DependenciesExtrasTests/         # All dependency module tests + umbrella verification
+    ├── DependenciesExtrasTests.swift # Umbrella re-export + withDependencies tests
+    └── AppInfo/                     # Client tests, withDependencies integration tests
 ```
 <!-- END AUTO-MANAGED -->
 
 ## Module Reference
 <!-- AUTO-MANAGED: modules -->
+
+### AppInfo
+**Purpose**: Testable access to app bundle metadata (version, build number, bundle identifier)
+
+**Key Features**:
+- `AppInfoClient`: Dependency client reading from `Bundle.main.infoDictionary`
+- Three properties: `appVersion` (CFBundleShortVersionString), `buildNumber` (CFBundleVersion), `bundleIdentifier`
+- `.noop` static for previews and tests returning empty/nil defaults
+
+**Usage Pattern**:
+```swift
+@Dependency(\.appInfo) var appInfo
+
+let version = appInfo.appVersion()
+let build = appInfo.buildNumber()
+let bundleId = appInfo.bundleIdentifier()
+```
 
 ### Analytics
 **Purpose**: Provider-agnostic event tracking with declarative result builder syntax
@@ -193,7 +227,7 @@ Reduce { state, action in ... }
 <!-- AUTO-MANAGED: patterns -->
 
 ### Test Organization
-- **7 parallel test targets** in `AllTests.xctestplan`
+- **2 umbrella test targets** in `AllTests.xctestplan` (ReducersExtrasTests, DependenciesExtrasTests)
 - **Unit tests**: Direct validation testing without TCA overhead (e.g., `FieldValidation/`)
 - **Integration tests**: `TestStore`-based reducer testing with `@MainActor` isolation
 - **Nested `@Suite`** attributes for hierarchical test grouping
@@ -331,4 +365,21 @@ extension DependencyValues {
 - **XCTestDynamicOverlay**: Test doubles (via TCA)
 - **CustomDump**: Diff visualization in Printers module (via TCA)
 - **Swift Testing**: Native Swift testing framework
+<!-- END AUTO-MANAGED -->
+
+## CI Configuration
+<!-- AUTO-MANAGED: ci-config -->
+GitHub Actions workflow at `.github/workflows/ci.yml`:
+
+- **Runner**: `macos-26` (Xcode 26)
+- **Jobs**: Separate `build` and `test` jobs
+- **Platforms**: iOS, macOS, tvOS, watchOS
+- **Simulators**: iPhone 17, Apple TV 4K (3rd generation), Apple Watch Series 11 (46mm)
+- **Actions**: `actions/checkout@v6`, `actions/cache@v5`
+- **Schemes**: `ComposableArchitectureExtras` (build job, library-only) and `AllTests` (test job, references `AllTests.xctestplan` with 2 umbrella test targets)
+
+### Critical CI Patterns
+- **Macro validation**: Use `-skipMacroValidation` xcodebuild flag
+- **Failure detection**: Use `set -o pipefail` before xcodebuild piped to xcpretty
+- **NEVER use `|| true`**: This masks all failures and CI will always pass
 <!-- END AUTO-MANAGED -->
