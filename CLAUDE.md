@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 8 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 9 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,8 +14,8 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 8 modules)
-- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules)
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 9 modules)
+- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, OpenSettings)
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
 - **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
@@ -66,10 +66,13 @@ Sources/
 │
 └── Dependencies/                  # Grouping directory (NOT a target)
     ├── DependenciesExtras/        # Internal umbrella for dependency-only modules
-    │   └── DependenciesExtras.swift # @_exported imports AppInfo
+    │   └── DependenciesExtras.swift # @_exported imports AppInfo + OpenSettings
     │
-    └── AppInfo/                   # App bundle metadata (version, build, bundle ID)
-        └── Dependency/            # AppInfoClient (reads from Bundle.main)
+    ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
+    │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
+    │
+    └── OpenSettings/              # System settings navigation (cross-platform)
+        └── Dependency/            # OpenSettingsClient (platform-specific implementations)
 
 Tests/
 ├── AllTests.xctestplan              # 2 umbrella test targets
@@ -86,7 +89,8 @@ Tests/
 └── Dependencies/
     └── DependenciesExtrasTests/         # All dependency module tests + umbrella verification
         ├── DependenciesExtrasTests.swift # Umbrella re-export + withDependencies tests
-        └── AppInfo/                     # Client tests, withDependencies integration tests
+        ├── AppInfo/                     # Client tests, withDependencies integration tests
+        └── OpenSettings/                # Client tests, withDependencies integration tests
 ```
 <!-- END AUTO-MANAGED -->
 
@@ -108,6 +112,27 @@ Tests/
 let version = appInfo.appVersion()
 let build = appInfo.buildNumber()
 let bundleId = appInfo.bundleIdentifier()
+```
+
+### OpenSettings
+**Purpose**: Cross-platform system settings navigation with testable dependency
+
+**Key Features**:
+- `OpenSettingsClient`: Dependency client with platform-specific `SettingsType` enum
+- Platform-conditional cases: `.general` (iOS, macOS, tvOS, visionOS), `.notifications` (iOS, macOS, visionOS)
+- iOS/visionOS: `UIApplication.openSettingsURLString`, tvOS: same, macOS: `NSWorkspace` URL schemes
+- Not available on watchOS (no API exists, module compiles empty)
+- `.noop` static for previews and tests
+
+**Usage Pattern**:
+```swift
+@Dependency(\.openSettings) var openSettings
+
+await openSettings.open(.general)
+
+#if os(iOS) || os(macOS) || os(visionOS)
+await openSettings.open(.notifications)
+#endif
 ```
 
 ### Analytics
@@ -297,6 +322,11 @@ final class RecordingDependency: Sendable {
 
 ## Conventions
 <!-- AUTO-MANAGED: conventions -->
+
+### Comments
+- **No `// MARK:` or explanatory comments** unless the code cannot explain itself
+- Code structure (extensions, `#if os(...)` blocks) should be self-documenting
+- No trailing comments on `#endif` unless nesting makes it genuinely ambiguous
 
 ### Imports
 - `import ComposableArchitecture` for TCA integration tests
