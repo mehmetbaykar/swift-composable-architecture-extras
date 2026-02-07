@@ -12,7 +12,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
 - [Philosophy](#philosophy)
 - [Installation](#installation)
 - [Requirements](#requirements)
-- [Modules](#modules)
+- [Reducer Modules](#reducer-modules)
   - [Analytics](#analytics)
   - [Filter](#filter)
   - [FormValidation](#formvalidation)
@@ -20,6 +20,8 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [Printers](#printers)
   - [ScreenAwake](#screenawake)
   - [ScreenBrightness](#screenbrightness)
+- [Dependency Modules](#dependency-modules)
+  - [AppInfo](#appinfo)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -60,7 +62,7 @@ Then add the product to your target:
 | Swift | 6.0+ |
 | TCA | 1.23.1+ |
 
-## Modules
+## Reducer Modules
 
 ### Analytics
 
@@ -75,7 +77,7 @@ AnalyticsReducerOf<Self, AppEvent> { state, action in
 }
 ```
 
-[Full documentation](Sources/Analytics/README.md)
+[Full documentation](Sources/Reducers/Analytics/README.md)
 
 ### Filter
 
@@ -90,7 +92,7 @@ Reduce { state, action in
 }
 ```
 
-[Full documentation](Sources/Filter/README.md)
+[Full documentation](Sources/Reducers/Filter/README.md)
 
 ### FormValidation
 
@@ -106,7 +108,7 @@ FormValidationReducer(
 )
 ```
 
-[Full documentation](Sources/FormValidation/README.md)
+[Full documentation](Sources/Reducers/FormValidation/README.md)
 
 ### Haptics
 
@@ -120,7 +122,7 @@ Reduce { state, action in
 .haptics(.impactMedium(), triggerOnChangeOf: \.count, isEnabled: \.hapticsEnabled)
 ```
 
-[Full documentation](Sources/Haptics/README.md)
+[Full documentation](Sources/Reducers/Haptics/README.md)
 
 ### Printers
 
@@ -136,7 +138,7 @@ Reduce { state, action in
 ))
 ```
 
-[Full documentation](Sources/Printers/README.md)
+[Full documentation](Sources/Reducers/Printers/README.md)
 
 ### ScreenAwake
 
@@ -149,7 +151,7 @@ Reduce { state, action in
 .screenAwake(when: \.isPlaying)
 ```
 
-[Full documentation](Sources/ScreenAwake/README.md)
+[Full documentation](Sources/Reducers/ScreenAwake/README.md)
 
 ### ScreenBrightness
 
@@ -164,7 +166,23 @@ Reduce { state, action in
 
 > **Platform Support**: iOS only. macOS, watchOS, and tvOS compile but are no-ops (no public brightness APIs exist).
 
-[Full documentation](Sources/ScreenBrightness/README.md)
+[Full documentation](Sources/Reducers/ScreenBrightness/README.md)
+
+## Dependency Modules
+
+### AppInfo
+
+A lightweight TCA dependency for accessing app bundle metadata including version strings, build numbers, and bundle identifiers.
+
+```swift
+@Dependency(\.appInfo) var appInfo
+
+let version = appInfo.appVersion()
+let build = appInfo.buildNumber()
+let bundleId = appInfo.bundleIdentifier()
+```
+
+[Full documentation](Sources/Dependencies/AppInfo/README.md)
 
 ## Star History
 
