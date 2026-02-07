@@ -22,6 +22,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [ScreenBrightness](#screenbrightness)
 - [Dependency Modules](#dependency-modules)
   - [AppInfo](#appinfo)
+  - [OpenSettings](#opensettings)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -183,6 +184,18 @@ let bundleId = appInfo.bundleIdentifier()
 ```
 
 [Full documentation](Sources/Dependencies/AppInfo/README.md)
+
+### OpenSettings
+
+A cross-platform TCA dependency for opening system settings. Platform-specific enum cases ensure consumers only see options their platform supports.
+
+```swift
+@Dependency(\.openSettings) var openSettings
+
+await openSettings.open(.general)
+```
+
+[Full documentation](Sources/Dependencies/OpenSettings/README.md)
 
 ## Star History
 

@@ -7,10 +7,16 @@ import Testing
 struct DependenciesExtrasTests {
 
   @Test func `umbrella re-exports AppInfo module`() {
-    // Verify AppInfoClient is accessible through the umbrella
     let client = AppInfo.AppInfoClient.noop
     _ = client.appVersion()
   }
+
+  #if !os(watchOS)
+    @Test func `umbrella re-exports OpenSettings module`() {
+      let client = OpenSettings.OpenSettingsClient.noop
+      _ = client
+    }
+  #endif
 
   @Test func `dependency is accessible via DependencyValues`() {
     withDependencies {
