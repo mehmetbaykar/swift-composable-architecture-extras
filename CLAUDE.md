@@ -27,62 +27,66 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 Sources/
 ├── ComposableArchitectureExtras/  # Main umbrella (@_exported import ReducersExtras + DependenciesExtras)
 │
-├── ReducersExtras/                # Internal umbrella for reducer modules
-│   └── ReducersExtras.swift       # @_exported imports all 7 reducer modules
+├── Reducers/                      # Grouping directory (NOT a target)
+│   ├── ReducersExtras/            # Internal umbrella for reducer modules
+│   │   └── ReducersExtras.swift   # @_exported imports all 7 reducer modules
+│   │
+│   ├── Analytics/               # Event tracking with declarative result builder syntax
+│   │   ├── Dependency/          # AnalyticsClient, AnyAnalyticsClient (type-erased wrapper)
+│   │   ├── Reducer/             # AnalyticsReducer, OnChangeAnalyticsReducer
+│   │   └── ResultBuilder/       # AnalyticsEventBuilder for declarative event mapping
+│   │
+│   ├── Filter/                  # Conditional reducer execution based on predicates
+│   │   └── Reducer/
+│   │       └── FilterReducer.swift
+│   │
+│   ├── FormValidation/          # Declarative form validation with automatic error management
+│   │   ├── FieldValidation.swift
+│   │   ├── FormValidationReducer.swift
+│   │   ├── Extensions/
+│   │   ├── ValidatableField/
+│   │   └── ValidationRule/
+│   │
+│   ├── Haptics/                 # Universal haptic feedback across all Apple platforms
+│   │   ├── Dependency/          # FeedbackGeneratorClient, HapticFeedback enum
+│   │   └── Reducer/             # HapticsReducer (.haptics modifier)
+│   │
+│   ├── Printers/                # Debug printing with customizable filtering and formatting
+│   │   ├── ActionFilter.swift   # Composable filter combinators (.all, .not, .anyOf, .allExcept)
+│   │   └── Printers/            # PrettyPrinter, JSONPrinter, Internal/ utilities
+│   │
+│   ├── ScreenAwake/             # Prevent screen auto-lock during specific states
+│   │   ├── Dependency/          # DeviceScreenAwake (platform-specific implementations)
+│   │   └── Reducer/             # ScreenAwakeReducer (.screenAwake modifier)
+│   │
+│   └── ScreenBrightness/        # State-triggered screen brightness control
+│       ├── Dependency/          # ScreenBrightnessClient (iOS-only, others no-op)
+│       ├── Model/               # BrightnessLevel enum
+│       └── Reducer/             # ScreenBrightnessReducer (.screenBrightness modifier)
 │
-├── DependenciesExtras/            # Internal umbrella for dependency-only modules
-│   └── DependenciesExtras.swift   # @_exported imports AppInfo
-│
-├── Analytics/               # Event tracking with declarative result builder syntax
-│   ├── Dependency/          # AnalyticsClient, AnyAnalyticsClient (type-erased wrapper)
-│   ├── Reducer/             # AnalyticsReducer, OnChangeAnalyticsReducer
-│   └── ResultBuilder/       # AnalyticsEventBuilder for declarative event mapping
-│
-├── AppInfo/                 # App bundle metadata (version, build, bundle ID)
-│   └── Dependency/          # AppInfoClient (reads from Bundle.main)
-│
-├── Filter/                  # Conditional reducer execution based on predicates
-│   └── Reducer/
-│       └── FilterReducer.swift
-│
-├── FormValidation/          # Declarative form validation with automatic error management
-│   ├── FieldValidation.swift
-│   ├── FormValidationReducer.swift
-│   ├── Extensions/
-│   ├── ValidatableField/
-│   └── ValidationRule/
-│
-├── Haptics/                 # Universal haptic feedback across all Apple platforms
-│   ├── Dependency/          # FeedbackGeneratorClient, HapticFeedback enum
-│   └── Reducer/             # HapticsReducer (.haptics modifier)
-│
-├── Printers/                # Debug printing with customizable filtering and formatting
-│   ├── ActionFilter.swift   # Composable filter combinators (.all, .not, .anyOf, .allExcept)
-│   └── Printers/            # PrettyPrinter, JSONPrinter, Internal/ utilities
-│
-├── ScreenAwake/             # Prevent screen auto-lock during specific states
-│   ├── Dependency/          # DeviceScreenAwake (platform-specific implementations)
-│   └── Reducer/             # ScreenAwakeReducer (.screenAwake modifier)
-│
-└── ScreenBrightness/        # State-triggered screen brightness control
-    ├── Dependency/          # ScreenBrightnessClient (iOS-only, others no-op)
-    ├── Model/               # BrightnessLevel enum
-    └── Reducer/             # ScreenBrightnessReducer (.screenBrightness modifier)
+└── Dependencies/                  # Grouping directory (NOT a target)
+    ├── DependenciesExtras/        # Internal umbrella for dependency-only modules
+    │   └── DependenciesExtras.swift # @_exported imports AppInfo
+    │
+    └── AppInfo/                   # App bundle metadata (version, build, bundle ID)
+        └── Dependency/            # AppInfoClient (reads from Bundle.main)
 
 Tests/
 ├── AllTests.xctestplan              # 2 umbrella test targets
-├── ReducersExtrasTests/             # All reducer module tests + umbrella verification
-│   ├── ReducersExtrasTests.swift    # Umbrella re-export verification
-│   ├── Analytics/                   # Provider tests (Firebase, Amplitude), reducer, builder
-│   ├── Filter/                      # Reducer integration tests
-│   ├── FormValidation/              # Unit + integration tests for validation
-│   ├── Haptics/                     # Platform-specific haptic feedback tests
-│   ├── Printers/                    # PrettyPrinter, ActionFilter tests
-│   ├── ScreenAwake/                 # Trigger behavior, call sequence tests
-│   └── ScreenBrightness/            # Brightness level, reducer trigger tests
-└── DependenciesExtrasTests/         # All dependency module tests + umbrella verification
-    ├── DependenciesExtrasTests.swift # Umbrella re-export + withDependencies tests
-    └── AppInfo/                     # Client tests, withDependencies integration tests
+├── Reducers/
+│   └── ReducersExtrasTests/             # All reducer module tests + umbrella verification
+│       ├── ReducersExtrasTests.swift    # Umbrella re-export verification
+│       ├── Analytics/                   # Provider tests (Firebase, Amplitude), reducer, builder
+│       ├── Filter/                      # Reducer integration tests
+│       ├── FormValidation/              # Unit + integration tests for validation
+│       ├── Haptics/                     # Platform-specific haptic feedback tests
+│       ├── Printers/                    # PrettyPrinter, ActionFilter tests
+│       ├── ScreenAwake/                 # Trigger behavior, call sequence tests
+│       └── ScreenBrightness/            # Brightness level, reducer trigger tests
+└── Dependencies/
+    └── DependenciesExtrasTests/         # All dependency module tests + umbrella verification
+        ├── DependenciesExtrasTests.swift # Umbrella re-export + withDependencies tests
+        └── AppInfo/                     # Client tests, withDependencies integration tests
 ```
 <!-- END AUTO-MANAGED -->
 

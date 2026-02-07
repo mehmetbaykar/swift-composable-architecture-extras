@@ -46,7 +46,7 @@ let store = TestStore(initialState: MyFeature.State()) {
 } withDependencies: {
   $0.appInfo = AppInfoClient(
     appVersion: { "2.0.0" },
-    buildNumber: { "42" },
+    buildNumber: { 42 },
     bundleIdentifier: { "com.example.app" }
   )
 }
@@ -57,5 +57,5 @@ let store = TestStore(initialState: MyFeature.State()) {
 | Property | Type | Description |
 |----------|------|-------------|
 | `appVersion` | `@Sendable () -> String` | `CFBundleShortVersionString` (e.g. "1.2.3") |
-| `buildNumber` | `@Sendable () -> String` | `CFBundleVersion` (e.g. "42") |
+| `buildNumber` | `@Sendable () -> Int` | `CFBundleVersion` (e.g. 42) |
 | `bundleIdentifier` | `@Sendable () -> String?` | `Bundle.main.bundleIdentifier` |

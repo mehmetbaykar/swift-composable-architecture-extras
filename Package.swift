@@ -16,17 +16,17 @@ let package = Package(
   targets: [
     .mainUmbrellaTarget(),
     .reducersUmbrellaTarget(),
-    .umbrellaTestTarget(for: "ReducersExtras"),
+    .reducerUmbrellaTestTarget(),
     .dependenciesUmbrellaTarget(),
-    .umbrellaTestTarget(for: "DependenciesExtras"),
-    .tcaTarget(name: "Analytics"),
-    .tcaTarget(name: "AppInfo"),
-    .tcaTarget(name: "Filter"),
-    .tcaTarget(name: "FormValidation"),
-    .tcaTarget(name: "Haptics"),
-    .tcaTarget(name: "Printers"),
-    .tcaTarget(name: "ScreenAwake"),
-    .tcaTarget(name: "ScreenBrightness"),
+    .dependencyUmbrellaTestTarget(),
+    .reducerTarget(name: "Analytics"),
+    .reducerTarget(name: "Filter"),
+    .reducerTarget(name: "FormValidation"),
+    .reducerTarget(name: "Haptics"),
+    .reducerTarget(name: "Printers"),
+    .reducerTarget(name: "ScreenAwake"),
+    .reducerTarget(name: "ScreenBrightness"),
+    .dependencyTarget(name: "AppInfo"),
   ]
 )
 
@@ -53,7 +53,8 @@ extension PackageDescription.Target {
         "Printers",
         "ScreenAwake",
         "ScreenBrightness",
-      ]
+      ],
+      path: "Sources/Reducers/ReducersExtras"
     )
   }
 
@@ -62,27 +63,50 @@ extension PackageDescription.Target {
       name: "DependenciesExtras",
       dependencies: [
         "AppInfo"
-      ]
+      ],
+      path: "Sources/Dependencies/DependenciesExtras"
     )
   }
 
-  static func tcaTarget(name: String) -> PackageDescription.Target {
-    let tcaTargetDependencies: Target.Dependency = .product(
+  static func reducerTarget(name: String) -> PackageDescription.Target {
+    let tcaDep: Target.Dependency = .product(
       name: "ComposableArchitecture",
       package: "swift-composable-architecture")
-    let excludeReadme: [String] = ["README.md"]
 
     return .target(
       name: name,
-      dependencies: [tcaTargetDependencies],
-      exclude: excludeReadme
+      dependencies: [tcaDep],
+      path: "Sources/Reducers/\(name)",
+      exclude: ["README.md"]
     )
   }
 
-  static func umbrellaTestTarget(for target: String) -> PackageDescription.Target {
+  static func dependencyTarget(name: String) -> PackageDescription.Target {
+    let tcaDep: Target.Dependency = .product(
+      name: "ComposableArchitecture",
+      package: "swift-composable-architecture")
+
+    return .target(
+      name: name,
+      dependencies: [tcaDep],
+      path: "Sources/Dependencies/\(name)",
+      exclude: ["README.md"]
+    )
+  }
+
+  static func reducerUmbrellaTestTarget() -> PackageDescription.Target {
     return .testTarget(
-      name: "\(target)Tests",
-      dependencies: [.target(name: target)]
+      name: "ReducersExtrasTests",
+      dependencies: [.target(name: "ReducersExtras")],
+      path: "Tests/Reducers/ReducersExtrasTests"
+    )
+  }
+
+  static func dependencyUmbrellaTestTarget() -> PackageDescription.Target {
+    return .testTarget(
+      name: "DependenciesExtrasTests",
+      dependencies: [.target(name: "DependenciesExtras")],
+      path: "Tests/Dependencies/DependenciesExtrasTests"
     )
   }
 
