@@ -27,6 +27,7 @@ let package = Package(
     .reducerTarget(name: "ScreenAwake"),
     .reducerTarget(name: "ScreenBrightness"),
     .dependencyTarget(name: "AppInfo"),
+    .dependencyTarget(name: "DeviceInfo"),
     .dependencyTarget(name: "OpenSettings"),
     .dependencyTarget(name: "OpenURL"),
   ]
@@ -65,6 +66,7 @@ extension PackageDescription.Target {
       name: "DependenciesExtras",
       dependencies: [
         "AppInfo",
+        "DeviceInfo",
         "OpenSettings",
         "OpenURL",
       ],
