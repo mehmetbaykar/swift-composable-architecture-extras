@@ -20,7 +20,6 @@ jobs:
   ci:
     name: CI (${{ matrix.platform }})
     runs-on: macos-26
-    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -44,15 +43,6 @@ jobs:
           restore-keys: |
             deriveddata-${{ matrix.platform }}-
 
-      - name: Download Simulator Runtime
-        if: matrix.platform == 'watchOS' || matrix.platform == 'tvOS'
-        run: |
-          sudo xcodebuild -runFirstLaunch
-          xcodebuild -downloadPlatform ${{ matrix.platform }}
-
-      - name: Update xcbeautify
-        run: brew update && brew upgrade xcbeautify
-
       - name: Configure Xcode Build Settings
         run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
 
@@ -64,8 +54,7 @@ jobs:
             -destination '${{ matrix.destination }}' \
             -derivedDataPath .derivedData \
             -skipMacroValidation \
-            COMPILER_INDEX_STORE_ENABLE=NO \
-            | xcbeautify
+            | xcpretty
 
       - name: Run Tests
         run: |
@@ -75,5 +64,4 @@ jobs:
             -destination '${{ matrix.destination }}' \
             -derivedDataPath .derivedData \
             -skipMacroValidation \
-            COMPILER_INDEX_STORE_ENABLE=NO \
-            | xcbeautify
+            | xcpretty
