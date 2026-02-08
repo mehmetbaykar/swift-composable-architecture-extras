@@ -189,7 +189,7 @@ let bundleId = appInfo.bundleIdentifier()
 
 ### DeviceInfo
 
-A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity, thermal state, and device identity.
+A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity, thermal state, low power mode, device identity (including core counts and `isiOSAppOnMac`), and jailbreak detection (iOS).
 
 ```swift
 @Dependency(\.deviceInfo) var deviceInfo
@@ -209,7 +209,7 @@ let network = await deviceInfo.network()
 #endif
 ```
 
-> **Platform Support**: iOS, macOS, tvOS, watchOS. Battery excluded on tvOS, network excluded on watchOS.
+> **Platform Support**: iOS, macOS, tvOS, watchOS. Battery excluded on tvOS, network excluded on watchOS. Jailbreak detection iOS only.
 
 [Full documentation](Sources/Dependencies/DeviceInfo/README.md)
 

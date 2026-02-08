@@ -99,9 +99,11 @@ struct DeviceInfoModelTests {
 
     @Test func `equality works`() {
       let a = DeviceIdentity(
-        name: "iPhone", model: "iPhone15,2", systemName: "iOS", systemVersion: "17.0")
+        name: "iPhone", model: "iPhone15,2", systemName: "iOS", systemVersion: "17.0",
+        totalCoreCount: 6, activeCoreCount: 6, isiOSAppOnMac: false)
       let b = DeviceIdentity(
-        name: "iPhone", model: "iPhone15,2", systemName: "iOS", systemVersion: "17.0")
+        name: "iPhone", model: "iPhone15,2", systemName: "iOS", systemVersion: "17.0",
+        totalCoreCount: 6, activeCoreCount: 6, isiOSAppOnMac: false)
       #expect(a == b)
     }
   }
