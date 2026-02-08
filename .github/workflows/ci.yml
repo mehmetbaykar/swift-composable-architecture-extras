@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build (${{ matrix.platform }})
+  ci:
+    name: CI (${{ matrix.platform }})
     runs-on: macos-26
     strategy:
       fail-fast: false
@@ -38,49 +38,30 @@ jobs:
 
       - uses: actions/cache@v5
         with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-build-${{ matrix.platform }}-${{ hashFiles('**/Sources/**/*.swift', '**/Tests/**/*.swift') }}
-          restore-keys: deriveddata-build-${{ matrix.platform }}-
+          path: .derivedData
+          key: deriveddata-${{ matrix.platform }}-${{ hashFiles('Package.swift', 'Package.resolved') }}
+          restore-keys: |
+            deriveddata-${{ matrix.platform }}-
 
-      - name: Build
+      - name: Configure Xcode Build Settings
+        run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
+
+      - name: Build Library
         run: |
           set -o pipefail
           xcodebuild build \
             -scheme ComposableArchitectureExtras \
             -destination '${{ matrix.destination }}' \
+            -derivedDataPath .derivedData \
             -skipMacroValidation \
             | xcpretty
 
-  test:
-    name: Test (${{ matrix.platform }})
-    runs-on: macos-26
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [iOS, macOS, tvOS, watchOS]
-        include:
-          - platform: iOS
-            destination: "platform=iOS Simulator,name=iPhone 17,OS=latest"
-          - platform: macOS
-            destination: "platform=macOS"
-          - platform: tvOS
-            destination: "platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest"
-          - platform: watchOS
-            destination: "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm),OS=latest"
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/cache@v5
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-test-${{ matrix.platform }}-${{ hashFiles('**/Sources/**/*.swift', '**/Tests/**/*.swift') }}
-          restore-keys: deriveddata-test-${{ matrix.platform }}-
-
-      - name: Test
+      - name: Run Tests
         run: |
           set -o pipefail
           xcodebuild test \
             -scheme AllTests \
             -destination '${{ matrix.destination }}' \
+            -derivedDataPath .derivedData \
             -skipMacroValidation \
             | xcpretty
