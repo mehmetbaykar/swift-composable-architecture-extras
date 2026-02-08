@@ -23,8 +23,8 @@ public struct FeedbackGeneratorClient: Sendable {
     let notificationGenerator = UINotificationFeedbackGenerator()
   }
 
-  extension FeedbackGeneratorClient {
-    public static var live: Self {
+  extension FeedbackGeneratorClient: DependencyKey {
+    public static var liveValue: FeedbackGeneratorClient {
 
       return .init(
         prepare: { feedback in
@@ -77,8 +77,8 @@ public struct FeedbackGeneratorClient: Sendable {
 #if os(macOS)
   import AppKit
 
-  extension FeedbackGeneratorClient {
-    public static var live: Self {
+  extension FeedbackGeneratorClient: DependencyKey {
+    public static var liveValue: FeedbackGeneratorClient {
       Self(
         prepare: { _ in },
         generate: { feedback in
@@ -100,8 +100,8 @@ public struct FeedbackGeneratorClient: Sendable {
 #if os(watchOS)
   import WatchKit
 
-  extension FeedbackGeneratorClient {
-    public static var live: Self {
+  extension FeedbackGeneratorClient: DependencyKey {
+    public static var liveValue: FeedbackGeneratorClient {
       Self(
         prepare: { _ in },
         generate: { feedback in
@@ -133,8 +133,8 @@ public struct FeedbackGeneratorClient: Sendable {
 #endif
 
 #if os(tvOS)
-  extension FeedbackGeneratorClient {
-    public static var live: Self {
+  extension FeedbackGeneratorClient: DependencyKey {
+    public static var liveValue: FeedbackGeneratorClient {
       .noop()
     }
   }
