@@ -61,6 +61,13 @@ struct ValidationRuleTests {
       assertFailure(for: .nonEmpty(fieldName: "Test"), with: Set<Int>())
       assertFailure(for: .nonEmpty(fieldName: "Test"), with: [:] as [String: Int])
     }
+
+    @Test func `nonEmpty without fieldName uses placeholder in error message`() {
+      let rule: ValidationRule<String> = .nonEmpty()
+
+      #expect(rule.validate("") == false)
+      #expect(rule.errorMessage.contains("{fieldName}"))
+    }
   }
 
   @Suite("Length Rule")
@@ -96,6 +103,13 @@ struct ValidationRuleTests {
 
       assertFailure(for: rule, with: 0)
     }
+
+    @Test func `greaterOrEqual without fieldName uses placeholder in error message`() {
+      let rule: ValidationRule<Int> = .greaterOrEqual(to: 10)
+
+      #expect(rule.validate(5) == false)
+      #expect(rule.errorMessage.contains("{fieldName}"))
+    }
   }
 
   @Suite("IsEqual Rule")
@@ -112,6 +126,13 @@ struct ValidationRuleTests {
 
       assertFailure(for: rule, with: 9)
       assertFailure(for: rule, with: 11)
+    }
+
+    @Test func `isEqual without fieldName uses placeholder in error message`() {
+      let rule: ValidationRule<Int> = .isEqual(to: 10)
+
+      #expect(rule.validate(5) == false)
+      #expect(rule.errorMessage.contains("{fieldName}"))
     }
   }
 

@@ -8,6 +8,13 @@ extension ValidationRule {
     )
   }
 
+  public static func nonEmpty() -> Self where Value: Collection {
+    .init(
+      error: "\(fieldNamePlaceholder) should not be empty",
+      validation: { !$0.isEmpty }
+    )
+  }
+
   public static func length(min: UInt, error: String) -> Self where Value: Collection {
     .init(error: error, validation: { $0.count >= min })
   }
@@ -20,8 +27,19 @@ extension ValidationRule {
     )
   }
 
+  public static func greaterOrEqual(to value: Value) -> Self where Value: Comparable {
+    .init(
+      error: "\(fieldNamePlaceholder) should be greater or equal to \(value)",
+      validation: { $0 >= value }
+    )
+  }
+
   public static func isEqual(to value: Value, fieldName: String) -> Self where Value: Equatable {
     .isEqual(to: value, errorMessage: "\(fieldName.capitalized) should be \(value)")
+  }
+
+  public static func isEqual(to value: Value) -> Self where Value: Equatable {
+    .isEqual(to: value, errorMessage: "\(fieldNamePlaceholder) should be \(value)")
   }
 
   public static func isEqual(to value: Value, errorMessage: String) -> Self where Value: Equatable {

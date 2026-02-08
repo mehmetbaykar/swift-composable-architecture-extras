@@ -13,9 +13,11 @@ public struct FieldValidation<State> {
   ) {
     self.binding = binding
 
+    let enrichedRules = Self.enrichRules(rules, from: binding)
+
     self._validate = { state in
       let value = state[keyPath: field]
-      let validationError = rules.validate(value)
+      let validationError = enrichedRules.validate(value)
 
       state[keyPath: errorState] = validationError
 
@@ -53,5 +55,27 @@ extension FieldValidation {
       errorState: field.appending(path: \.errorText),
       rules: rules
     )
+  }
+}
+
+extension FieldValidation {
+  private static func enrichRules<FieldType>(
+    _ rules: [ValidationRule<FieldType>],
+    from keyPath: PartialKeyPath<State>
+  ) -> [ValidationRule<FieldType>] {
+    let fieldName = Self.extractFieldName(from: keyPath)
+    return rules.map { rule in
+      var enriched = rule
+      enriched.enrichFieldName(fieldName)
+      return enriched
+    }
+  }
+
+  private static func extractFieldName(from keyPath: PartialKeyPath<State>) -> String {
+    let description = String(describing: keyPath)
+    guard let lastDotIndex = description.lastIndex(of: ".") else {
+      return description
+    }
+    return String(description[description.index(after: lastDotIndex)...])
   }
 }

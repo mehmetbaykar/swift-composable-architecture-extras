@@ -1,8 +1,10 @@
 import Foundation
 
 public struct ValidationRule<Value> {
-  let errorMessage: String
+  private(set) var errorMessage: String
   let validation: (Value) -> Bool
+
+  static var fieldNamePlaceholder: String { "{fieldName}" }
 
   public init(
     error: String,
@@ -14,5 +16,12 @@ public struct ValidationRule<Value> {
 
   public func validate(_ value: Value) -> Bool {
     validation(value)
+  }
+
+  mutating func enrichFieldName(_ fieldName: String) {
+    errorMessage = errorMessage.replacingOccurrences(
+      of: Self.fieldNamePlaceholder,
+      with: fieldName.capitalized
+    )
   }
 }
