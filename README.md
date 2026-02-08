@@ -13,7 +13,7 @@ If you found this helpful, you can support more open source work!
 
 ---
 
-Production-ready reducer patterns and utilities for The Composable Architecture.
+Production-ready reducer patterns and dependencies for The Composable Architecture.
 
 ## Table of Contents
 
