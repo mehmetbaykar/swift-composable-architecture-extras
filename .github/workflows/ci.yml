@@ -44,6 +44,10 @@ jobs:
           restore-keys: |
             deriveddata-${{ matrix.platform }}-
 
+      - name: Download Simulator Runtime
+        if: matrix.platform == 'watchOS' || matrix.platform == 'tvOS'
+        run: xcodebuild -downloadPlatform ${{ matrix.platform }}
+
       - name: Update xcbeautify
         run: brew update && brew upgrade xcbeautify
 
