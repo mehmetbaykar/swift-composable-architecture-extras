@@ -25,6 +25,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [DeviceInfo](#deviceinfo)
   - [OpenSettings](#opensettings)
   - [OpenURL](#openurl)
+- [Privacy Manifest](#privacy-manifest)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -249,6 +250,21 @@ await openURL(URL(string: "https://example.com")!, prefersInApp: true)
 > **Platform Support**: iOS (external + in-app), macOS, tvOS, visionOS (external only). watchOS excluded.
 
 [Full documentation](Sources/Dependencies/OpenURL/README.md)
+
+## Privacy Manifest
+
+This package includes a `PrivacyInfo.xcprivacy` privacy manifest as required by Apple for third-party SDKs.
+
+### Declared API Categories
+
+| Category | Reason Code | Usage |
+|----------|-------------|-------|
+| Disk Space (`NSPrivacyAccessedAPICategoryDiskSpace`) | `85F4.1` | `DeviceInfo` module queries disk capacity via `URLResourceKey` to display storage information to the user |
+| File Timestamp (`NSPrivacyAccessedAPICategoryFileTimestamp`) | `C617.1` | `DeviceInfo` module's jailbreak detection (iOS only) uses `FileManager.attributesOfItem(atPath:)` which internally calls `stat()` |
+
+### For App Developers
+
+The privacy manifest bundled with this package covers the APIs used by the package itself. If your app uses the **Analytics** module with real analytics providers (Firebase, Amplitude, etc.), you must declare any applicable `NSPrivacyCollectedDataTypes` in your **app's own** privacy manifest.
 
 ## Star History
 

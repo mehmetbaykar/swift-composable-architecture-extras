@@ -48,7 +48,8 @@ extension PackageDescription.Target {
       dependencies: [
         "ReducersExtras",
         "DependenciesExtras",
-      ]
+      ],
+      resources: [.process("Resources")]
     )
   }
 
