@@ -44,6 +44,9 @@ jobs:
           restore-keys: |
             deriveddata-${{ matrix.platform }}-
 
+      - name: Update xcbeautify
+        run: brew update && brew upgrade xcbeautify
+
       - name: Configure Xcode Build Settings
         run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
 
@@ -56,7 +59,7 @@ jobs:
             -derivedDataPath .derivedData \
             -skipMacroValidation \
             COMPILER_INDEX_STORE_ENABLE=NO \
-            | xcpretty
+            | xcbeautify
 
       - name: Run Tests
         run: |
@@ -67,4 +70,4 @@ jobs:
             -derivedDataPath .derivedData \
             -skipMacroValidation \
             COMPILER_INDEX_STORE_ENABLE=NO \
-            | xcpretty
+            | xcbeautify
