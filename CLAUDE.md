@@ -26,6 +26,8 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 ```
 Sources/
 ├── ComposableArchitectureExtras/  # Main umbrella (@_exported import ReducersExtras + DependenciesExtras)
+│   └── Resources/
+│       └── PrivacyInfo.xcprivacy  # Privacy manifest (DiskSpace + FileTimestamp API declarations)
 │
 ├── Reducers/                      # Grouping directory (NOT a target)
 │   ├── ReducersExtras/            # Internal umbrella for reducer modules
@@ -498,4 +500,23 @@ GitHub Actions workflow at `.github/workflows/ci.yml`:
 - **Failure detection**: Use `set -o pipefail` before xcodebuild piped to xcpretty
 - **NEVER use `|| true`**: This masks all failures and CI will always pass
 - **DerivedData sharing**: Both build and test steps use `-derivedDataPath .derivedData` so test reuses compiled artifacts
+<!-- END AUTO-MANAGED -->
+
+## Privacy Manifest
+<!-- AUTO-MANAGED: privacy-manifest -->
+**File**: `Sources/ComposableArchitectureExtras/Resources/PrivacyInfo.xcprivacy`
+
+Bundled via `resources: [.process("Resources")]` on the `ComposableArchitectureExtras` umbrella target.
+
+### Declared API Categories
+| Category | Reason | Source |
+|----------|--------|--------|
+| `NSPrivacyAccessedAPICategoryDiskSpace` | `85F4.1` (display to user) | `DiskMeasurement.swift` — `URLResourceKey.volumeTotalCapacityKey`, `.volumeAvailableCapacityKey`, `.volumeAvailableCapacityForImportantUsageKey` |
+| `NSPrivacyAccessedAPICategoryFileTimestamp` | `C617.1` (app functionality) | `FilesystemCheck.swift` (iOS jailbreak detection) — `FileManager.attributesOfItem(atPath:)` calls `stat()` |
+
+### Not Declared (not used)
+- SystemBootTime, UserDefaults, ActiveKeyboards — none of these APIs are used by this package
+
+### Consumer Note
+Apps using the Analytics module with real providers must declare their own `NSPrivacyCollectedDataTypes` in their app's privacy manifest.
 <!-- END AUTO-MANAGED -->
