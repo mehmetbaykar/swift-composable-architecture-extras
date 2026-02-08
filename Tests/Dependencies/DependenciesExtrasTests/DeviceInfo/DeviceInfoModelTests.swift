@@ -128,4 +128,75 @@ struct DeviceInfoModelTests {
       }
     }
   #endif
+
+  #if !os(visionOS)
+    @Suite("ScreenInfo")
+    struct ScreenInfoTests {
+
+      @Test func `zero has all zero values`() {
+        let info = ScreenInfo.zero
+        #expect(info.width == 0)
+        #expect(info.height == 0)
+        #expect(info.scale == 0)
+      }
+
+      @Test func `equality works`() {
+        let a = ScreenInfo.zero
+        let b = ScreenInfo.zero
+        #expect(a == b)
+      }
+
+      #if os(iOS)
+        @Test func `zero has false booleans on iOS`() {
+          let info = ScreenInfo.zero
+          #expect(info.hasNotch == false)
+          #expect(info.hasDynamicIsland == false)
+          #expect(info.hasRoundedDisplayCorners == false)
+          #expect(info.diagonal == 0)
+          #expect(info.ppi == 0)
+          #expect(info.screenRatio == .zero)
+        }
+      #endif
+
+      #if os(tvOS)
+        @Test func `zero has zero screen ratio on tvOS`() {
+          let info = ScreenInfo.zero
+          #expect(info.screenRatio == .zero)
+        }
+      #endif
+
+      #if os(watchOS)
+        @Test func `zero has zero diagonal and ppi on watchOS`() {
+          let info = ScreenInfo.zero
+          #expect(info.diagonal == 0)
+          #expect(info.ppi == 0)
+          #expect(info.screenRatio == .zero)
+        }
+      #endif
+    }
+  #endif
+
+  #if !os(visionOS) && !os(macOS)
+    @Suite("ScreenRatio")
+    struct ScreenRatioTests {
+
+      @Test func `zero has all zero values`() {
+        let ratio = ScreenRatio.zero
+        #expect(ratio.width == 0)
+        #expect(ratio.height == 0)
+      }
+
+      @Test func `equality works`() {
+        let a = ScreenRatio(width: 9, height: 19.5)
+        let b = ScreenRatio(width: 9, height: 19.5)
+        #expect(a == b)
+      }
+
+      @Test func `different values are not equal`() {
+        let a = ScreenRatio(width: 9, height: 19.5)
+        let b = ScreenRatio(width: 9, height: 16)
+        #expect(a != b)
+      }
+    }
+  #endif
 }

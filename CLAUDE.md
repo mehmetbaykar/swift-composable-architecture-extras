@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -71,10 +71,11 @@ Sources/
     ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
     │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
     │
-    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, jailbreak)
+    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, screen, jailbreak)
     │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network)
     │   ├── Jailbreak/             # iOS-only jailbreak detection checks (Filesystem, Sandbox, Dyld, Environment)
-    │   └── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, DeviceThermalState, JailbreakStatus, etc.
+    │   ├── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, DeviceThermalState, ScreenInfo, ScreenRatio, JailbreakStatus, etc.
+    │   └── Screen/                # ScreenMeasurement (DeviceKit on iOS/tvOS/watchOS, NSScreen on macOS)
     │
     ├── OpenSettings/              # System settings navigation (cross-platform)
     │   └── Dependency/            # OpenSettingsClient (platform-specific implementations)
@@ -125,15 +126,16 @@ let bundleId = appInfo.bundleIdentifier()
 ```
 
 ### DeviceInfo
-**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, low power mode, identity with core counts, jailbreak detection)
+**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, low power mode, identity with core counts, screen info, jailbreak detection)
 
 **Key Features**:
 - `DeviceInfoClient`: Manual struct (no `@DependencyClient` due to `#if` conditional properties)
 - One-shot queries: `identity` (async, includes `totalCoreCount`/`activeCoreCount`/`isiOSAppOnMac`), `cpu` (async, 100ms measurement), `memory`, `disk`, `thermalState`, `isLowPowerModeEnabled`
-- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS), `jailbreakStatus` (async, iOS only)
+- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS), `screen` (async, not visionOS), `jailbreakStatus` (async, iOS only)
 - `DeviceIdentity` includes `totalCoreCount`, `activeCoreCount`, and `isiOSAppOnMac` (Foundation `ProcessInfo` on all platforms)
 - `isLowPowerModeEnabled`: sync one-shot read, false on macOS < 12
 - Rich value types: `ByteCount` (formatted bytes), `Percentage` (0-1 raw, 0-100 display)
+- `ScreenInfo`: resolution (width/height/scale) on all non-visionOS platforms; iOS adds `screenRatio`, `diagonal`, `ppi`, `hasNotch`, `hasDynamicIsland`, `hasRoundedDisplayCorners` via DeviceKit; tvOS adds `screenRatio`; watchOS adds `screenRatio`, `diagonal`, `ppi`
 - `JailbreakStatus`: confidence-based result (`.nominal`, `.low`, `.moderate`, `.high`) from filesystem, sandbox, dyld, and environment checks
 - macOS battery includes extended IOKit properties (cycleCount, temperature, maxCapacity, adapterName)
 - `.noop` static for previews and tests
@@ -155,6 +157,10 @@ let battery = await deviceInfo.battery()
 
 #if !os(watchOS)
 let network = await deviceInfo.network()
+#endif
+
+#if !os(visionOS)
+let screen = await deviceInfo.screen()
 #endif
 
 #if os(iOS)
@@ -466,6 +472,7 @@ extension DependencyValues {
 ## Dependencies
 <!-- AUTO-MANAGED: dependencies -->
 - **ComposableArchitecture** (v1.23.1+): Core TCA framework
+- **DeviceKit** (v5.7.0+): Device hardware metadata for ScreenInfo (iOS/tvOS/watchOS only, conditional dependency)
 - **Dependencies** / **DependenciesMacros**: Dependency injection (via TCA)
 - **XCTestDynamicOverlay**: Test doubles (via TCA)
 - **CustomDump**: Diff visualization in Printers module (via TCA)

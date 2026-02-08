@@ -40,7 +40,8 @@ import Foundation
           await MainActor.run { BatteryMeasurement.measure() }
         },
         network: { await NetworkMeasurement.measure() },
-        jailbreakStatus: { JailbreakMeasurement.measure() }
+        jailbreakStatus: { JailbreakMeasurement.measure() },
+        screen: { await MainActor.run { ScreenMeasurement.measure() } }
       )
     }
   }
@@ -125,7 +126,8 @@ import Foundation
           return false
         },
         battery: { BatteryMeasurement.measure() },
-        network: { await NetworkMeasurement.measure() }
+        network: { await NetworkMeasurement.measure() },
+        screen: { await MainActor.run { ScreenMeasurement.measure() } }
       )
     }
   }
@@ -165,7 +167,8 @@ import Foundation
         isLowPowerModeEnabled: {
           ProcessInfo.processInfo.isLowPowerModeEnabled
         },
-        network: { await NetworkMeasurement.measure() }
+        network: { await NetworkMeasurement.measure() },
+        screen: { await MainActor.run { ScreenMeasurement.measure() } }
       )
     }
   }
@@ -205,7 +208,8 @@ import Foundation
         isLowPowerModeEnabled: {
           ProcessInfo.processInfo.isLowPowerModeEnabled
         },
-        battery: { BatteryMeasurement.measure() }
+        battery: { BatteryMeasurement.measure() },
+        screen: { await MainActor.run { ScreenMeasurement.measure() } }
       )
     }
   }
