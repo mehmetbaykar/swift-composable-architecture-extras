@@ -22,6 +22,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
   - [ScreenBrightness](#screenbrightness)
 - [Dependency Modules](#dependency-modules)
   - [AppInfo](#appinfo)
+  - [DeviceInfo](#deviceinfo)
   - [OpenSettings](#opensettings)
   - [OpenURL](#openurl)
 - [Contributing](#contributing)
@@ -185,6 +186,32 @@ let bundleId = appInfo.bundleIdentifier()
 ```
 
 [Full documentation](Sources/Dependencies/AppInfo/README.md)
+
+### DeviceInfo
+
+A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity, thermal state, and device identity.
+
+```swift
+@Dependency(\.deviceInfo) var deviceInfo
+
+let identity = await deviceInfo.identity()
+let cpu = await deviceInfo.cpu()
+let memory = deviceInfo.memory()
+let disk = deviceInfo.disk()
+let thermal = deviceInfo.thermalState()
+
+#if !os(tvOS)
+let battery = await deviceInfo.battery()
+#endif
+
+#if !os(watchOS)
+let network = deviceInfo.network()
+#endif
+```
+
+> **Platform Support**: iOS, macOS, tvOS, watchOS. Battery excluded on tvOS, network excluded on watchOS.
+
+[Full documentation](Sources/Dependencies/DeviceInfo/README.md)
 
 ### OpenSettings
 
