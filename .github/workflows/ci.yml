@@ -46,7 +46,9 @@ jobs:
 
       - name: Download Simulator Runtime
         if: matrix.platform == 'watchOS' || matrix.platform == 'tvOS'
-        run: xcodebuild -downloadPlatform ${{ matrix.platform }}
+        run: |
+          sudo xcodebuild -runFirstLaunch
+          xcodebuild -downloadPlatform ${{ matrix.platform }}
 
       - name: Update xcbeautify
         run: brew update && brew upgrade xcbeautify
