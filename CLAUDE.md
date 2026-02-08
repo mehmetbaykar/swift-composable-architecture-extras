@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information + core counts + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -71,9 +71,10 @@ Sources/
     ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
     │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
     │
-    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network)
+    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, jailbreak)
     │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network)
-    │   └── Model/                 # ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, etc.
+    │   ├── Jailbreak/             # iOS-only jailbreak detection checks (Filesystem, Sandbox, Dyld, Environment)
+    │   └── Model/                 # ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, JailbreakStatus, etc.
     │
     ├── OpenSettings/              # System settings navigation (cross-platform)
     │   └── Dependency/            # OpenSettingsClient (platform-specific implementations)
@@ -124,13 +125,16 @@ let bundleId = appInfo.bundleIdentifier()
 ```
 
 ### DeviceInfo
-**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, identity)
+**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, low power mode, identity with core counts, jailbreak detection)
 
 **Key Features**:
 - `DeviceInfoClient`: Manual struct (no `@DependencyClient` due to `#if` conditional properties)
-- One-shot queries: `identity` (async), `cpu` (async, 100ms measurement), `memory`, `disk`, `thermalState`
-- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS)
+- One-shot queries: `identity` (async, includes `totalCoreCount`/`activeCoreCount`/`isiOSAppOnMac`), `cpu` (async, 100ms measurement), `memory`, `disk`, `thermalState`, `isLowPowerModeEnabled`
+- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS), `jailbreakStatus` (async, iOS only)
+- `DeviceIdentity` includes `totalCoreCount`, `activeCoreCount`, and `isiOSAppOnMac` (Foundation `ProcessInfo` on all platforms)
+- `isLowPowerModeEnabled`: sync one-shot read, false on macOS < 12
 - Rich value types: `ByteCount` (formatted bytes), `Percentage` (0-1 raw, 0-100 display)
+- `JailbreakStatus`: confidence-based result (`.nominal`, `.low`, `.moderate`, `.high`) from filesystem, sandbox, dyld, and environment checks
 - macOS battery includes extended IOKit properties (cycleCount, temperature, maxCapacity, adapterName)
 - `.noop` static for previews and tests
 
@@ -143,6 +147,7 @@ let cpu = await deviceInfo.cpu()
 let memory = deviceInfo.memory()
 let disk = deviceInfo.disk()
 let thermal = deviceInfo.thermalState()
+let lowPower = deviceInfo.isLowPowerModeEnabled()
 
 #if !os(tvOS)
 let battery = await deviceInfo.battery()
@@ -150,6 +155,10 @@ let battery = await deviceInfo.battery()
 
 #if !os(watchOS)
 let network = await deviceInfo.network()
+#endif
+
+#if os(iOS)
+let jailbreak = await deviceInfo.jailbreakStatus()
 #endif
 ```
 

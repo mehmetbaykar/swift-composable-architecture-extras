@@ -41,6 +41,11 @@ struct DeviceInfoClientTests {
       #expect(thermal == .nominal)
     }
 
+    @Test func `noop returns false for isLowPowerModeEnabled`() {
+      let client = DeviceInfoClient.noop
+      #expect(client.isLowPowerModeEnabled() == false)
+    }
+
     #if !os(tvOS)
       @Test func `noop returns zero battery info`() async {
         let client = DeviceInfoClient.noop
@@ -56,6 +61,14 @@ struct DeviceInfoClientTests {
         #expect(network == .disconnected)
       }
     #endif
+
+    #if os(iOS)
+      @Test func `noop returns nominal jailbreak status`() async {
+        let client = DeviceInfoClient.noop
+        let status = await client.jailbreakStatus()
+        #expect(status == .nominal)
+      }
+    #endif
   }
 
   @Suite("CustomValues")
@@ -67,7 +80,10 @@ struct DeviceInfoClientTests {
         name: "Test Device",
         model: "TestModel",
         systemName: "TestOS",
-        systemVersion: "1.0"
+        systemVersion: "1.0",
+        totalCoreCount: 8,
+        activeCoreCount: 8,
+        isiOSAppOnMac: false
       )
       let expectedCPU = CPUInfo(
         usage: Percentage(rawValue: 0.5),
@@ -88,13 +104,26 @@ struct DeviceInfoClientTests {
         available: ByteCount(bytes: 200_000_000_000)
       )
 
-      #if os(iOS) || os(visionOS)
+      #if os(iOS)
         let client = DeviceInfoClient(
           identity: { expectedIdentity },
           cpu: { expectedCPU },
           memory: { expectedMemory },
           disk: { expectedDisk },
           thermalState: { .serious },
+          isLowPowerModeEnabled: { true },
+          battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
+          network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
+          jailbreakStatus: { JailbreakStatus(confidence: .high) }
+        )
+      #elseif os(visionOS)
+        let client = DeviceInfoClient(
+          identity: { expectedIdentity },
+          cpu: { expectedCPU },
+          memory: { expectedMemory },
+          disk: { expectedDisk },
+          thermalState: { .serious },
+          isLowPowerModeEnabled: { true },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
           network: { NetworkInfo(isConnected: true, interfaceType: .wifi) }
         )
@@ -105,6 +134,7 @@ struct DeviceInfoClientTests {
           memory: { expectedMemory },
           disk: { expectedDisk },
           thermalState: { .serious },
+          isLowPowerModeEnabled: { true },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
           network: { NetworkInfo(isConnected: true, interfaceType: .wifi) }
         )
@@ -115,6 +145,7 @@ struct DeviceInfoClientTests {
           memory: { expectedMemory },
           disk: { expectedDisk },
           thermalState: { .serious },
+          isLowPowerModeEnabled: { true },
           network: { NetworkInfo(isConnected: true, interfaceType: .wifi) }
         )
       #elseif os(watchOS)
@@ -124,6 +155,7 @@ struct DeviceInfoClientTests {
           memory: { expectedMemory },
           disk: { expectedDisk },
           thermalState: { .serious },
+          isLowPowerModeEnabled: { true },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) }
         )
       #endif
@@ -133,6 +165,11 @@ struct DeviceInfoClientTests {
       #expect(client.memory() == expectedMemory)
       #expect(client.disk() == expectedDisk)
       #expect(client.thermalState() == .serious)
+      #expect(client.isLowPowerModeEnabled() == true)
+
+      #if os(iOS)
+        #expect(await client.jailbreakStatus() == JailbreakStatus(confidence: .high))
+      #endif
     }
   }
 
@@ -153,7 +190,15 @@ struct DeviceInfoClientTests {
     @Test func `overridden identity returns custom values`() async {
       await withDependencies {
         $0.deviceInfo.identity = {
-          DeviceIdentity(name: "Custom", model: "M1", systemName: "macOS", systemVersion: "14.0")
+          DeviceIdentity(
+            name: "Custom",
+            model: "M1",
+            systemName: "macOS",
+            systemVersion: "14.0",
+            totalCoreCount: 8,
+            activeCoreCount: 8,
+            isiOSAppOnMac: false
+          )
         }
       } operation: {
         @Dependency(\.deviceInfo) var deviceInfo
@@ -162,5 +207,51 @@ struct DeviceInfoClientTests {
         #expect(identity.model == "M1")
       }
     }
+
+    #if os(iOS)
+      @Test func `overridden jailbreakStatus returns custom value`() async {
+        await withDependencies {
+          $0.deviceInfo.jailbreakStatus = { JailbreakStatus(confidence: .moderate) }
+        } operation: {
+          @Dependency(\.deviceInfo) var deviceInfo
+          let status = await deviceInfo.jailbreakStatus()
+          #expect(status.confidence == .moderate)
+        }
+      }
+    #endif
   }
+
+  #if os(iOS)
+    @Suite("JailbreakModels")
+    @MainActor
+    struct JailbreakModelTests {
+
+      @Test func `JailbreakConfidence ordering is correct`() {
+        #expect(JailbreakConfidence.nominal < .low)
+        #expect(JailbreakConfidence.low < .moderate)
+        #expect(JailbreakConfidence.moderate < .high)
+        #expect(JailbreakConfidence.nominal < .high)
+      }
+
+      @Test func `JailbreakConfidence raw values are sequential`() {
+        #expect(JailbreakConfidence.nominal.rawValue == 0)
+        #expect(JailbreakConfidence.low.rawValue == 1)
+        #expect(JailbreakConfidence.moderate.rawValue == 2)
+        #expect(JailbreakConfidence.high.rawValue == 3)
+      }
+
+      @Test func `JailbreakStatus nominal static returns correct confidence`() {
+        let status = JailbreakStatus.nominal
+        #expect(status.confidence == .nominal)
+      }
+
+      @Test func `JailbreakStatus equality works correctly`() {
+        let a = JailbreakStatus(confidence: .high)
+        let b = JailbreakStatus(confidence: .high)
+        let c = JailbreakStatus(confidence: .low)
+        #expect(a == b)
+        #expect(a != c)
+      }
+    }
+  #endif
 }
