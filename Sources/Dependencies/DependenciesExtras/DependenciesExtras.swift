@@ -2,4 +2,5 @@
 
 #if !os(watchOS)
   @_exported import OpenSettings
+  @_exported import OpenURL
 #endif
