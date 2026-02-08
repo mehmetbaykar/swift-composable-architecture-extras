@@ -7,7 +7,9 @@ A cross-platform TCA dependency for accessing device system information.
 `DeviceInfoClient` provides testable, one-shot access to device hardware and
 system state: CPU usage, memory, disk storage, battery, network connectivity,
 thermal state, low power mode, device identity (including core counts and
-`isiOSAppOnMac`), and jailbreak detection (iOS).
+`isiOSAppOnMac`), screen info (resolution, scale, PPI, notch/Dynamic Island
+detection via [DeviceKit](https://github.com/devicekit/DeviceKit)), and
+jailbreak detection (iOS).
 
 ## Usage
 
@@ -37,6 +39,13 @@ if jailbreak.confidence >= .moderate {
   // Handle potentially compromised device
 }
 #endif
+
+#if !os(visionOS)
+let screen = await deviceInfo.screen()
+// screen.width, screen.height, screen.scale on all platforms
+// screen.diagonal, screen.ppi, screen.screenRatio on iOS/tvOS/watchOS
+// screen.hasNotch, screen.hasDynamicIsland, screen.hasRoundedDisplayCorners on iOS
+#endif
 ```
 
 ### Testing
@@ -60,6 +69,7 @@ let store = TestStore(initialState: MyFeature.State()) {
 | Battery | UIDevice | IOKit (rich) | N/A | WKInterfaceDevice |
 | Network | NWPathMonitor | NWPathMonitor | NWPathMonitor | N/A |
 | Thermal | ProcessInfo | ProcessInfo | ProcessInfo | ProcessInfo |
+| Screen | DeviceKit + UIScreen | NSScreen | DeviceKit + UIScreen | DeviceKit + WKInterfaceDevice |
 | Jailbreak | Filesystem + Sandbox + Dyld + Env | N/A | N/A | N/A |
 
 ## API
@@ -74,6 +84,7 @@ let store = TestStore(initialState: MyFeature.State()) {
 | `thermalState` | `@Sendable () -> DeviceThermalState` | Thermal state (nominal/fair/serious/critical) |
 | `battery` | `@Sendable () async -> BatteryInfo` | Battery level and state (not tvOS) |
 | `network` | `@Sendable () async -> NetworkInfo` | Connectivity and interface type (not watchOS) |
+| `screen` | `@Sendable () async -> ScreenInfo` | Screen resolution, scale, PPI, notch detection (not visionOS) |
 | `jailbreakStatus` | `@Sendable () async -> JailbreakStatus` | Jailbreak confidence level (iOS only) |
 
 ## Jailbreak Detection

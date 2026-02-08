@@ -12,7 +12,7 @@ let package = Package(
   products: [
     .singleUmbrellaLibrary(name: "ComposableArchitectureExtras")
   ],
-  dependencies: [.tca()],
+  dependencies: [.tca(), .deviceKit()],
   targets: [
     .mainUmbrellaTarget(),
     .reducersUmbrellaTarget(),
@@ -27,7 +27,14 @@ let package = Package(
     .reducerTarget(name: "ScreenAwake"),
     .reducerTarget(name: "ScreenBrightness"),
     .dependencyTarget(name: "AppInfo"),
-    .dependencyTarget(name: "DeviceInfo"),
+    .dependencyTarget(
+      name: "DeviceInfo",
+      extraDependencies: [
+        .product(
+          name: "DeviceKit", package: "DeviceKit",
+          condition: .when(platforms: [.iOS, .tvOS, .watchOS]))
+      ]
+    ),
     .dependencyTarget(name: "OpenSettings"),
     .dependencyTarget(name: "OpenURL"),
   ]
@@ -87,14 +94,17 @@ extension PackageDescription.Target {
     )
   }
 
-  static func dependencyTarget(name: String) -> PackageDescription.Target {
+  static func dependencyTarget(
+    name: String,
+    extraDependencies: [Target.Dependency] = []
+  ) -> PackageDescription.Target {
     let tcaDep: Target.Dependency = .product(
       name: "ComposableArchitecture",
       package: "swift-composable-architecture")
 
     return .target(
       name: name,
-      dependencies: [tcaDep],
+      dependencies: [tcaDep] + extraDependencies,
       path: "Sources/Dependencies/\(name)",
       exclude: ["README.md"]
     )
@@ -123,6 +133,12 @@ extension Package.Dependency {
     return .package(
       url: "https://github.com/pointfreeco/swift-composable-architecture",
       from: "1.23.1")
+  }
+
+  static func deviceKit() -> Package.Dependency {
+    return .package(
+      url: "https://github.com/devicekit/DeviceKit.git",
+      from: "5.7.0")
   }
 }
 

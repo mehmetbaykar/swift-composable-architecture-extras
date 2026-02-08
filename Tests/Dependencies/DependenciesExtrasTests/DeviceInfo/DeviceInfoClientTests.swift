@@ -69,6 +69,14 @@ struct DeviceInfoClientTests {
         #expect(status == .nominal)
       }
     #endif
+
+    #if !os(visionOS)
+      @Test func `noop returns zero screen info`() async {
+        let client = DeviceInfoClient.noop
+        let screen = await client.screen()
+        #expect(screen == .zero)
+      }
+    #endif
   }
 
   @Suite("CustomValues")
@@ -114,7 +122,8 @@ struct DeviceInfoClientTests {
           isLowPowerModeEnabled: { true },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
           network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
-          jailbreakStatus: { JailbreakStatus(confidence: .high) }
+          jailbreakStatus: { JailbreakStatus(confidence: .high) },
+          screen: { .zero }
         )
       #elseif os(visionOS)
         let client = DeviceInfoClient(
@@ -136,7 +145,8 @@ struct DeviceInfoClientTests {
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
-          network: { NetworkInfo(isConnected: true, interfaceType: .wifi) }
+          network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
+          screen: { .zero }
         )
       #elseif os(tvOS)
         let client = DeviceInfoClient(
@@ -146,7 +156,8 @@ struct DeviceInfoClientTests {
           disk: { expectedDisk },
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
-          network: { NetworkInfo(isConnected: true, interfaceType: .wifi) }
+          network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
+          screen: { .zero }
         )
       #elseif os(watchOS)
         let client = DeviceInfoClient(
@@ -156,7 +167,8 @@ struct DeviceInfoClientTests {
           disk: { expectedDisk },
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
-          battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) }
+          battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
+          screen: { .zero }
         )
       #endif
 
@@ -216,6 +228,49 @@ struct DeviceInfoClientTests {
           @Dependency(\.deviceInfo) var deviceInfo
           let status = await deviceInfo.jailbreakStatus()
           #expect(status.confidence == .moderate)
+        }
+      }
+    #endif
+
+    #if os(iOS)
+      @Test func `overridden screen returns custom values`() async {
+        let customScreen = ScreenInfo(
+          width: 390,
+          height: 844,
+          scale: 3,
+          screenRatio: ScreenRatio(width: 9, height: 19.5),
+          diagonal: 6.1,
+          ppi: 460,
+          hasNotch: false,
+          hasDynamicIsland: true,
+          hasRoundedDisplayCorners: true
+        )
+        await withDependencies {
+          $0.deviceInfo.screen = { customScreen }
+        } operation: {
+          @Dependency(\.deviceInfo) var deviceInfo
+          let screen = await deviceInfo.screen()
+          #expect(screen.width == 390)
+          #expect(screen.height == 844)
+          #expect(screen.scale == 3)
+          #expect(screen.hasDynamicIsland == true)
+        }
+      }
+    #elseif os(macOS)
+      @Test func `overridden screen returns custom values`() async {
+        let customScreen = ScreenInfo(
+          width: 1920,
+          height: 1080,
+          scale: 2
+        )
+        await withDependencies {
+          $0.deviceInfo.screen = { customScreen }
+        } operation: {
+          @Dependency(\.deviceInfo) var deviceInfo
+          let screen = await deviceInfo.screen()
+          #expect(screen.width == 1920)
+          #expect(screen.height == 1080)
+          #expect(screen.scale == 2)
         }
       }
     #endif

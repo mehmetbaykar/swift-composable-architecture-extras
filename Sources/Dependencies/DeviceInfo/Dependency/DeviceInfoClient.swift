@@ -21,6 +21,10 @@ public struct DeviceInfoClient: Sendable {
     public var jailbreakStatus: @Sendable () async -> JailbreakStatus
   #endif
 
+  #if !os(visionOS)
+    public var screen: @Sendable () async -> ScreenInfo
+  #endif
+
   #if os(iOS)
     public init(
       identity: @escaping @Sendable () async -> DeviceIdentity,
@@ -31,7 +35,8 @@ public struct DeviceInfoClient: Sendable {
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
       battery: @escaping @Sendable () async -> BatteryInfo,
       network: @escaping @Sendable () async -> NetworkInfo,
-      jailbreakStatus: @escaping @Sendable () async -> JailbreakStatus
+      jailbreakStatus: @escaping @Sendable () async -> JailbreakStatus,
+      screen: @escaping @Sendable () async -> ScreenInfo
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -42,6 +47,7 @@ public struct DeviceInfoClient: Sendable {
       self.battery = battery
       self.network = network
       self.jailbreakStatus = jailbreakStatus
+      self.screen = screen
     }
   #elseif os(visionOS)
     public init(
@@ -72,7 +78,8 @@ public struct DeviceInfoClient: Sendable {
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
       battery: @escaping @Sendable () async -> BatteryInfo,
-      network: @escaping @Sendable () async -> NetworkInfo
+      network: @escaping @Sendable () async -> NetworkInfo,
+      screen: @escaping @Sendable () async -> ScreenInfo
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -82,6 +89,7 @@ public struct DeviceInfoClient: Sendable {
       self.isLowPowerModeEnabled = isLowPowerModeEnabled
       self.battery = battery
       self.network = network
+      self.screen = screen
     }
   #elseif os(tvOS)
     public init(
@@ -91,7 +99,8 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
-      network: @escaping @Sendable () async -> NetworkInfo
+      network: @escaping @Sendable () async -> NetworkInfo,
+      screen: @escaping @Sendable () async -> ScreenInfo
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -100,6 +109,7 @@ public struct DeviceInfoClient: Sendable {
       self.thermalState = thermalState
       self.isLowPowerModeEnabled = isLowPowerModeEnabled
       self.network = network
+      self.screen = screen
     }
   #elseif os(watchOS)
     public init(
@@ -109,7 +119,8 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
-      battery: @escaping @Sendable () async -> BatteryInfo
+      battery: @escaping @Sendable () async -> BatteryInfo,
+      screen: @escaping @Sendable () async -> ScreenInfo
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -118,6 +129,7 @@ public struct DeviceInfoClient: Sendable {
       self.thermalState = thermalState
       self.isLowPowerModeEnabled = isLowPowerModeEnabled
       self.battery = battery
+      self.screen = screen
     }
   #endif
 }
@@ -137,7 +149,8 @@ extension DeviceInfoClient: TestDependencyKey {
         isLowPowerModeEnabled: { false },
         battery: { .zero },
         network: { .disconnected },
-        jailbreakStatus: { .nominal }
+        jailbreakStatus: { .nominal },
+        screen: { .zero }
       )
     #elseif os(visionOS)
       .init(
@@ -159,7 +172,8 @@ extension DeviceInfoClient: TestDependencyKey {
         thermalState: { .nominal },
         isLowPowerModeEnabled: { false },
         battery: { .zero },
-        network: { .disconnected }
+        network: { .disconnected },
+        screen: { .zero }
       )
     #elseif os(tvOS)
       .init(
@@ -169,7 +183,8 @@ extension DeviceInfoClient: TestDependencyKey {
         disk: { .zero },
         thermalState: { .nominal },
         isLowPowerModeEnabled: { false },
-        network: { .disconnected }
+        network: { .disconnected },
+        screen: { .zero }
       )
     #elseif os(watchOS)
       .init(
@@ -179,7 +194,8 @@ extension DeviceInfoClient: TestDependencyKey {
         disk: { .zero },
         thermalState: { .nominal },
         isLowPowerModeEnabled: { false },
-        battery: { .zero }
+        battery: { .zero },
+        screen: { .zero }
       )
     #endif
   }
