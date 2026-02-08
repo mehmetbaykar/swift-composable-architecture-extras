@@ -129,7 +129,7 @@ let bundleId = appInfo.bundleIdentifier()
 **Key Features**:
 - `DeviceInfoClient`: Manual struct (no `@DependencyClient` due to `#if` conditional properties)
 - One-shot queries: `identity` (async), `cpu` (async, 100ms measurement), `memory`, `disk`, `thermalState`
-- Platform-conditional: `battery` (async, not tvOS), `network` (not watchOS)
+- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS)
 - Rich value types: `ByteCount` (formatted bytes), `Percentage` (0-1 raw, 0-100 display)
 - macOS battery includes extended IOKit properties (cycleCount, temperature, maxCapacity, adapterName)
 - `.noop` static for previews and tests
@@ -149,7 +149,7 @@ let battery = await deviceInfo.battery()
 #endif
 
 #if !os(watchOS)
-let network = deviceInfo.network()
+let network = await deviceInfo.network()
 #endif
 ```
 

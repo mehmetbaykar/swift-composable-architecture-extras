@@ -13,7 +13,7 @@ public struct DeviceInfoClient: Sendable {
   #endif
 
   #if !os(watchOS)
-    public var network: @Sendable () -> NetworkInfo
+    public var network: @Sendable () async -> NetworkInfo
   #endif
 
   #if os(iOS) || os(visionOS)
@@ -24,7 +24,7 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       battery: @escaping @Sendable () async -> BatteryInfo,
-      network: @escaping @Sendable () -> NetworkInfo
+      network: @escaping @Sendable () async -> NetworkInfo
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -42,7 +42,7 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       battery: @escaping @Sendable () async -> BatteryInfo,
-      network: @escaping @Sendable () -> NetworkInfo
+      network: @escaping @Sendable () async -> NetworkInfo
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -59,7 +59,7 @@ public struct DeviceInfoClient: Sendable {
       memory: @escaping @Sendable () -> MemoryInfo,
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
-      network: @escaping @Sendable () -> NetworkInfo
+      network: @escaping @Sendable () async -> NetworkInfo
     ) {
       self.identity = identity
       self.cpu = cpu
