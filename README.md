@@ -199,6 +199,7 @@ let cpu = await deviceInfo.cpu()
 let memory = deviceInfo.memory()
 let disk = deviceInfo.disk()
 let thermal = deviceInfo.thermalState()
+let lowPower = deviceInfo.isLowPowerModeEnabled()
 
 #if !os(tvOS)
 let battery = await deviceInfo.battery()
