@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information + core counts + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -71,10 +71,10 @@ Sources/
     ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
     │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
     │
-    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, jailbreak)
+    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, jailbreak)
     │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network)
     │   ├── Jailbreak/             # iOS-only jailbreak detection checks (Filesystem, Sandbox, Dyld, Environment)
-    │   └── Model/                 # ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, JailbreakStatus, etc.
+    │   └── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, DeviceThermalState, JailbreakStatus, etc.
     │
     ├── OpenSettings/              # System settings navigation (cross-platform)
     │   └── Dependency/            # OpenSettingsClient (platform-specific implementations)
