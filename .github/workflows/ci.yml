@@ -20,6 +20,7 @@ jobs:
   ci:
     name: CI (${{ matrix.platform }})
     runs-on: macos-26
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -54,6 +55,7 @@ jobs:
             -destination '${{ matrix.destination }}' \
             -derivedDataPath .derivedData \
             -skipMacroValidation \
+            COMPILER_INDEX_STORE_ENABLE=NO \
             | xcpretty
 
       - name: Run Tests
@@ -64,4 +66,5 @@ jobs:
             -destination '${{ matrix.destination }}' \
             -derivedDataPath .derivedData \
             -skipMacroValidation \
+            COMPILER_INDEX_STORE_ENABLE=NO \
             | xcpretty
