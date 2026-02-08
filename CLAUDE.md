@@ -484,14 +484,18 @@ extension DependencyValues {
 GitHub Actions workflow at `.github/workflows/ci.yml`:
 
 - **Runner**: `macos-26` (Xcode 26)
-- **Jobs**: Separate `build` and `test` jobs
+- **Jobs**: Single `ci` job per platform (build + test sequential steps sharing DerivedData)
 - **Platforms**: iOS, macOS, tvOS, watchOS
 - **Simulators**: iPhone 17, Apple TV 4K (3rd generation), Apple Watch Series 11 (46mm)
 - **Actions**: `actions/checkout@v6`, `actions/cache@v5`
-- **Schemes**: `ComposableArchitectureExtras` (build job, library-only) and `AllTests` (test job, references `AllTests.xctestplan` with 2 umbrella test targets)
+- **Schemes**: `ComposableArchitectureExtras` (Build Library step) and `AllTests` (Run Tests step, references `AllTests.xctestplan` with 2 umbrella test targets)
+- **DerivedData**: Project-relative `.derivedData` via `-derivedDataPath`, shared between build and test steps
+- **Cache key**: `deriveddata-{platform}-{hash(Package.swift, Package.resolved)}` with platform-only restore-key fallback
+- **Xcode setting**: `IgnoreFileSystemDeviceInodeChanges` prevents cache invalidation from inode changes
 
 ### Critical CI Patterns
 - **Macro validation**: Use `-skipMacroValidation` xcodebuild flag
 - **Failure detection**: Use `set -o pipefail` before xcodebuild piped to xcpretty
 - **NEVER use `|| true`**: This masks all failures and CI will always pass
+- **DerivedData sharing**: Both build and test steps use `-derivedDataPath .derivedData` so test reuses compiled artifacts
 <!-- END AUTO-MANAGED -->
