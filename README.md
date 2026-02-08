@@ -1,9 +1,17 @@
 # Swift Composable Architecture Extras
 
-![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)
+![Swift](https://img.shields.io/badge/Swift-6.2-orange.svg)
 ![Platforms](https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS-blue.svg)
 ![CI](https://github.com/mehmetbaykar/swift-composable-architecture-extras/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
+
+<p align="center">
+If you found this helpful, you can support more open source work!
+<br><br>
+<a href="https://buymeacoffee.com/mehmetbaykar" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60"></a>
+</p>
+
+---
 
 Production-ready reducer patterns and utilities for The Composable Architecture.
 
@@ -58,13 +66,13 @@ Then add the product to your target:
 ## Requirements
 
 | Platform | Minimum Version |
-|----------|-----------------|
-| iOS | 13.0+ |
-| macOS | 10.15+ |
-| tvOS | 13.0+ |
-| watchOS | 6.0+ |
-| Swift | 6.0+ |
-| TCA | 1.23.1+ |
+| -------- | --------------- |
+| iOS      | 13.0+           |
+| macOS    | 10.15+          |
+| tvOS     | 13.0+           |
+| watchOS  | 6.0+            |
+| Swift    | 6.2+            |
+| TCA      | 1.23.1+         |
 
 ## Reducer Modules
 
@@ -257,10 +265,10 @@ This package includes a `PrivacyInfo.xcprivacy` privacy manifest as required by 
 
 ### Declared API Categories
 
-| Category | Reason Code | Usage |
-|----------|-------------|-------|
-| Disk Space (`NSPrivacyAccessedAPICategoryDiskSpace`) | `85F4.1` | `DeviceInfo` module queries disk capacity via `URLResourceKey` to display storage information to the user |
-| File Timestamp (`NSPrivacyAccessedAPICategoryFileTimestamp`) | `C617.1` | `DeviceInfo` module's jailbreak detection (iOS only) uses `FileManager.attributesOfItem(atPath:)` which internally calls `stat()` |
+| Category                                                     | Reason Code | Usage                                                                                                                             |
+| ------------------------------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Disk Space (`NSPrivacyAccessedAPICategoryDiskSpace`)         | `85F4.1`    | `DeviceInfo` module queries disk capacity via `URLResourceKey` to display storage information to the user                         |
+| File Timestamp (`NSPrivacyAccessedAPICategoryFileTimestamp`) | `C617.1`    | `DeviceInfo` module's jailbreak detection (iOS only) uses `FileManager.attributesOfItem(atPath:)` which internally calls `stat()` |
 
 ### For App Developers
 
