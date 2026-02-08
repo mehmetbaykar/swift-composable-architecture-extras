@@ -2,7 +2,7 @@ import Foundation
 
 enum DiskMeasurement {
   static func measure() -> DiskInfo {
-    let url = URL(fileURLWithPath: NSHomeDirectory())
+    let url = URL(fileURLWithPath: "/")
 
     #if os(tvOS) || os(watchOS)
       let keys: Set<URLResourceKey> = [

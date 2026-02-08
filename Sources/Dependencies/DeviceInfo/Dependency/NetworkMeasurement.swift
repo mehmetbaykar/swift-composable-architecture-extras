@@ -3,12 +3,15 @@
   import Network
 
   enum NetworkMeasurement {
-    static func measure() -> NetworkInfo {
-      let monitor = NWPathMonitor()
-      let queue = DispatchQueue(label: "com.deviceinfo.network-check")
-      monitor.start(queue: queue)
-      let path = monitor.currentPath
-      monitor.cancel()
+    static func measure() async -> NetworkInfo {
+      let path = await withCheckedContinuation { continuation in
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { path in
+          monitor.cancel()
+          continuation.resume(returning: path)
+        }
+        monitor.start(queue: DispatchQueue(label: "com.deviceinfo.network-check"))
+      }
 
       guard path.status == .satisfied else {
         return .disconnected

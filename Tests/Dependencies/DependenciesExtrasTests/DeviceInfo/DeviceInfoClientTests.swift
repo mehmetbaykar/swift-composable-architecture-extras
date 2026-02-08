@@ -50,9 +50,9 @@ struct DeviceInfoClientTests {
     #endif
 
     #if !os(watchOS)
-      @Test func `noop returns disconnected network info`() {
+      @Test func `noop returns disconnected network info`() async {
         let client = DeviceInfoClient.noop
-        let network = client.network()
+        let network = await client.network()
         #expect(network == .disconnected)
       }
     #endif

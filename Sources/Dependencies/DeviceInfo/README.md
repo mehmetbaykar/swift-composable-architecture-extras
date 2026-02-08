@@ -26,7 +26,7 @@ let battery = await deviceInfo.battery()
 #endif
 
 #if !os(watchOS)
-let network = deviceInfo.network()
+let network = await deviceInfo.network()
 #endif
 ```
 
@@ -62,4 +62,4 @@ let store = TestStore(initialState: MyFeature.State()) {
 | `disk` | `@Sendable () -> DiskInfo` | Disk usage, total, used, available |
 | `thermalState` | `@Sendable () -> DeviceThermalState` | Thermal state (nominal/fair/serious/critical) |
 | `battery` | `@Sendable () async -> BatteryInfo` | Battery level and state (not tvOS) |
-| `network` | `@Sendable () -> NetworkInfo` | Connectivity and interface type (not watchOS) |
+| `network` | `@Sendable () async -> NetworkInfo` | Connectivity and interface type (not watchOS) |

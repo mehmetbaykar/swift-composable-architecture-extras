@@ -27,7 +27,7 @@ import Foundation
         battery: {
           await MainActor.run { BatteryMeasurement.measure() }
         },
-        network: { NetworkMeasurement.measure() }
+        network: { await NetworkMeasurement.measure() }
       )
     }
   }
@@ -60,7 +60,7 @@ import Foundation
           DeviceThermalState(processInfoState: ProcessInfo.processInfo.thermalState)
         },
         battery: { BatteryMeasurement.measure() },
-        network: { NetworkMeasurement.measure() }
+        network: { await NetworkMeasurement.measure() }
       )
     }
   }
@@ -88,7 +88,7 @@ import Foundation
         thermalState: {
           DeviceThermalState(processInfoState: ProcessInfo.processInfo.thermalState)
         },
-        network: { NetworkMeasurement.measure() }
+        network: { await NetworkMeasurement.measure() }
       )
     }
   }
@@ -100,13 +100,15 @@ import Foundation
     public static var liveValue: DeviceInfoClient {
       .init(
         identity: {
-          let device = WKInterfaceDevice.current()
-          return DeviceIdentity(
-            name: device.name,
-            model: device.model,
-            systemName: device.systemName,
-            systemVersion: device.systemVersion
-          )
+          await MainActor.run {
+            let device = WKInterfaceDevice.current()
+            return DeviceIdentity(
+              name: device.name,
+              model: device.model,
+              systemName: device.systemName,
+              systemVersion: device.systemVersion
+            )
+          }
         },
         cpu: { await CPUMeasurement.measure() },
         memory: { MemoryMeasurement.measure() },

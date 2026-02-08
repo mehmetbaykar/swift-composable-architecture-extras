@@ -205,7 +205,7 @@ let battery = await deviceInfo.battery()
 #endif
 
 #if !os(watchOS)
-let network = deviceInfo.network()
+let network = await deviceInfo.network()
 #endif
 ```
 
