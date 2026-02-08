@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 10 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,8 +14,8 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 10 modules)
-- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, OpenSettings, OpenURL)
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 11 modules)
+- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, DeviceInfo, OpenSettings, OpenURL)
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
 - **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
@@ -66,10 +66,14 @@ Sources/
 │
 └── Dependencies/                  # Grouping directory (NOT a target)
     ├── DependenciesExtras/        # Internal umbrella for dependency-only modules
-    │   └── DependenciesExtras.swift # @_exported imports AppInfo + OpenSettings + OpenURL
+    │   └── DependenciesExtras.swift # @_exported imports AppInfo + DeviceInfo + OpenSettings + OpenURL
     │
     ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
     │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
+    │
+    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network)
+    │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network)
+    │   └── Model/                 # ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, etc.
     │
     ├── OpenSettings/              # System settings navigation (cross-platform)
     │   └── Dependency/            # OpenSettingsClient (platform-specific implementations)
@@ -93,6 +97,7 @@ Tests/
     └── DependenciesExtrasTests/         # All dependency module tests + umbrella verification
         ├── DependenciesExtrasTests.swift # Umbrella re-export + withDependencies tests
         ├── AppInfo/                     # Client tests, withDependencies integration tests
+        ├── DeviceInfo/                  # Client tests, model tests, ByteCount/Percentage tests
         ├── OpenSettings/                # Client tests, withDependencies integration tests
         └── OpenURL/                     # Client tests, recorder pattern, callAsFunction tests
 ```
@@ -116,6 +121,36 @@ Tests/
 let version = appInfo.appVersion()
 let build = appInfo.buildNumber()
 let bundleId = appInfo.bundleIdentifier()
+```
+
+### DeviceInfo
+**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, identity)
+
+**Key Features**:
+- `DeviceInfoClient`: Manual struct (no `@DependencyClient` due to `#if` conditional properties)
+- One-shot queries: `identity` (async), `cpu` (async, 100ms measurement), `memory`, `disk`, `thermalState`
+- Platform-conditional: `battery` (async, not tvOS), `network` (not watchOS)
+- Rich value types: `ByteCount` (formatted bytes), `Percentage` (0-1 raw, 0-100 display)
+- macOS battery includes extended IOKit properties (cycleCount, temperature, maxCapacity, adapterName)
+- `.noop` static for previews and tests
+
+**Usage Pattern**:
+```swift
+@Dependency(\.deviceInfo) var deviceInfo
+
+let identity = await deviceInfo.identity()
+let cpu = await deviceInfo.cpu()
+let memory = deviceInfo.memory()
+let disk = deviceInfo.disk()
+let thermal = deviceInfo.thermalState()
+
+#if !os(tvOS)
+let battery = await deviceInfo.battery()
+#endif
+
+#if !os(watchOS)
+let network = deviceInfo.network()
+#endif
 ```
 
 ### OpenSettings
