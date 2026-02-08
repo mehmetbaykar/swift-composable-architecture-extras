@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 9 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 10 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,8 +14,8 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 9 modules)
-- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, OpenSettings)
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 10 modules)
+- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, OpenSettings, OpenURL)
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
 - **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
@@ -66,13 +66,16 @@ Sources/
 │
 └── Dependencies/                  # Grouping directory (NOT a target)
     ├── DependenciesExtras/        # Internal umbrella for dependency-only modules
-    │   └── DependenciesExtras.swift # @_exported imports AppInfo + OpenSettings
+    │   └── DependenciesExtras.swift # @_exported imports AppInfo + OpenSettings + OpenURL
     │
     ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
     │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
     │
-    └── OpenSettings/              # System settings navigation (cross-platform)
-        └── Dependency/            # OpenSettingsClient (platform-specific implementations)
+    ├── OpenSettings/              # System settings navigation (cross-platform)
+    │   └── Dependency/            # OpenSettingsClient (platform-specific implementations)
+    │
+    └── OpenURL/                   # URL opening with in-app browsing (iOS SFSafariVC)
+        └── Dependency/            # OpenURLClient (external + in-app, excludes watchOS)
 
 Tests/
 ├── AllTests.xctestplan              # 2 umbrella test targets
@@ -90,7 +93,8 @@ Tests/
     └── DependenciesExtrasTests/         # All dependency module tests + umbrella verification
         ├── DependenciesExtrasTests.swift # Umbrella re-export + withDependencies tests
         ├── AppInfo/                     # Client tests, withDependencies integration tests
-        └── OpenSettings/                # Client tests, withDependencies integration tests
+        ├── OpenSettings/                # Client tests, withDependencies integration tests
+        └── OpenURL/                     # Client tests, recorder pattern, callAsFunction tests
 ```
 <!-- END AUTO-MANAGED -->
 
@@ -132,6 +136,28 @@ await openSettings.open(.general)
 
 #if os(iOS) || os(macOS) || os(visionOS)
 await openSettings.open(.notifications)
+#endif
+```
+
+### OpenURL
+**Purpose**: Cross-platform URL opening with in-app browsing via SFSafariViewController (iOS)
+
+**Key Features**:
+- `OpenURLClient`: Dependency client with `open` (all platforms) and `openInApp` (iOS only)
+- `callAsFunction` ergonomics: `await openURL(url)` and `await openURL(url, prefersInApp: true)`
+- iOS: SFSafariViewController via topmost view controller lookup
+- macOS: `NSWorkspace.shared.open`, tvOS/visionOS: `UIApplication.shared.open`
+- Not available on watchOS (no meaningful URL opening capability)
+- Key path: `\.customOpenURL` (avoids shadowing TCA's built-in `\.openURL`)
+
+**Usage Pattern**:
+```swift
+@Dependency(\.customOpenURL) var openURL
+
+await openURL(URL(string: "https://example.com")!)
+
+#if os(iOS)
+await openURL(URL(string: "https://example.com")!, prefersInApp: true)
 #endif
 ```
 
@@ -290,6 +316,7 @@ Thread-safe collectors for dependency verification:
 - `FeedbackCollector` (Haptics): Records generated/prepared haptic feedback
 - `RecordingDeviceScreenAwake` (ScreenAwake): Tracks enable/disable calls
 - `RecordingScreenBrightnessClient` (ScreenBrightness): Tracks brightness level changes
+- `OpenURLRecorder` (OpenURL): Records opened URLs and in-app URLs
 
 **Pattern**:
 ```swift

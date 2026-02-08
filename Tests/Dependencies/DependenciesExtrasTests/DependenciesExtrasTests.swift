@@ -16,6 +16,11 @@ struct DependenciesExtrasTests {
       let client = OpenSettings.OpenSettingsClient.noop
       _ = client
     }
+
+    @Test func `umbrella re-exports OpenURL module`() {
+      let client = OpenURL.OpenURLClient.noop
+      _ = client
+    }
   #endif
 
   @Test func `dependency is accessible via DependencyValues`() {

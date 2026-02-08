@@ -23,6 +23,7 @@ Production-ready reducer patterns and utilities for The Composable Architecture.
 - [Dependency Modules](#dependency-modules)
   - [AppInfo](#appinfo)
   - [OpenSettings](#opensettings)
+  - [OpenURL](#openurl)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -196,6 +197,26 @@ await openSettings.open(.general)
 ```
 
 [Full documentation](Sources/Dependencies/OpenSettings/README.md)
+
+### OpenURL
+
+A cross-platform TCA dependency for opening URLs externally or in-app via SFSafariViewController (iOS).
+
+```swift
+@Dependency(\.customOpenURL) var openURL
+
+// Open externally (all platforms)
+await openURL(URL(string: "https://example.com")!)
+
+// Open in-app (iOS only)
+#if os(iOS)
+await openURL(URL(string: "https://example.com")!, prefersInApp: true)
+#endif
+```
+
+> **Platform Support**: iOS (external + in-app), macOS, tvOS, visionOS (external only). watchOS excluded.
+
+[Full documentation](Sources/Dependencies/OpenURL/README.md)
 
 ## Star History
 
