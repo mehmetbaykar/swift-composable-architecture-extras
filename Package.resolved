@@ -1,5 +1,5 @@
 {
-  "originHash" : "fc95d93741ef1530bfb98f90cc1ed65b27adb261ebaae3c4c857407c2796e700",
+  "originHash" : "81ca5f24da3cb65e67c3ea78dae8a0fc3a4cbacff127a6bcdaf1d5648927b8e5",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "581df61650bc457ec00373a592a84be3e7468eb1",
         "version" : "5.7.0"
+      }
+    },
+    {
+      "identity" : "opencombine",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OpenCombine/OpenCombine.git",
+      "state" : {
+        "revision" : "8576f0d579b27020beccbccc3ea6844f3ddfc2c2",
+        "version" : "0.14.0"
       }
     },
     {
@@ -51,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "5b0890fabfd68a2d375d68502bc3f54a8548c494",
-        "version" : "1.23.1"
+        "revision" : "74a5fa0d02b17ba5bbd9743dc49b4d7f3bbbed96",
+        "version" : "1.24.1"
       }
     },
     {
