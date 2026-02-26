@@ -1,4 +1,5 @@
 @_exported import AppInfo
+@_exported import AudioPlayer
 @_exported import DeviceInfo
 
 #if !os(watchOS)
