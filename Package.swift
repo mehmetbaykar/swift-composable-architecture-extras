@@ -27,6 +27,7 @@ let package = Package(
     .reducerTarget(name: "ScreenAwake"),
     .reducerTarget(name: "ScreenBrightness"),
     .dependencyTarget(name: "AppInfo"),
+    .dependencyTarget(name: "AudioPlayer"),
     .dependencyTarget(
       name: "DeviceInfo",
       extraDependencies: [
@@ -74,6 +75,7 @@ extension PackageDescription.Target {
       name: "DependenciesExtras",
       dependencies: [
         "AppInfo",
+        "AudioPlayer",
         "DeviceInfo",
         "OpenSettings",
         "OpenURL",
