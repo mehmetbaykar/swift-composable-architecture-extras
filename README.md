@@ -22,6 +22,7 @@ Production-ready reducer patterns and dependencies for The Composable Architectu
 - [Requirements](#requirements)
 - [Reducer Modules](#reducer-modules)
   - [Analytics](#analytics)
+  - [AppStoreOverlay](#appstoreoverlay)
   - [Filter](#filter)
   - [FormValidation](#formvalidation)
   - [Haptics](#haptics)
@@ -30,6 +31,7 @@ Production-ready reducer patterns and dependencies for The Composable Architectu
   - [ScreenBrightness](#screenbrightness)
 - [Dependency Modules](#dependency-modules)
   - [AppInfo](#appinfo)
+  - [AudioPlayer](#audioplayer)
   - [DeviceInfo](#deviceinfo)
   - [OpenSettings](#opensettings)
   - [OpenURL](#openurl)
@@ -90,6 +92,26 @@ AnalyticsReducerOf<Self, AppEvent> { state, action in
 ```
 
 [Full documentation](Sources/Reducers/Analytics/README.md)
+
+### AppStoreOverlay
+
+State-driven App Store overlay presentation using TCA's `@Presents`/`ifLet` pattern. Set state to present, nil to dismiss.
+
+```swift
+// Reducer
+@Presents var overlay: AppStoreOverlayReducer.State?
+
+state.overlay = .init(appIdentifier: "1511409657")
+
+.ifLet(\.$overlay, action: \.overlay) { AppStoreOverlayReducer() }
+
+// View
+.appStoreOverlay($store.scope(state: \.overlay, action: \.overlay))
+```
+
+> **Platform Support**: iOS only.
+
+[Full documentation](Sources/Reducers/AppStoreOverlay/README.md)
 
 ### Filter
 
@@ -195,6 +217,20 @@ let bundleId = appInfo.bundleIdentifier()
 ```
 
 [Full documentation](Sources/Dependencies/AppInfo/README.md)
+
+### AudioPlayer
+
+Cross-platform fire-and-forget audio playback dependency. Designed for short UI sounds and game feedback.
+
+```swift
+@Dependency(\.audioPlayer) var audioPlayer
+
+try await audioPlayer.play(URL(string: "sound.mp3")!)
+```
+
+> **Platform Support**: iOS, macOS, tvOS, watchOS. Auto-configures `AVAudioSession` with `.ambient` category on iOS/tvOS/watchOS.
+
+[Full documentation](Sources/Dependencies/AudioPlayer/README.md)
 
 ### DeviceInfo
 
