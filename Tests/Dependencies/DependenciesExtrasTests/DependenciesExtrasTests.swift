@@ -23,6 +23,11 @@ struct DependenciesExtrasTests {
     }
   #endif
 
+  @Test func `umbrella re-exports AudioPlayer module`() {
+    _ = AudioPlayer.AudioPlayerClient.self
+    _ = AudioPlayer.AudioPlayerError.self
+  }
+
   @Test func `umbrella re-exports DeviceInfo module`() async {
     let client = DeviceInfo.DeviceInfoClient.noop
     _ = await client.identity()
