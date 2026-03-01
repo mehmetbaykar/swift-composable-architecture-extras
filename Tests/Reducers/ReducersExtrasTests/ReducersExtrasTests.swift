@@ -13,5 +13,9 @@ struct ReducersExtrasTests {
     _ = ScreenAwake.DeviceScreenAwake.self
     _ = ScreenBrightness.BrightnessLevel.self
     _ = ScreenBrightness.ScreenBrightnessClient.self
+
+    #if os(iOS)
+      _ = AppStoreOverlay.AppStoreOverlayReducer.self
+    #endif
   }
 }
