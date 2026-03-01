@@ -19,6 +19,7 @@ let package = Package(
     .reducerUmbrellaTestTarget(),
     .dependenciesUmbrellaTarget(),
     .dependencyUmbrellaTestTarget(),
+    .reducerTarget(name: "AppStoreOverlay"),
     .reducerTarget(name: "Analytics"),
     .reducerTarget(name: "Filter"),
     .reducerTarget(name: "FormValidation"),
@@ -58,6 +59,7 @@ extension PackageDescription.Target {
     return .target(
       name: "ReducersExtras",
       dependencies: [
+        "AppStoreOverlay",
         "Analytics",
         "Filter",
         "FormValidation",

@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (7 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 11 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (8 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 12 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,8 +14,8 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 11 modules)
-- **Internal Umbrellas**: `ReducersExtras` (7 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, DeviceInfo, OpenSettings, OpenURL)
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 12 modules)
+- **Internal Umbrellas**: `ReducersExtras` (8 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, DeviceInfo, OpenSettings, OpenURL)
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
 - **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
@@ -31,7 +31,12 @@ Sources/
 │
 ├── Reducers/                      # Grouping directory (NOT a target)
 │   ├── ReducersExtras/            # Internal umbrella for reducer modules
-│   │   └── ReducersExtras.swift   # @_exported imports all 7 reducer modules
+│   │   └── ReducersExtras.swift   # @_exported imports all 8 reducer modules
+│   │
+│   ├── AppStoreOverlay/          # State-driven App Store overlay (iOS only, @Presents/ifLet pattern)
+│   │   ├── Reducer/             # AppStoreOverlayReducer (State + empty Action)
+│   │   ├── View/                # AppStoreOverlayModifier (SwiftUI .appStoreOverlay bridge)
+│   │   └── Example/             # Example reducer + view
 │   │
 │   ├── Analytics/               # Event tracking with declarative result builder syntax
 │   │   ├── Dependency/          # AnalyticsClient, AnyAnalyticsClient (type-erased wrapper)
@@ -90,6 +95,7 @@ Tests/
 ├── Reducers/
 │   └── ReducersExtrasTests/             # All reducer module tests + umbrella verification
 │       ├── ReducersExtrasTests.swift    # Umbrella re-export verification
+│       ├── AppStoreOverlay/             # Presentation, dismissal, position tests
 │       ├── Analytics/                   # Provider tests (Firebase, Amplitude), reducer, builder
 │       ├── Filter/                      # Reducer integration tests
 │       ├── FormValidation/              # Unit + integration tests for validation
@@ -211,6 +217,28 @@ await openURL(URL(string: "https://example.com")!)
 #if os(iOS)
 await openURL(URL(string: "https://example.com")!, prefersInApp: true)
 #endif
+```
+
+### AppStoreOverlay
+**Purpose**: State-driven App Store overlay presentation (iOS only)
+
+**Key Features**:
+- `AppStoreOverlayReducer`: Minimal reducer with `State` (appIdentifier + position) and empty `Action`
+- Uses `@Presents`/`ifLet` pattern matching TCA's alert/confirmationDialog conventions
+- View modifier bridges to SwiftUI's `.appStoreOverlay(isPresented:configuration:)`
+- Present by setting state to non-nil, dismiss by nilling or user swipe
+
+**Usage Pattern**:
+```swift
+// Reducer:
+@Presents var overlay: AppStoreOverlayReducer.State?
+// ...
+state.overlay = .init(appIdentifier: "1511409657")
+// ...
+.ifLet(\.$overlay, action: \.overlay) { AppStoreOverlayReducer() }
+
+// View:
+.appStoreOverlay($store.scope(state: \.overlay, action: \.overlay))
 ```
 
 ### Analytics
