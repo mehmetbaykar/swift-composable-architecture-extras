@@ -33,6 +33,7 @@ Production-ready reducer patterns and dependencies for The Composable Architectu
   - [AppInfo](#appinfo)
   - [AudioPlayer](#audioplayer)
   - [DeviceInfo](#deviceinfo)
+  - [LoggerClient](#loggerclient)
   - [OpenSettings](#opensettings)
   - [OpenURL](#openurl)
 - [Privacy Manifest](#privacy-manifest)
@@ -69,10 +70,10 @@ Then add the product to your target:
 
 | Platform | Minimum Version |
 | -------- | --------------- |
-| iOS      | 13.0+           |
-| macOS    | 10.15+          |
-| tvOS     | 13.0+           |
-| watchOS  | 6.0+            |
+| iOS      | 16.0+           |
+| macOS    | 13.0+           |
+| tvOS     | 16.0+           |
+| watchOS  | 9.0+            |
 | Swift    | 6.2+            |
 | TCA      | 1.23.1+         |
 
@@ -262,6 +263,30 @@ let screen = await deviceInfo.screen()
 > **Platform Support**: iOS, macOS, tvOS, watchOS. Battery excluded on tvOS, network excluded on watchOS. Screen excluded on visionOS. Jailbreak detection iOS only.
 
 [Full documentation](Sources/Dependencies/DeviceInfo/README.md)
+
+### LoggerClient
+
+A composable logging dependency with console (`os.Logger`) and file destinations. Compose multiple log destinations via `merge()`, following the same pattern as `AnalyticsClient`.
+
+```swift
+// Setup (required):
+prepareDependencies {
+  $0.loggerClient = .merge(
+    .console(),
+    .fileLogger()
+  )
+}
+
+// Usage:
+@Dependency(\.loggerClient) var logger
+
+logger.info("User logged in")
+logger.error("Network request failed: \(error)")
+```
+
+> **Destinations**: `.console()` (os.Logger), `.fileLogger()` (actor-based with rotation), `.noop()`, or any custom destination. Custom `LogFormatter` protocol for output format.
+
+[Full documentation](Sources/Dependencies/LoggerClient/README.md)
 
 ### OpenSettings
 
