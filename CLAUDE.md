@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (8 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 12 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (8 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 13 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **LoggerClient** (composable logging with console + file destinations), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,11 +14,11 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 12 modules)
-- **Internal Umbrellas**: `ReducersExtras` (8 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, DeviceInfo, OpenSettings, OpenURL)
+- **Product**: `ComposableArchitectureExtras` (single library exporting all 13 modules)
+- **Internal Umbrellas**: `ReducersExtras` (8 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, AudioPlayer, DeviceInfo, LoggerClient, OpenSettings, OpenURL)
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
-- **Platforms**: iOS 13+, macOS 10.15+, tvOS 13+, watchOS 6+
+- **Platforms**: iOS 16+, macOS 13+, tvOS 16+, watchOS 9+
 <!-- END AUTO-MANAGED -->
 
 ## Architecture
@@ -73,16 +73,26 @@ Sources/
 │
 └── Dependencies/                  # Grouping directory (NOT a target)
     ├── DependenciesExtras/        # Internal umbrella for dependency-only modules
-    │   └── DependenciesExtras.swift # @_exported imports AppInfo + DeviceInfo + OpenSettings + OpenURL
+    │   └── DependenciesExtras.swift # @_exported imports AppInfo + AudioPlayer + DeviceInfo + LoggerClient + OpenSettings + OpenURL
     │
     ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
     │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
+    │
+    ├── AudioPlayer/               # Cross-platform fire-and-forget audio playback
+    │   ├── AudioPlayerClient.swift            # AudioPlayerClient dependency interface
+    │   └── AudioPlayerClient+LiveValue.swift  # AVAudioPlayer-based live implementation
     │
     ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, screen, jailbreak)
     │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network)
     │   ├── Jailbreak/             # iOS-only jailbreak detection checks (Filesystem, Sandbox, Dyld, Environment)
     │   ├── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, DeviceThermalState, ScreenInfo, ScreenRatio, JailbreakStatus, etc.
     │   └── Screen/                # ScreenMeasurement (DeviceKit on iOS/tvOS/watchOS, NSScreen on macOS)
+    │
+    ├── LoggerClient/              # Composable logging with console + file destinations
+    │   ├── Dependency/            # AppLoggerClient (merge, noop, TestDependencyKey)
+    │   ├── Model/                 # LogEntry, LogFormatter protocol, PlainTextFormatter
+    │   ├── Console/               # .console() factory (os.Logger backend)
+    │   └── FileLogger/            # .fileLogger() factory, FileLogActor (thread-safe I/O + rotation)
     │
     ├── OpenSettings/              # System settings navigation (cross-platform)
     │   └── Dependency/            # OpenSettingsClient (platform-specific implementations)
@@ -107,7 +117,9 @@ Tests/
     └── DependenciesExtrasTests/         # All dependency module tests + umbrella verification
         ├── DependenciesExtrasTests.swift # Umbrella re-export + withDependencies tests
         ├── AppInfo/                     # Client tests, withDependencies integration tests
+        ├── AudioPlayer/                 # Client tests, play/error verification
         ├── DeviceInfo/                  # Client tests, model tests, ByteCount/Percentage tests
+        ├── LoggerClient/                # Merge, formatter, file I/O, rotation, convenience methods, DI tests
         ├── OpenSettings/                # Client tests, withDependencies integration tests
         └── OpenURL/                     # Client tests, recorder pattern, callAsFunction tests
 ```
@@ -217,6 +229,38 @@ await openURL(URL(string: "https://example.com")!)
 #if os(iOS)
 await openURL(URL(string: "https://example.com")!, prefersInApp: true)
 #endif
+```
+
+### LoggerClient
+**Purpose**: Composable logging dependency with console and file destinations
+
+**Key Features**:
+- `AppLoggerClient`: Manual struct (no `@DependencyClient`) with sync `log` closure
+- `merge()` composition: fan-out to all destinations (matches AnalyticsClient pattern)
+- Built-in destinations: `.console()` (os.Logger), `.fileLogger()` (actor-based with rotation), `.noop()`
+- `LogFormatter` protocol with `PlainTextFormatter` default (pipe-separated structured output)
+- `FileLogActor`: Thread-safe file I/O with size-based rotation (configurable maxFileSize, maxFiles)
+- File logger defaults: `Library/Caches/Logs/`, 5MB max, 3 files
+- `TestDependencyKey` only (no `liveValue`) — `unimplemented()` warning if unconfigured
+- 5 convenience methods with `#file/#function/#line` source location capture
+- Custom destinations via `AppLoggerClient.init(log:)`
+
+**Usage Pattern**:
+```swift
+// Setup (required):
+prepareDependencies {
+  $0.loggerClient = .merge(
+    .console(),
+    .fileLogger()
+  )
+}
+
+// Usage:
+@Dependency(\.loggerClient) var logger
+
+logger.info("User logged in")
+logger.error("Network request failed")
+logger.debug("Cache state: \(keys)")
 ```
 
 ### AppStoreOverlay
