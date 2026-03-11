@@ -33,6 +33,11 @@ struct DependenciesExtrasTests {
     _ = await client.identity()
   }
 
+  @Test func `umbrella re-exports LoggerClient module`() {
+    let client = LoggerClient.AppLoggerClient.noop()
+    client.info("test")
+  }
+
   @Test func `dependency is accessible via DependencyValues`() {
     withDependencies {
       $0.appInfo = AppInfoClient(
