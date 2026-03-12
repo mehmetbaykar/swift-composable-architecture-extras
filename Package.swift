@@ -10,7 +10,26 @@ let package = Package(
     .watchOS(.v9),
   ],
   products: [
-    .singleUmbrellaLibrary(name: "ComposableArchitectureExtras")
+    // Umbrellas
+    .singleTargetLibrary(name: "ComposableArchitectureExtras"),
+    .singleTargetLibrary(name: "DependenciesExtras"),
+    .singleTargetLibrary(name: "ReducersExtras"),
+    // Standalone — Dependencies
+    .singleTargetLibrary(name: "AppInfo"),
+    .singleTargetLibrary(name: "AudioPlayer"),
+    .singleTargetLibrary(name: "DeviceInfo"),
+    .singleTargetLibrary(name: "LoggerClient"),
+    .singleTargetLibrary(name: "OpenSettings"),
+    .singleTargetLibrary(name: "OpenURL"),
+    // Standalone — Reducers
+    .singleTargetLibrary(name: "Analytics"),
+    .singleTargetLibrary(name: "AppStoreOverlay"),
+    .singleTargetLibrary(name: "Filter"),
+    .singleTargetLibrary(name: "FormValidation"),
+    .singleTargetLibrary(name: "Haptics"),
+    .singleTargetLibrary(name: "Printers"),
+    .singleTargetLibrary(name: "ScreenAwake"),
+    .singleTargetLibrary(name: "ScreenBrightness"),
   ],
   dependencies: [.tca(), .deviceKit()],
   targets: [
@@ -150,7 +169,7 @@ extension Package.Dependency {
 }
 
 extension PackageDescription.Product {
-  static func singleUmbrellaLibrary(name: String) -> PackageDescription.Product {
+  static func singleTargetLibrary(name: String) -> PackageDescription.Product {
     return .library(
       name: name,
       targets: [name]
