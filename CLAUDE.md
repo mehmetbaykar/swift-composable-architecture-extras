@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Organized into 2 internal umbrellas: **ReducersExtras** (8 reducer modules) and **DependenciesExtras** (dependency-only modules). Includes 13 modules: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **LoggerClient** (composable logging with console + file destinations), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Exposes 17 products: 3 umbrellas (**ComposableArchitectureExtras**, **ReducersExtras**, **DependenciesExtras**) and 14 standalone modules. Includes: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **AudioPlayer** (cross-platform audio playback), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **LoggerClient** (composable logging with console + file destinations), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,8 +14,10 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Product**: `ComposableArchitectureExtras` (single library exporting all 13 modules)
-- **Internal Umbrellas**: `ReducersExtras` (8 reducer modules), `DependenciesExtras` (dependency-only modules: AppInfo, AudioPlayer, DeviceInfo, LoggerClient, OpenSettings, OpenURL)
+- **Products** (17 total):
+  - **Umbrellas**: `ComposableArchitectureExtras` (everything), `ReducersExtras` (8 reducer modules), `DependenciesExtras` (6 dependency modules)
+  - **Standalone Dependencies**: `AppInfo`, `AudioPlayer`, `DeviceInfo`, `LoggerClient`, `OpenSettings`, `OpenURL`
+  - **Standalone Reducers**: `Analytics`, `AppStoreOverlay`, `Filter`, `FormValidation`, `Haptics`, `Printers`, `ScreenAwake`, `ScreenBrightness`
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
 - **Platforms**: iOS 16+, macOS 13+, tvOS 16+, watchOS 9+
