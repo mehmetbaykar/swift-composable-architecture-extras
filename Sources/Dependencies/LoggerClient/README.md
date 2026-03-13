@@ -95,20 +95,105 @@ The default `PlainTextFormatter` produces pipe-separated structured output:
 2026-03-11 12:30:45.123 | INFO  | LoginView.swift:28 | viewAppeared() | User logged in
 ```
 
-## Custom Destination
+## Custom Destinations
 
-Create any custom destination by returning an `AppLoggerClient`:
+Create any custom destination by implementing `AppLoggerClient.init(log:)` and mapping `LogEntry.level` to the platform's log levels.
+
+### Firebase Crashlytics
 
 ```swift
+import FirebaseCrashlytics
+
 extension AppLoggerClient {
   static func crashlytics() -> Self {
     .init { entry in
+      Crashlytics.crashlytics().log("\(entry.message)")
+
       if entry.level == .error || entry.level == .fault {
-        Crashlytics.log(entry.message)
+        let error = NSError(
+          domain: "AppLogger",
+          code: entry.level == .fault ? 1 : 0,
+          userInfo: [NSDebugDescriptionErrorKey: entry.message]
+        )
+        Crashlytics.crashlytics().record(error: error)
       }
     }
   }
 }
+```
+
+### Sentry
+
+```swift
+import Sentry
+
+extension AppLoggerClient {
+  static func sentry() -> Self {
+    .init { entry in
+      let breadcrumb = Breadcrumb(level: entry.sentryLevel, category: "app")
+      breadcrumb.message = entry.message
+      SentrySDK.addBreadcrumb(breadcrumb)
+
+      if entry.level == .error || entry.level == .fault {
+        SentrySDK.capture(message: entry.message)
+      }
+    }
+  }
+}
+
+private extension LogEntry {
+  var sentryLevel: SentryLevel {
+    switch level {
+    case .debug: .debug
+    case .info: .info
+    case .error: .error
+    case .fault: .fatal
+    default: .info
+    }
+  }
+}
+```
+
+### Datadog
+
+```swift
+import DatadogLogs
+
+extension AppLoggerClient {
+  static func datadog() -> Self {
+    let logger = Logger.create(
+      with: Logger.Configuration(name: "app", remoteLogThreshold: .info)
+    )
+    return .init { entry in
+      switch entry.level {
+      case .debug:   logger.debug(entry.message)
+      case .info:    logger.info(entry.message)
+      case .default: logger.notice(entry.message)
+      case .error:   logger.error(entry.message)
+      case .fault:   logger.critical(entry.message)
+      default:       logger.info(entry.message)
+      }
+    }
+  }
+}
+```
+
+### Composing Everything Together
+
+```swift
+prepareDependencies {
+  $0.loggerClient = .merge(
+    .console(),        // os.Logger (Console.app)
+    .fileLogger(),     // local file (debugging)
+    .sentry(),         // breadcrumbs + error events
+    .crashlytics(),    // crash report context + non-fatals
+    .datadog()         // remote log aggregation
+  )
+}
+
+// One call fans out to ALL 5 destinations:
+@Dependency(\.loggerClient) var logger
+logger.error("Payment failed: \(error)")
 ```
 
 ## Log Levels
