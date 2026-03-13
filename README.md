@@ -284,6 +284,28 @@ logger.info("User logged in")
 logger.error("Network request failed: \(error)")
 ```
 
+Custom destinations for remote platforms (Sentry, Crashlytics, Datadog, etc.) are trivial — just implement `AppLoggerClient.init(log:)`:
+
+```swift
+extension AppLoggerClient {
+  static func crashlytics() -> Self {
+    .init { entry in
+      Crashlytics.crashlytics().log("\(entry.message)")
+      if entry.level == .error || entry.level == .fault {
+        Crashlytics.crashlytics().record(
+          error: NSError(domain: "AppLogger", code: 0, userInfo: [NSDebugDescriptionErrorKey: entry.message])
+        )
+      }
+    }
+  }
+}
+
+// Compose all destinations:
+prepareDependencies {
+  $0.loggerClient = .merge(.console(), .fileLogger(), .crashlytics(), .sentry(), .datadog())
+}
+```
+
 > **Destinations**: `.console()` (os.Logger), `.fileLogger()` (actor-based with rotation), `.noop()`, or any custom destination. Custom `LogFormatter` protocol for output format.
 
 [Full documentation](Sources/Dependencies/LoggerClient/README.md)
