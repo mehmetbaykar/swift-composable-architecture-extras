@@ -59,6 +59,13 @@
       )
       #expect(update.id == "unique-key")
     }
+
+    @Test func `identifiable uses productKey as id`() {
+      let update = SoftwareUpdateInfo(
+        id: "KEY_123", displayName: "macOS 15.4", displayVersion: "15.4", isMajorUpdate: false,
+        productKey: "KEY_123")
+      #expect(update.id == update.productKey)
+    }
   }
 
 #endif

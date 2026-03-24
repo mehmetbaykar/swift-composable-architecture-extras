@@ -109,6 +109,51 @@
         }
       }
     }
+
+    @Suite("ShellResult Edge Cases")
+    struct ShellResultEdgeCaseTests {
+
+      @Test func `ShellResult with negative exit code`() {
+        let result = ShellResult(stdout: "", stderr: "Killed", exitCode: -9)
+        #expect(!result.succeeded)
+        #expect(result.exitCode == -9)
+      }
+
+      @Test func `ShellResult with large exit code`() {
+        let result = ShellResult(stdout: "", stderr: "Segfault", exitCode: 139)
+        #expect(!result.succeeded)
+      }
+
+      @Test func `ShellResult equatable differs on stderr`() {
+        let a = ShellResult(stdout: "hello", stderr: "", exitCode: 0)
+        let c = ShellResult(stdout: "hello", stderr: "warn", exitCode: 0)
+        #expect(a != c)
+      }
+    }
+
+    @Suite("CustomValue Edge Cases")
+    struct CustomValueEdgeCaseTests {
+
+      @Test func `custom client with stderr output`() async throws {
+        let client = ShellClient { _ in
+          ShellResult(stdout: "", stderr: "command not found", exitCode: 127)
+        }
+        let result = try await client.run("nonexistent_command")
+        #expect(!result.succeeded)
+        #expect(result.stderr == "command not found")
+        #expect(result.exitCode == 127)
+      }
+
+      @Test func `custom client with both stdout and stderr`() async throws {
+        let client = ShellClient { _ in
+          ShellResult(stdout: "partial output", stderr: "warning: deprecated", exitCode: 0)
+        }
+        let result = try await client.run("some_command")
+        #expect(result.succeeded)
+        #expect(!result.stdout.isEmpty)
+        #expect(!result.stderr.isEmpty)
+      }
+    }
   }
 
 #endif

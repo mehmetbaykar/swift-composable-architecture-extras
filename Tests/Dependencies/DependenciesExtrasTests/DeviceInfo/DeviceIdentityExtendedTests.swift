@@ -69,6 +69,22 @@ struct DeviceIdentityExtendedTests {
       )
       #expect(identity.macOSVersionName == nil)
     }
+
+    @Test func `macOSVersionName handles version with patch number`() {
+      let identity = DeviceIdentity(
+        name: "Mac", model: "Mac16,1", systemName: "macOS",
+        systemVersion: "15.4.1", totalCoreCount: 8, activeCoreCount: 8, isiOSAppOnMac: false
+      )
+      #expect(identity.macOSVersionName == "Sequoia")
+    }
+
+    @Test func `macOSVersionName handles version 10 returns nil`() {
+      let identity = DeviceIdentity(
+        name: "Mac", model: "Mac16,1", systemName: "macOS",
+        systemVersion: "10.15.7", totalCoreCount: 8, activeCoreCount: 8, isiOSAppOnMac: false
+      )
+      #expect(identity.macOSVersionName == nil)
+    }
   #endif
 
 }
