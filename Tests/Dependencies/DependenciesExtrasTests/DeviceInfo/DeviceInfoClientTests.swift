@@ -120,10 +120,14 @@ struct DeviceInfoClientTests {
           disk: { expectedDisk },
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
+          hostname: { "TestDevice" },
+          bootTime: { .distantPast },
+          systemUptime: { 3600 },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
           network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
           jailbreakStatus: { JailbreakStatus(confidence: .high) },
-          screen: { .zero }
+          screen: { .zero },
+          identifierForVendor: { nil }
         )
       #elseif os(visionOS)
         let client = DeviceInfoClient(
@@ -133,8 +137,12 @@ struct DeviceInfoClientTests {
           disk: { expectedDisk },
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
+          hostname: { "TestDevice" },
+          bootTime: { .distantPast },
+          systemUptime: { 3600 },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
-          network: { NetworkInfo(isConnected: true, interfaceType: .wifi) }
+          network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
+          identifierForVendor: { nil }
         )
       #elseif os(macOS)
         let client = DeviceInfoClient(
@@ -144,9 +152,17 @@ struct DeviceInfoClientTests {
           disk: { expectedDisk },
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
+          hostname: { "TestDevice" },
+          bootTime: { .distantPast },
+          systemUptime: { 3600 },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
           network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
-          screen: { .zero }
+          screen: { .zero },
+          serialNumber: { "C02TEST" },
+          modelName: { .unknown },
+          softwareUpdates: { [] },
+          passwordExpiryDays: { nil },
+          ssid: { nil }
         )
       #elseif os(tvOS)
         let client = DeviceInfoClient(
@@ -156,8 +172,12 @@ struct DeviceInfoClientTests {
           disk: { expectedDisk },
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
+          hostname: { "TestDevice" },
+          bootTime: { .distantPast },
+          systemUptime: { 3600 },
           network: { NetworkInfo(isConnected: true, interfaceType: .wifi) },
-          screen: { .zero }
+          screen: { .zero },
+          identifierForVendor: { nil }
         )
       #elseif os(watchOS)
         let client = DeviceInfoClient(
@@ -167,8 +187,12 @@ struct DeviceInfoClientTests {
           disk: { expectedDisk },
           thermalState: { .serious },
           isLowPowerModeEnabled: { true },
+          hostname: { "TestDevice" },
+          bootTime: { .distantPast },
+          systemUptime: { 3600 },
           battery: { BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging) },
-          screen: { .zero }
+          screen: { .zero },
+          identifierForVendor: { nil }
         )
       #endif
 

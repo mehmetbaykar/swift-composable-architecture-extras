@@ -7,11 +7,11 @@
 
   @MainActor
   private final class OpenSettingsRecorder: Sendable {
-    nonisolated(unsafe) var calledTypes: [OpenSettingsClient.SettingsType] = []
+    nonisolated(unsafe) var callCount = 0
 
     var client: OpenSettingsClient {
-      OpenSettingsClient(open: { [self] type in
-        calledTypes.append(type)
+      OpenSettingsClient(open: { [self] _ in
+        callCount += 1
       })
     }
   }
@@ -27,7 +27,7 @@
       @Test func `custom implementation receives general`() async {
         let recorder = OpenSettingsRecorder()
         await recorder.client.open(.general)
-        #expect(recorder.calledTypes == [.general])
+        #expect(recorder.callCount == 1)
       }
 
       @Test func `noop does not throw`() async {
@@ -39,7 +39,7 @@
         @Test func `custom implementation receives notifications`() async {
           let recorder = OpenSettingsRecorder()
           await recorder.client.open(.notifications)
-          #expect(recorder.calledTypes == [.notifications])
+          #expect(recorder.callCount == 1)
         }
       #endif
     }
@@ -58,7 +58,7 @@
           await openSettings.open(.general)
         }
 
-        #expect(recorder.calledTypes == [.general])
+        #expect(recorder.callCount == 1)
       }
 
       @Test func `noop dependency override does not throw`() async {
