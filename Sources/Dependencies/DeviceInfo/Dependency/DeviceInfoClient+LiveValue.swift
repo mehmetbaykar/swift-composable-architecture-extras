@@ -58,7 +58,7 @@ import Foundation
         jailbreakStatus: { JailbreakMeasurement.measure() },
         screen: { await MainActor.run { ScreenMeasurement.measure() } },
         identifierForVendor: {
-          UIDevice.current.identifierForVendor
+          DispatchQueue.main.sync { UIDevice.current.identifierForVendor }
         }
       )
     }
