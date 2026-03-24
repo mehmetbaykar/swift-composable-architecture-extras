@@ -62,12 +62,12 @@ public struct DeviceInfoClient: Sendable {
     ///
     /// Resets when all apps from the same vendor are deleted. Returns `nil`
     /// before first device unlock after restart.
-    public var identifierForVendor: @Sendable () -> UUID?
+    public var identifierForVendor: @Sendable () async -> UUID?
   #elseif os(watchOS)
     /// A UUID unique to the combination of device and vendor.
     ///
     /// Available on watchOS 6.2+. Same semantics as iOS `identifierForVendor`.
-    public var identifierForVendor: @Sendable () -> UUID?
+    public var identifierForVendor: @Sendable () async -> UUID?
   #endif
 
   #if os(macOS)
@@ -113,7 +113,7 @@ public struct DeviceInfoClient: Sendable {
       network: @escaping @Sendable () async -> NetworkInfo,
       jailbreakStatus: @escaping @Sendable () async -> JailbreakStatus,
       screen: @escaping @Sendable () async -> ScreenInfo,
-      identifierForVendor: @escaping @Sendable () -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -143,7 +143,7 @@ public struct DeviceInfoClient: Sendable {
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,
       network: @escaping @Sendable () async -> NetworkInfo,
-      identifierForVendor: @escaping @Sendable () -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -209,7 +209,7 @@ public struct DeviceInfoClient: Sendable {
       systemUptime: @escaping @Sendable () -> TimeInterval,
       network: @escaping @Sendable () async -> NetworkInfo,
       screen: @escaping @Sendable () async -> ScreenInfo,
-      identifierForVendor: @escaping @Sendable () -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -237,7 +237,7 @@ public struct DeviceInfoClient: Sendable {
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,
       screen: @escaping @Sendable () async -> ScreenInfo,
-      identifierForVendor: @escaping @Sendable () -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?
     ) {
       self.identity = identity
       self.cpu = cpu

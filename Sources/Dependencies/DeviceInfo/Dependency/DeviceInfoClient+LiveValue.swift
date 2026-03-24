@@ -58,7 +58,7 @@ import Foundation
         jailbreakStatus: { JailbreakMeasurement.measure() },
         screen: { await MainActor.run { ScreenMeasurement.measure() } },
         identifierForVendor: {
-          DispatchQueue.main.sync { UIDevice.current.identifierForVendor }
+          await MainActor.run { UIDevice.current.identifierForVendor }
         }
       )
     }
@@ -113,7 +113,7 @@ import Foundation
         },
         network: { await NetworkMeasurement.measure() },
         identifierForVendor: {
-          UIDevice.current.identifierForVendor
+          await MainActor.run { UIDevice.current.identifierForVendor }
         }
       )
     }
@@ -485,7 +485,7 @@ import Foundation
         network: { await NetworkMeasurement.measure() },
         screen: { await MainActor.run { ScreenMeasurement.measure() } },
         identifierForVendor: {
-          UIDevice.current.identifierForVendor
+          await MainActor.run { UIDevice.current.identifierForVendor }
         }
       )
     }
@@ -544,7 +544,7 @@ import Foundation
         battery: { BatteryMeasurement.measure() },
         screen: { await MainActor.run { ScreenMeasurement.measure() } },
         identifierForVendor: {
-          WKInterfaceDevice.current().identifierForVendor
+          await MainActor.run { WKInterfaceDevice.current().identifierForVendor }
         }
       )
     }
