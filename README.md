@@ -33,9 +33,11 @@ Production-ready reducer patterns and dependencies for The Composable Architectu
   - [AppInfo](#appinfo)
   - [AudioPlayer](#audioplayer)
   - [DeviceInfo](#deviceinfo)
+  - [LaunchAtLogin](#launchatlogin)
   - [LoggerClient](#loggerclient)
   - [OpenSettings](#opensettings)
   - [OpenURL](#openurl)
+  - [ShellClient](#shellclient)
 - [Privacy Manifest](#privacy-manifest)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
@@ -71,7 +73,7 @@ Then add the product to your target:
 | Platform | Minimum Version |
 | -------- | --------------- |
 | iOS      | 16.0+           |
-| macOS    | 13.0+           |
+| macOS    | 15.0+           |
 | tvOS     | 16.0+           |
 | watchOS  | 9.0+            |
 | Swift    | 6.2+            |
@@ -235,7 +237,7 @@ try await audioPlayer.play(URL(string: "sound.mp3")!)
 
 ### DeviceInfo
 
-A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity, thermal state, low power mode, device identity (including core counts and `isiOSAppOnMac`), screen info (resolution, scale, PPI, notch/Dynamic Island detection), and jailbreak detection (iOS).
+A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity (with interface enumeration and primary IP), thermal state, low power mode, device identity (including core counts and `isiOSAppOnMac`), screen info (resolution, scale, PPI, notch/Dynamic Island detection), jailbreak detection (iOS), hostname, boot time, system uptime, vendor identifier, and macOS-specific features (serial number, model name, software updates, password expiry, Wi-Fi SSID).
 
 ```swift
 @Dependency(\.deviceInfo) var deviceInfo
@@ -263,6 +265,24 @@ let screen = await deviceInfo.screen()
 > **Platform Support**: iOS, macOS, tvOS, watchOS. Battery excluded on tvOS, network excluded on watchOS. Screen excluded on visionOS. Jailbreak detection iOS only.
 
 [Full documentation](Sources/Dependencies/DeviceInfo/README.md)
+
+### LaunchAtLogin
+
+A macOS TCA dependency for managing launch-at-login registration via `SMAppService`. Includes a ready-made SwiftUI `Toggle` view for settings screens.
+
+```swift
+@Dependency(\.launchAtLogin) var launchAtLogin
+
+let isEnabled = launchAtLogin.isEnabled()
+try launchAtLogin.setEnabled(true)
+
+// Or use the built-in toggle in SwiftUI:
+LaunchAtLoginClient.Toggle()
+```
+
+> **Platform Support**: macOS and Mac Catalyst only.
+
+[Full documentation](Sources/Dependencies/LaunchAtLogin/README.md)
 
 ### LoggerClient
 
@@ -312,12 +332,17 @@ prepareDependencies {
 
 ### OpenSettings
 
-A cross-platform TCA dependency for opening system settings. Platform-specific enum cases ensure consumers only see options their platform supports.
+A cross-platform TCA dependency for opening system settings. Platform-specific enum cases ensure consumers only see options their platform supports. On macOS, supports approximately 30 system preference panes and 14 Privacy sub-panes via the `x-apple.systempreferences:` URL scheme.
 
 ```swift
 @Dependency(\.openSettings) var openSettings
 
 await openSettings.open(.general)
+
+#if os(macOS)
+await openSettings.open(.softwareUpdate)
+await openSettings.open(.privacy(.fullDiskAccess))
+#endif
 ```
 
 [Full documentation](Sources/Dependencies/OpenSettings/README.md)
@@ -342,16 +367,34 @@ await openURL(URL(string: "https://example.com")!, prefersInApp: true)
 
 [Full documentation](Sources/Dependencies/OpenURL/README.md)
 
+### ShellClient
+
+A macOS-only TCA dependency for executing shell commands via `/bin/zsh -c`. Returns stdout, stderr, and exit code in a `ShellResult` struct. Built on [swift-subprocess](https://github.com/swiftlang/swift-subprocess).
+
+```swift
+@Dependency(\.shellClient) var shellClient
+
+let result = try await shellClient.run("git rev-parse --abbrev-ref HEAD")
+if result.succeeded {
+  // result.stdout contains the branch name
+}
+```
+
+> **Platform Support**: macOS only. Compiles to an empty module on other platforms.
+
+[Full documentation](Sources/Dependencies/ShellClient/README.md)
+
 ## Privacy Manifest
 
 This package includes a `PrivacyInfo.xcprivacy` privacy manifest as required by Apple for third-party SDKs.
 
 ### Declared API Categories
 
-| Category                                                     | Reason Code | Usage                                                                                                                             |
-| ------------------------------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Disk Space (`NSPrivacyAccessedAPICategoryDiskSpace`)         | `85F4.1`    | `DeviceInfo` module queries disk capacity via `URLResourceKey` to display storage information to the user                         |
-| File Timestamp (`NSPrivacyAccessedAPICategoryFileTimestamp`) | `C617.1`    | `DeviceInfo` module's jailbreak detection (iOS only) uses `FileManager.attributesOfItem(atPath:)` which internally calls `stat()` |
+| Category                                                       | Reason Code | Usage                                                                                                                             |
+| -------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Disk Space (`NSPrivacyAccessedAPICategoryDiskSpace`)           | `85F4.1`    | `DeviceInfo` module queries disk capacity via `URLResourceKey` to display storage information to the user                         |
+| File Timestamp (`NSPrivacyAccessedAPICategoryFileTimestamp`)   | `C617.1`    | `DeviceInfo` module's jailbreak detection (iOS only) uses `FileManager.attributesOfItem(atPath:)` which internally calls `stat()` |
+| System Boot Time (`NSPrivacyAccessedAPICategorySystemBootTime`) | `35F9.1`    | `DeviceInfo` module's `bootTime` property uses `sysctl` with `CTL_KERN` + `KERN_BOOTTIME` to read the last boot timestamp        |
 
 ### For App Developers
 

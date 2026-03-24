@@ -67,7 +67,8 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Subprocess", package: "swift-subprocess"),
       ],
-      path: "Sources/Dependencies/ShellClient"
+      path: "Sources/Dependencies/ShellClient",
+      exclude: ["README.md"]
     ),
     .dependencyTarget(name: "LaunchAtLogin"),
   ]
