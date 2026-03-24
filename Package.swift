@@ -65,7 +65,10 @@ let package = Package(
       name: "ShellClient",
       dependencies: [
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Subprocess", package: "swift-subprocess"),
+        .product(
+          name: "Subprocess",
+          package: "swift-subprocess",
+          condition: .when(platforms: [.macOS])),
       ],
       path: "Sources/Dependencies/ShellClient",
       exclude: ["README.md"]
