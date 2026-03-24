@@ -5,7 +5,7 @@ let package = Package(
   name: "swift-composable-architecture-extras",
   platforms: [
     .iOS(.v16),
-    .macOS(.v13),
+    .macOS(.v15),
     .tvOS(.v16),
     .watchOS(.v9),
   ],
@@ -21,6 +21,8 @@ let package = Package(
     .singleTargetLibrary(name: "LoggerClient"),
     .singleTargetLibrary(name: "OpenSettings"),
     .singleTargetLibrary(name: "OpenURL"),
+    .singleTargetLibrary(name: "ShellClient"),
+    .singleTargetLibrary(name: "LaunchAtLogin"),
     // Standalone — Reducers
     .singleTargetLibrary(name: "Analytics"),
     .singleTargetLibrary(name: "AppStoreOverlay"),
@@ -31,7 +33,7 @@ let package = Package(
     .singleTargetLibrary(name: "ScreenAwake"),
     .singleTargetLibrary(name: "ScreenBrightness"),
   ],
-  dependencies: [.tca(), .deviceKit()],
+  dependencies: [.tca(), .deviceKit(), .subprocess()],
   targets: [
     .mainUmbrellaTarget(),
     .reducersUmbrellaTarget(),
@@ -59,6 +61,15 @@ let package = Package(
     ),
     .dependencyTarget(name: "OpenSettings"),
     .dependencyTarget(name: "OpenURL"),
+    .target(
+      name: "ShellClient",
+      dependencies: [
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Subprocess", package: "swift-subprocess"),
+      ],
+      path: "Sources/Dependencies/ShellClient"
+    ),
+    .dependencyTarget(name: "LaunchAtLogin"),
   ]
 )
 
@@ -102,6 +113,8 @@ extension PackageDescription.Target {
         "LoggerClient",
         "OpenSettings",
         "OpenURL",
+        "ShellClient",
+        "LaunchAtLogin",
       ],
       path: "Sources/Dependencies/DependenciesExtras"
     )
@@ -165,6 +178,12 @@ extension Package.Dependency {
     return .package(
       url: "https://github.com/devicekit/DeviceKit.git",
       from: "5.7.0")
+  }
+
+  static func subprocess() -> Package.Dependency {
+    return .package(
+      url: "https://github.com/swiftlang/swift-subprocess.git",
+      from: "0.1.0")
   }
 }
 
