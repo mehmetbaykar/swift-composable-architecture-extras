@@ -39,19 +39,17 @@ public struct DeviceIdentity: Sendable, Equatable {
     self.isiOSAppOnMac = isiOSAppOnMac
   }
 
-  /// The macOS marketing version name (e.g., "Sequoia" for macOS 15).
-  ///
-  /// Returns `nil` on non-macOS platforms or for unrecognized version numbers.
-  public var macOSVersionName: String? {
-    #if os(macOS)
+  #if os(macOS)
+    /// The macOS marketing version name (e.g., "Sequoia" for macOS 15).
+    ///
+    /// Returns `nil` for unrecognized version numbers.
+    public var macOSVersionName: String? {
       guard let major = Int(systemVersion.components(separatedBy: ".").first ?? "") else {
         return nil
       }
       return Self.versionNames[major]
-    #else
-      return nil
-    #endif
-  }
+    }
+  #endif
 
   /// A default empty identity value.
   public static let empty = DeviceIdentity(

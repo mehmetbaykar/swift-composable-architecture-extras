@@ -71,10 +71,4 @@ struct DeviceIdentityExtendedTests {
     }
   #endif
 
-  #if !os(macOS)
-    @Test func `macOSVersionName returns nil on non-macOS`() {
-      let identity = DeviceIdentity.empty
-      #expect(identity.macOSVersionName == nil)
-    }
-  #endif
 }
