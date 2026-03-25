@@ -37,7 +37,7 @@ import Foundation
           ProcessInfo.processInfo.isLowPowerModeEnabled
         },
         hostname: {
-          ProcessInfo.processInfo.hostName
+          await MainActor.run { UIDevice.current.name }
         },
         bootTime: {
           var mib = [CTL_KERN, KERN_BOOTTIME]
@@ -94,7 +94,7 @@ import Foundation
           ProcessInfo.processInfo.isLowPowerModeEnabled
         },
         hostname: {
-          ProcessInfo.processInfo.hostName
+          await MainActor.run { UIDevice.current.name }
         },
         bootTime: {
           var mib = [CTL_KERN, KERN_BOOTTIME]
@@ -468,7 +468,7 @@ import Foundation
           ProcessInfo.processInfo.isLowPowerModeEnabled
         },
         hostname: {
-          ProcessInfo.processInfo.hostName
+          await MainActor.run { UIDevice.current.name }
         },
         bootTime: {
           var mib = [CTL_KERN, KERN_BOOTTIME]
@@ -527,7 +527,7 @@ import Foundation
           ProcessInfo.processInfo.isLowPowerModeEnabled
         },
         hostname: {
-          ProcessInfo.processInfo.hostName
+          await MainActor.run { WKInterfaceDevice.current().name }
         },
         bootTime: {
           var mib = [CTL_KERN, KERN_BOOTTIME]

@@ -25,7 +25,7 @@ public struct DeviceInfoClient: Sendable {
   /// - macOS: `Host.current().localizedName`
   /// - iOS/tvOS: `UIDevice.current.name` (returns generic name on iOS 16+ without entitlement)
   /// - watchOS: `WKInterfaceDevice.current().name`
-  public var hostname: @Sendable () -> String
+  public var hostname: @Sendable () async -> String
 
   /// The date when the device was last booted.
   ///
@@ -106,7 +106,7 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
-      hostname: @escaping @Sendable () -> String,
+      hostname: @escaping @Sendable () async -> String,
       bootTime: @escaping @Sendable () -> Date,
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,
@@ -138,7 +138,7 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
-      hostname: @escaping @Sendable () -> String,
+      hostname: @escaping @Sendable () async -> String,
       bootTime: @escaping @Sendable () -> Date,
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,
@@ -166,7 +166,7 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
-      hostname: @escaping @Sendable () -> String,
+      hostname: @escaping @Sendable () async -> String,
       bootTime: @escaping @Sendable () -> Date,
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,
@@ -204,7 +204,7 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
-      hostname: @escaping @Sendable () -> String,
+      hostname: @escaping @Sendable () async -> String,
       bootTime: @escaping @Sendable () -> Date,
       systemUptime: @escaping @Sendable () -> TimeInterval,
       network: @escaping @Sendable () async -> NetworkInfo,
@@ -232,7 +232,7 @@ public struct DeviceInfoClient: Sendable {
       disk: @escaping @Sendable () -> DiskInfo,
       thermalState: @escaping @Sendable () -> DeviceThermalState,
       isLowPowerModeEnabled: @escaping @Sendable () -> Bool,
-      hostname: @escaping @Sendable () -> String,
+      hostname: @escaping @Sendable () async -> String,
       bootTime: @escaping @Sendable () -> Date,
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,

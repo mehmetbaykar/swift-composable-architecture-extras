@@ -10,9 +10,9 @@ struct DeviceInfoExtendedTests {
   @Suite("Noop")
   struct NoopTests {
 
-    @Test func `noop hostname returns empty string`() {
+    @Test func `noop hostname returns empty string`() async {
       let client = DeviceInfoClient.noop
-      #expect(client.hostname() == "")
+      #expect(await client.hostname() == "")
     }
 
     @Test func `noop bootTime returns distant past`() {
@@ -59,12 +59,12 @@ struct DeviceInfoExtendedTests {
   @Suite("WithDependencies")
   struct WithDependenciesTests {
 
-    @Test func `overridden hostname returns custom value`() {
-      withDependencies {
+    @Test func `overridden hostname returns custom value`() async {
+      await withDependencies {
         $0.deviceInfo.hostname = { "Test-Device" }
       } operation: {
         @Dependency(\.deviceInfo) var deviceInfo
-        #expect(deviceInfo.hostname() == "Test-Device")
+        #expect(await deviceInfo.hostname() == "Test-Device")
       }
     }
 
