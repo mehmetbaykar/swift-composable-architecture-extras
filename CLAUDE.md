@@ -29,7 +29,7 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 Sources/
 ├── ComposableArchitectureExtras/  # Main umbrella (@_exported import ReducersExtras + DependenciesExtras)
 │   └── Resources/
-│       └── PrivacyInfo.xcprivacy  # Privacy manifest (DiskSpace + FileTimestamp API declarations)
+│       └── PrivacyInfo.xcprivacy  # Privacy manifest (DiskSpace + FileTimestamp + SystemBootTime API declarations)
 │
 ├── Reducers/                      # Grouping directory (NOT a target)
 │   ├── ReducersExtras/            # Internal umbrella for reducer modules

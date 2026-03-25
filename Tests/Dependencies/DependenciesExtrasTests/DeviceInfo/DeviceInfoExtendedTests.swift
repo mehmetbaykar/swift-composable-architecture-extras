@@ -54,6 +54,14 @@ struct DeviceInfoExtendedTests {
         #expect(ssid == nil)
       }
     #endif
+
+    #if os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)
+      @Test func `noop identifierForVendor returns nil`() async {
+        let client = DeviceInfoClient.noop
+        let id = await client.identifierForVendor()
+        #expect(id == nil)
+      }
+    #endif
   }
 
   @Suite("WithDependencies")
@@ -151,6 +159,19 @@ struct DeviceInfoExtendedTests {
           @Dependency(\.deviceInfo) var deviceInfo
           let ssid = await deviceInfo.ssid()
           #expect(ssid == "HomeNetwork")
+        }
+      }
+    #endif
+
+    #if os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)
+      @Test func `overridden identifierForVendor returns custom value`() async {
+        let expected = UUID(uuidString: "E621E1F8-C36C-495A-93FC-0C247A3E6E5F")
+        await withDependencies {
+          $0.deviceInfo.identifierForVendor = { expected }
+        } operation: {
+          @Dependency(\.deviceInfo) var deviceInfo
+          let id = await deviceInfo.identifierForVendor()
+          #expect(id == expected)
         }
       }
     #endif
