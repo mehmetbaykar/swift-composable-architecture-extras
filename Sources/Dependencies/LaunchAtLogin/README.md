@@ -8,8 +8,8 @@ A macOS TCA dependency for managing launch-at-login registration.
 unregistering the app as a login item via `SMAppService.mainApp`. Includes
 a ready-made SwiftUI `Toggle` view for settings screens.
 
-Based on the [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin)
-pattern by Sindre Sorhus.
+Based on [LaunchAtLogin-Modern](https://github.com/sindresorhus/LaunchAtLogin-Modern)
+by Sindre Sorhus. Includes error logging via `os.Logger`.
 
 ## Usage
 

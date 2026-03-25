@@ -296,7 +296,7 @@ if result.succeeded {
 **Key Features**:
 - `LaunchAtLoginClient`: Dependency client with `isEnabled()`, `setEnabled(_:)`, `wasLaunchedAtLogin()`
 - `LaunchAtLoginClient.Toggle`: Convenience SwiftUI toggle view with `LocalizedStringKey` and `@ViewBuilder` label overloads
-- Based on sindresorhus/LaunchAtLogin pattern
+- Based on [sindresorhus/LaunchAtLogin-Modern](https://github.com/sindresorhus/LaunchAtLogin-Modern) pattern with error logging via `os.Logger`
 - All source wrapped in `#if os(macOS) || targetEnvironment(macCatalyst)`
 - `.noop` reports launch-at-login as disabled
 

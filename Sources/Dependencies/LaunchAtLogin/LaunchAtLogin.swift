@@ -2,13 +2,14 @@
 
   import Dependencies
   import DependenciesMacros
+  import OSLog
   import ServiceManagement
   import SwiftUI
 
   /// A dependency client for managing launch-at-login behavior on macOS.
   ///
   /// Uses `SMAppService.mainApp` to register/unregister the app as a login item.
-  /// Based on the [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin) pattern.
+  /// Based on [LaunchAtLogin-Modern](https://github.com/sindresorhus/LaunchAtLogin-Modern).
   @DependencyClient
   public struct LaunchAtLoginClient: Sendable {
     /// Whether the app is currently registered to launch at login.
@@ -26,18 +27,30 @@
     public var wasLaunchedAtLogin: @Sendable () -> Bool = { false }
   }
 
+  private let launchAtLoginLogger = Logger(
+    subsystem: Bundle.main.bundleIdentifier ?? "LaunchAtLogin",
+    category: "LaunchAtLogin"
+  )
+
   extension LaunchAtLoginClient: DependencyKey {
     public static var liveValue: LaunchAtLoginClient {
       .init(
         isEnabled: { SMAppService.mainApp.status == .enabled },
         setEnabled: { newValue in
-          if newValue {
-            if SMAppService.mainApp.status == .enabled {
-              try? SMAppService.mainApp.unregister()
+          do {
+            if newValue {
+              if SMAppService.mainApp.status == .enabled {
+                try? SMAppService.mainApp.unregister()
+              }
+              try SMAppService.mainApp.register()
+            } else {
+              try SMAppService.mainApp.unregister()
             }
-            try SMAppService.mainApp.register()
-          } else {
-            try SMAppService.mainApp.unregister()
+          } catch {
+            launchAtLoginLogger.error(
+              "Failed to \(newValue ? "enable" : "disable") launch at login: \(error.localizedDescription)"
+            )
+            throw error
           }
         },
         wasLaunchedAtLogin: {
@@ -100,9 +113,20 @@
     /// Creates a toggle with a localized string key as its label.
     ///
     /// - Parameter titleKey: The localized string key for the toggle label.
-    ///   Defaults to `"Launch at login"`.
-    public init(_ titleKey: LocalizedStringKey = "Launch at login") {
+    public init(_ titleKey: LocalizedStringKey) {
       label = Text(titleKey)
+    }
+
+    /// Creates a toggle with a string as its label.
+    ///
+    /// - Parameter title: The string for the toggle label.
+    public init(_ title: some StringProtocol) {
+      label = Text(title)
+    }
+
+    /// Creates a toggle with the default title of "Launch at login".
+    public init() {
+      self.init("Launch at login")
     }
   }
 
