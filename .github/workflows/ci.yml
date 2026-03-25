@@ -26,13 +26,13 @@ jobs:
         platform: [iOS, macOS, tvOS, watchOS]
         include:
           - platform: iOS
-            destination: "platform=iOS Simulator,name=iPhone 17,OS=latest"
+            destination: "platform=iOS Simulator,name=iPhone 17"
           - platform: macOS
             destination: "platform=macOS"
           - platform: tvOS
-            destination: "platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest"
+            destination: "platform=tvOS Simulator,name=Apple TV 4K (3rd generation)"
           - platform: watchOS
-            destination: "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm),OS=latest"
+            destination: "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)"
     steps:
       - uses: actions/checkout@v6
 
