@@ -33,7 +33,13 @@ let package = Package(
     .singleTargetLibrary(name: "ScreenAwake"),
     .singleTargetLibrary(name: "ScreenBrightness"),
   ],
-  dependencies: [.tca(), .deviceKit(), .subprocess()],
+  dependencies: {
+    var deps: [Package.Dependency] = [.tca(), .deviceKit()]
+    #if os(macOS)
+      deps.append(.subprocess())
+    #endif
+    return deps
+  }(),
   targets: [
     .mainUmbrellaTarget(),
     .reducersUmbrellaTarget(),
