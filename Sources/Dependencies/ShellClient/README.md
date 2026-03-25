@@ -28,6 +28,8 @@ struct MyFeature {
 
   enum Action {
     case fetchBranch
+    case branchLoaded(String)
+    case branchFailed(String)
   }
 
   @Dependency(\.shellClient) var shellClient

@@ -28,7 +28,7 @@ let thermal = deviceInfo.thermalState()
 let lowPower = deviceInfo.isLowPowerModeEnabled()
 
 // Cross-platform properties
-let hostname = deviceInfo.hostname()
+let hostname = await deviceInfo.hostname()
 let bootTime = deviceInfo.bootTime()
 let uptime = deviceInfo.systemUptime()
 
@@ -57,7 +57,7 @@ let screen = await deviceInfo.screen()
 #endif
 
 #if os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)
-let vendorID = deviceInfo.identifierForVendor()
+let vendorID = await deviceInfo.identifierForVendor()
 #endif
 
 #if os(macOS)
@@ -117,14 +117,14 @@ let store = TestStore(initialState: MyFeature.State()) {
 | `memory` | `@Sendable () -> MemoryInfo` | RAM usage, total, used, available |
 | `disk` | `@Sendable () -> DiskInfo` | Disk usage, total, used, available |
 | `thermalState` | `@Sendable () -> DeviceThermalState` | Thermal state (nominal/fair/serious/critical) |
-| `hostname` | `@Sendable () -> String` | User-assigned device name |
+| `hostname` | `@Sendable () async -> String` | User-assigned device name |
 | `bootTime` | `@Sendable () -> Date` | Date of last device boot (sysctl) |
 | `systemUptime` | `@Sendable () -> TimeInterval` | Seconds since last wake (excludes sleep) |
 | `battery` | `@Sendable () async -> BatteryInfo` | Battery level and state (not tvOS) |
 | `network` | `@Sendable () async -> NetworkInfo` | Connectivity, interface type, IP addresses (not watchOS) |
 | `screen` | `@Sendable () async -> ScreenInfo` | Screen resolution, scale, PPI, notch detection (not visionOS) |
 | `jailbreakStatus` | `@Sendable () async -> JailbreakStatus` | Jailbreak confidence level (iOS only) |
-| `identifierForVendor` | `@Sendable () -> UUID?` | Vendor-scoped device UUID (iOS, tvOS, visionOS, watchOS) |
+| `identifierForVendor` | `@Sendable () async -> UUID?` | Vendor-scoped device UUID (iOS, tvOS, visionOS, watchOS) |
 | `serialNumber` | `@Sendable () -> String` | Hardware serial number (macOS only) |
 | `modelName` | `@Sendable () async -> ModelNameInfo` | Marketing name and metadata (macOS only) |
 | `softwareUpdates` | `@Sendable () -> [SoftwareUpdateInfo]` | Pending macOS software updates (macOS only) |
