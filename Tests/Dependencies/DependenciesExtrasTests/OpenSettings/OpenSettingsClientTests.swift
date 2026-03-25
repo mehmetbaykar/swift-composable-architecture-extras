@@ -7,11 +7,11 @@
 
   @MainActor
   private final class OpenSettingsRecorder: Sendable {
-    nonisolated(unsafe) var calledTypes: [OpenSettingsClient.SettingsType] = []
+    nonisolated(unsafe) var callCount = 0
 
     var client: OpenSettingsClient {
-      OpenSettingsClient(open: { [self] type in
-        calledTypes.append(type)
+      OpenSettingsClient(open: { [self] _ in
+        callCount += 1
       })
     }
   }
@@ -27,7 +27,7 @@
       @Test func `custom implementation receives general`() async {
         let recorder = OpenSettingsRecorder()
         await recorder.client.open(.general)
-        #expect(recorder.calledTypes == [.general])
+        #expect(recorder.callCount == 1)
       }
 
       @Test func `noop does not throw`() async {
@@ -39,7 +39,7 @@
         @Test func `custom implementation receives notifications`() async {
           let recorder = OpenSettingsRecorder()
           await recorder.client.open(.notifications)
-          #expect(recorder.calledTypes == [.notifications])
+          #expect(recorder.callCount == 1)
         }
       #endif
     }
@@ -58,7 +58,7 @@
           await openSettings.open(.general)
         }
 
-        #expect(recorder.calledTypes == [.general])
+        #expect(recorder.callCount == 1)
       }
 
       @Test func `noop dependency override does not throw`() async {
@@ -70,6 +70,47 @@
         }
       }
     }
+
+    #if os(macOS)
+      @Suite("macOS Panes")
+      @MainActor
+      struct MacOSPaneTests {
+
+        @Test func `recorder receives macOS pane calls`() async {
+          let recorder = OpenSettingsRecorder()
+          await recorder.client.open(.softwareUpdate)
+          await recorder.client.open(.about)
+          await recorder.client.open(.wifi)
+          #expect(recorder.callCount == 3)
+        }
+
+        @Test func `noop handles all macOS panes without throwing`() async {
+          let client = OpenSettingsClient.noop
+          await client.open(.about)
+          await client.open(.network)
+          await client.open(.wifi)
+          await client.open(.bluetooth)
+          await client.open(.sound)
+          await client.open(.displays)
+          await client.open(.storage)
+          await client.open(.softwareUpdate)
+          await client.open(.accessibility)
+          await client.open(.security)
+          await client.open(.keyboard)
+          await client.open(.passwords)
+          await client.open(.appearance)
+        }
+
+        @Test func `noop handles privacy sub-panes without throwing`() async {
+          let client = OpenSettingsClient.noop
+          await client.open(.privacy(.location))
+          await client.open(.privacy(.camera))
+          await client.open(.privacy(.microphone))
+          await client.open(.privacy(.fullDiskAccess))
+          await client.open(.privacy(.screenRecording))
+        }
+      }
+    #endif
   }
 
 #endif

@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Exposes 17 products: 3 umbrellas (**ComposableArchitectureExtras**, **ReducersExtras**, **DependenciesExtras**) and 14 standalone modules. Includes: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **AudioPlayer** (cross-platform audio playback), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **LoggerClient** (composable logging with console + file destinations), **OpenSettings** (system settings navigation), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), and **ScreenBrightness** (brightness control).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Exposes 19 products: 3 umbrellas (**ComposableArchitectureExtras**, **ReducersExtras**, **DependenciesExtras**) and 16 standalone modules. Includes: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **AudioPlayer** (cross-platform audio playback), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection + hostname + boot time + macOS serial/model/updates), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **LaunchAtLogin** (macOS launch-at-login via SMAppService), **LoggerClient** (composable logging with console + file destinations), **OpenSettings** (system settings navigation with ~30 macOS panes), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), **ScreenBrightness** (brightness control), and **ShellClient** (macOS shell command execution via swift-subprocess).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -14,13 +14,13 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 
 ## Package Configuration
 <!-- AUTO-MANAGED: package-config -->
-- **Products** (17 total):
-  - **Umbrellas**: `ComposableArchitectureExtras` (everything), `ReducersExtras` (8 reducer modules), `DependenciesExtras` (6 dependency modules)
-  - **Standalone Dependencies**: `AppInfo`, `AudioPlayer`, `DeviceInfo`, `LoggerClient`, `OpenSettings`, `OpenURL`
+- **Products** (19 total):
+  - **Umbrellas**: `ComposableArchitectureExtras` (everything), `ReducersExtras` (8 reducer modules), `DependenciesExtras` (8 dependency modules)
+  - **Standalone Dependencies**: `AppInfo`, `AudioPlayer`, `DeviceInfo`, `LaunchAtLogin`, `LoggerClient`, `OpenSettings`, `OpenURL`, `ShellClient`
   - **Standalone Reducers**: `Analytics`, `AppStoreOverlay`, `Filter`, `FormValidation`, `Haptics`, `Printers`, `ScreenAwake`, `ScreenBrightness`
 - **TCA Version**: 1.23.1+ (< 2.0.0)
 - **Swift Version**: 6.0+
-- **Platforms**: iOS 16+, macOS 13+, tvOS 16+, watchOS 9+
+- **Platforms**: iOS 16+, macOS 15+, tvOS 16+, watchOS 9+
 <!-- END AUTO-MANAGED -->
 
 ## Architecture
@@ -29,7 +29,7 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
 Sources/
 ├── ComposableArchitectureExtras/  # Main umbrella (@_exported import ReducersExtras + DependenciesExtras)
 │   └── Resources/
-│       └── PrivacyInfo.xcprivacy  # Privacy manifest (DiskSpace + FileTimestamp API declarations)
+│       └── PrivacyInfo.xcprivacy  # Privacy manifest (DiskSpace + FileTimestamp + SystemBootTime API declarations)
 │
 ├── Reducers/                      # Grouping directory (NOT a target)
 │   ├── ReducersExtras/            # Internal umbrella for reducer modules
@@ -75,7 +75,7 @@ Sources/
 │
 └── Dependencies/                  # Grouping directory (NOT a target)
     ├── DependenciesExtras/        # Internal umbrella for dependency-only modules
-    │   └── DependenciesExtras.swift # @_exported imports AppInfo + AudioPlayer + DeviceInfo + LoggerClient + OpenSettings + OpenURL
+    │   └── DependenciesExtras.swift # @_exported imports all 8 dependency modules (ShellClient + LaunchAtLogin conditionally)
     │
     ├── AppInfo/                   # App bundle metadata (version, build, bundle ID)
     │   └── Dependency/            # AppInfoClient (reads from Bundle.main)
@@ -84,10 +84,10 @@ Sources/
     │   ├── AudioPlayerClient.swift            # AudioPlayerClient dependency interface
     │   └── AudioPlayerClient+LiveValue.swift  # AVAudioPlayer-based live implementation
     │
-    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, screen, jailbreak)
+    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, screen, jailbreak, hostname, boot time, macOS serial/model/updates)
     │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network)
     │   ├── Jailbreak/             # iOS-only jailbreak detection checks (Filesystem, Sandbox, Dyld, Environment)
-    │   ├── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, DeviceThermalState, ScreenInfo, ScreenRatio, JailbreakStatus, etc.
+    │   ├── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, NetworkInterface, DeviceThermalState, ScreenInfo, ScreenRatio, JailbreakStatus, ModelNameInfo, SoftwareUpdateInfo, etc.
     │   └── Screen/                # ScreenMeasurement (DeviceKit on iOS/tvOS/watchOS, NSScreen on macOS)
     │
     ├── LoggerClient/              # Composable logging with console + file destinations
@@ -96,11 +96,17 @@ Sources/
     │   ├── Console/               # .console() factory (os.Logger backend)
     │   └── FileLogger/            # .fileLogger() factory, FileLogActor (thread-safe I/O + rotation)
     │
-    ├── OpenSettings/              # System settings navigation (cross-platform)
+    ├── OpenSettings/              # System settings navigation (cross-platform, ~30 macOS panes)
     │   └── Dependency/            # OpenSettingsClient (platform-specific implementations)
     │
-    └── OpenURL/                   # URL opening with in-app browsing (iOS SFSafariVC)
-        └── Dependency/            # OpenURLClient (external + in-app, excludes watchOS)
+    ├── OpenURL/                   # URL opening with in-app browsing (iOS SFSafariVC)
+    │   └── Dependency/            # OpenURLClient (external + in-app, excludes watchOS)
+    │
+    ├── ShellClient/               # macOS shell command execution (swift-subprocess)
+    │   └── ShellClient.swift      # ShellClient, ShellResult, DependencyKey
+    │
+    └── LaunchAtLogin/             # macOS launch-at-login (SMAppService)
+        └── LaunchAtLogin.swift    # LaunchAtLoginClient, Toggle, DependencyKey
 
 Tests/
 ├── AllTests.xctestplan              # 2 umbrella test targets
@@ -123,7 +129,9 @@ Tests/
         ├── DeviceInfo/                  # Client tests, model tests, ByteCount/Percentage tests
         ├── LoggerClient/                # Merge, formatter, file I/O, rotation, convenience methods, DI tests
         ├── OpenSettings/                # Client tests, withDependencies integration tests
-        └── OpenURL/                     # Client tests, recorder pattern, callAsFunction tests
+        ├── OpenURL/                     # Client tests, recorder pattern, callAsFunction tests
+        ├── ShellClient/                 # Shell command execution tests (macOS only)
+        └── LaunchAtLogin/               # Launch-at-login client tests (macOS only)
 ```
 <!-- END AUTO-MANAGED -->
 
@@ -148,15 +156,20 @@ let bundleId = appInfo.bundleIdentifier()
 ```
 
 ### DeviceInfo
-**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, low power mode, identity with core counts, screen info, jailbreak detection)
+**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, low power mode, identity with core counts, screen info, jailbreak detection, hostname, boot time, system uptime, macOS serial/model/updates/password/SSID)
 
 **Key Features**:
 - `DeviceInfoClient`: Manual struct (no `@DependencyClient` due to `#if` conditional properties)
 - One-shot queries: `identity` (async, includes `totalCoreCount`/`activeCoreCount`/`isiOSAppOnMac`), `cpu` (async, 100ms measurement), `memory`, `disk`, `thermalState`, `isLowPowerModeEnabled`
-- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS), `screen` (async, not visionOS), `jailbreakStatus` (async, iOS only)
-- `DeviceIdentity` includes `totalCoreCount`, `activeCoreCount`, and `isiOSAppOnMac` (Foundation `ProcessInfo` on all platforms)
+- Cross-platform additions: `hostname` (sync, device name), `bootTime` (sync, kernel boot time via sysctl), `systemUptime` (sync, awake time via ProcessInfo)
+- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS), `screen` (async, not visionOS), `jailbreakStatus` (async, iOS only), `identifierForVendor` (iOS/tvOS/watchOS/visionOS)
+- macOS-only: `serialNumber` (sync, IOKit), `modelName` (async, `ModelNameInfo` with identifier/marketing name/icon), `softwareUpdates` (sync, `[SoftwareUpdateInfo]`), `passwordExpiryDays` (async, OpenDirectory), `ssid` (async, CoreWLAN)
+- `DeviceIdentity` includes `totalCoreCount`, `activeCoreCount`, `isiOSAppOnMac`, and computed `macOSVersionName` (e.g. "Sequoia" for macOS 15)
 - `isLowPowerModeEnabled`: sync one-shot read, false on macOS < 12
 - Rich value types: `ByteCount` (formatted bytes), `Percentage` (0-1 raw, 0-100 display)
+- `ModelNameInfo` (macOS): `modelIdentifier`, `marketingName`, `shortName`, `year`, `iconSymbolName` (SF Symbol)
+- `SoftwareUpdateInfo` (macOS): `displayName`, `displayVersion`, `isMajorUpdate`, `productKey`
+- `NetworkInfo` extended: `primaryIPAddress`, `interfaces: [NetworkInterface]` with per-interface type/IP/active status
 - `ScreenInfo`: resolution (width/height/scale) on all non-visionOS platforms; iOS adds `screenRatio`, `diagonal`, `ppi`, `hasNotch`, `hasDynamicIsland`, `hasRoundedDisplayCorners` via DeviceKit; tvOS adds `screenRatio`; watchOS adds `screenRatio`, `diagonal`, `ppi`
 - `JailbreakStatus`: confidence-based result (`.nominal`, `.low`, `.moderate`, `.high`) from filesystem, sandbox, dyld, and environment checks
 - macOS battery includes extended IOKit properties (cycleCount, temperature, maxCapacity, adapterName)
@@ -173,6 +186,11 @@ let disk = deviceInfo.disk()
 let thermal = deviceInfo.thermalState()
 let lowPower = deviceInfo.isLowPowerModeEnabled()
 
+// Cross-platform additions
+let host = deviceInfo.hostname()
+let boot = deviceInfo.bootTime()
+let uptime = deviceInfo.systemUptime()
+
 #if !os(tvOS)
 let battery = await deviceInfo.battery()
 #endif
@@ -188,6 +206,18 @@ let screen = await deviceInfo.screen()
 #if os(iOS)
 let jailbreak = await deviceInfo.jailbreakStatus()
 #endif
+
+#if os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)
+let vendorId = deviceInfo.identifierForVendor()
+#endif
+
+#if os(macOS)
+let serial = deviceInfo.serialNumber()
+let model = await deviceInfo.modelName()
+let updates = deviceInfo.softwareUpdates()
+let passwordDays = await deviceInfo.passwordExpiryDays()
+let wifiName = await deviceInfo.ssid()
+#endif
 ```
 
 ### OpenSettings
@@ -196,7 +226,10 @@ let jailbreak = await deviceInfo.jailbreakStatus()
 **Key Features**:
 - `OpenSettingsClient`: Dependency client with platform-specific `SettingsType` enum
 - Platform-conditional cases: `.general` (iOS, macOS, tvOS, visionOS), `.notifications` (iOS, macOS, visionOS)
-- iOS/visionOS: `UIApplication.openSettingsURLString`, tvOS: same, macOS: `NSWorkspace` URL schemes
+- macOS: ~30 panes including `.about`, `.network`, `.wifi`, `.bluetooth`, `.sound`, `.displays`, `.storage`, `.softwareUpdate`, `.accessibility`, `.security`, `.privacy(PrivacyPane)`, `.keyboard`, `.trackpad`, `.mouse`, `.printers`, `.battery`, `.dateAndTime`, `.sharing`, `.users`, `.spotlight`, `.siri`, `.desktopAndDock`, `.wallpaper`, `.screenSaver`, `.passwords`, `.appleID`, `.familySharing`, `.screenTime`, `.focusModes`, `.appearance`
+- macOS Privacy sub-panes: `.privacy(.location)`, `.privacy(.camera)`, `.privacy(.microphone)`, `.privacy(.photos)`, `.privacy(.contacts)`, `.privacy(.calendars)`, `.privacy(.reminders)`, `.privacy(.fullDiskAccess)`, `.privacy(.accessibility)`, `.privacy(.inputMonitoring)`, `.privacy(.screenRecording)`, `.privacy(.automation)`, `.privacy(.developerTools)`, `.privacy(.analytics)`
+- All macOS URLs use `x-apple.systempreferences:` scheme
+- iOS/visionOS: `UIApplication.openSettingsURLString`, tvOS: same
 - Not available on watchOS (no API exists, module compiles empty)
 - `.noop` static for previews and tests
 
@@ -208,6 +241,11 @@ await openSettings.open(.general)
 
 #if os(iOS) || os(macOS) || os(visionOS)
 await openSettings.open(.notifications)
+#endif
+
+#if os(macOS)
+await openSettings.open(.softwareUpdate)
+await openSettings.open(.privacy(.fullDiskAccess))
 #endif
 ```
 
@@ -231,6 +269,48 @@ await openURL(URL(string: "https://example.com")!)
 #if os(iOS)
 await openURL(URL(string: "https://example.com")!, prefersInApp: true)
 #endif
+```
+
+### ShellClient
+**Purpose**: macOS-only shell command execution via swift-subprocess
+
+**Key Features**:
+- `ShellClient`: Dependency client wrapping `Subprocess.run()` for `/bin/zsh -c` execution
+- `ShellResult`: Result type with `stdout`, `stderr`, `exitCode`, and `succeeded` computed property
+- All source wrapped in `#if os(macOS)` — compiles to empty module on other platforms
+- `.noop` returns empty successful results
+
+**Usage Pattern**:
+```swift
+@Dependency(\.shellClient) var shell
+
+let result = try await shell.run("sw_vers -productVersion")
+if result.succeeded {
+  print(result.stdout) // "15.4"
+}
+```
+
+### LaunchAtLogin
+**Purpose**: macOS-only launch-at-login management via SMAppService
+
+**Key Features**:
+- `LaunchAtLoginClient`: Dependency client with `isEnabled()`, `setEnabled(_:)`, `wasLaunchedAtLogin()`
+- `LaunchAtLoginClient.Toggle`: Convenience SwiftUI toggle view with `LocalizedStringKey` and `@ViewBuilder` label overloads
+- Based on sindresorhus/LaunchAtLogin pattern
+- All source wrapped in `#if os(macOS) || targetEnvironment(macCatalyst)`
+- `.noop` reports launch-at-login as disabled
+
+**Usage Pattern**:
+```swift
+@Dependency(\.launchAtLogin) var launchAtLogin
+
+let enabled = launchAtLogin.isEnabled()
+try launchAtLogin.setEnabled(true)
+
+// SwiftUI:
+LaunchAtLoginClient.Toggle()
+LaunchAtLoginClient.Toggle("Open at Login")
+LaunchAtLoginClient.Toggle { Text("Launch at login") }
 ```
 
 ### LoggerClient
@@ -413,6 +493,8 @@ Reduce { state, action in ... }
 - **Integration tests**: `TestStore`-based reducer testing with `@MainActor` isolation
 - **Nested `@Suite`** attributes for hierarchical test grouping
 - Each module has `Reducer/TestReducer.swift` fixture
+- **macOS-only tests**: ShellClient, LaunchAtLogin, and DeviceInfo extended tests use `#if os(macOS)` guards
+- **New DeviceInfo test files**: `ModelNameInfoTests`, `SoftwareUpdateInfoTests`, `NetworkInterfaceTests`, `DeviceIdentityExtendedTests`, `DeviceInfoExtendedTests`
 
 ### TestStore Patterns
 ```swift
@@ -549,6 +631,7 @@ extension DependencyValues {
 <!-- AUTO-MANAGED: dependencies -->
 - **ComposableArchitecture** (v1.23.1+): Core TCA framework
 - **DeviceKit** (v5.7.0+): Device hardware metadata for ScreenInfo (iOS/tvOS/watchOS only, conditional dependency)
+- **swift-subprocess** (v0.1.0+): Shell command execution for ShellClient module (macOS, swiftlang/swift-subprocess)
 - **Dependencies** / **DependenciesMacros**: Dependency injection (via TCA)
 - **XCTestDynamicOverlay**: Test doubles (via TCA)
 - **CustomDump**: Diff visualization in Printers module (via TCA)
@@ -587,9 +670,10 @@ Bundled via `resources: [.process("Resources")]` on the `ComposableArchitectureE
 |----------|--------|--------|
 | `NSPrivacyAccessedAPICategoryDiskSpace` | `85F4.1` (display to user) | `DiskMeasurement.swift` — `URLResourceKey.volumeTotalCapacityKey`, `.volumeAvailableCapacityKey`, `.volumeAvailableCapacityForImportantUsageKey` |
 | `NSPrivacyAccessedAPICategoryFileTimestamp` | `C617.1` (app functionality) | `FilesystemCheck.swift` (iOS jailbreak detection) — `FileManager.attributesOfItem(atPath:)` calls `stat()` |
+| `NSPrivacyAccessedAPICategorySystemBootTime` | `35F9.1` (measure elapsed time) | `DeviceInfoClient.bootTime()` — `sysctl` with `CTL_KERN` + `KERN_BOOTTIME` to read kernel boot time |
 
 ### Not Declared (not used)
-- SystemBootTime, UserDefaults, ActiveKeyboards — none of these APIs are used by this package
+- UserDefaults, ActiveKeyboards — none of these APIs are used by this package
 
 ### Consumer Note
 Apps using the Analytics module with real providers must declare their own `NSPrivacyCollectedDataTypes` in their app's privacy manifest.

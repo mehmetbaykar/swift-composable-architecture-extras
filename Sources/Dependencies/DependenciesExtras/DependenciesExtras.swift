@@ -7,3 +7,11 @@
   @_exported import OpenSettings
   @_exported import OpenURL
 #endif
+
+#if os(macOS)
+  @_exported import ShellClient
+#endif
+
+#if os(macOS) || targetEnvironment(macCatalyst)
+  @_exported import LaunchAtLogin
+#endif

@@ -38,6 +38,20 @@ struct DependenciesExtrasTests {
     client.info("test")
   }
 
+  #if os(macOS)
+    @Test func `umbrella re-exports ShellClient module`() {
+      let client: ShellClient = .noop
+      _ = client
+    }
+  #endif
+
+  #if os(macOS) || targetEnvironment(macCatalyst)
+    @Test func `umbrella re-exports LaunchAtLogin module`() {
+      let client: LaunchAtLoginClient = .noop
+      _ = client
+    }
+  #endif
+
   @Test func `dependency is accessible via DependencyValues`() {
     withDependencies {
       $0.appInfo = AppInfoClient(
