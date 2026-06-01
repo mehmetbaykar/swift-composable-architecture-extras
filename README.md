@@ -1,6 +1,6 @@
 # Swift Composable Architecture Extras
 
-![Swift](https://img.shields.io/badge/Swift-6.2-orange.svg)
+![Swift](https://img.shields.io/badge/Swift-6.3-orange.svg)
 ![Platforms](https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS-blue.svg)
 ![CI](https://github.com/mehmetbaykar/swift-composable-architecture-extras/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -68,6 +68,25 @@ Then add the product to your target:
 )
 ```
 
+### Package Traits
+
+The `ComposableArchitectureExtras` product supports SwiftPM package traits so you can include only the modules you need:
+
+| Configuration | Dependency declaration |
+| ------------- | ---------------------- |
+| Both (default) | `.package(url: "...", from: "1.0.0")` |
+| Dependencies only | `.package(url: "...", from: "1.0.0", traits: ["Dependencies"])` |
+| Reducers only | `.package(url: "...", from: "1.0.0", traits: ["Reducers"])` |
+
+When no traits are specified, both `Dependencies` and `Reducers` are enabled by default. Specifying a trait disables defaults and enables only the traits you list.
+
+You can also depend on the standalone umbrella products directly:
+
+- `DependenciesExtras` — all dependency modules
+- `ReducersExtras` — all reducer modules
+
+Or import individual modules such as `Analytics`, `DeviceInfo`, or `LoggerClient`.
+
 ## Requirements
 
 | Platform | Minimum Version |
@@ -76,7 +95,7 @@ Then add the product to your target:
 | macOS    | 15.0+           |
 | tvOS     | 16.0+           |
 | watchOS  | 9.0+            |
-| Swift    | 6.2+            |
+| Swift    | 6.3+            |
 | TCA      | 1.23.1+         |
 
 ## Reducer Modules

@@ -19,7 +19,7 @@ Swift Composable Architecture Extras - A Swift Package providing production-read
   - **Standalone Dependencies**: `AppInfo`, `AudioPlayer`, `DeviceInfo`, `LaunchAtLogin`, `LoggerClient`, `OpenSettings`, `OpenURL`, `ShellClient`
   - **Standalone Reducers**: `Analytics`, `AppStoreOverlay`, `Filter`, `FormValidation`, `Haptics`, `Printers`, `ScreenAwake`, `ScreenBrightness`
 - **TCA Version**: 1.23.1+ (< 2.0.0)
-- **Swift Version**: 6.0+
+- **Swift Version**: 6.3+
 - **Platforms**: iOS 16+, macOS 15+, tvOS 16+, watchOS 9+
 <!-- END AUTO-MANAGED -->
 

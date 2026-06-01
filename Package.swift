@@ -1,4 +1,4 @@
-// swift-tools-version: 6.2
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
@@ -33,6 +33,17 @@ let package = Package(
     .singleTargetLibrary(name: "ScreenAwake"),
     .singleTargetLibrary(name: "ScreenBrightness"),
   ],
+  traits: [
+    .default(enabledTraits: ["Dependencies", "Reducers"]),
+    .trait(
+      name: "Dependencies",
+      description: "Enable dependency-only modules"
+    ),
+    .trait(
+      name: "Reducers",
+      description: "Enable reducer modules"
+    ),
+  ],
   dependencies: {
     var deps: [Package.Dependency] = [.tca(), .deviceKit()]
     #if os(macOS)
@@ -42,6 +53,7 @@ let package = Package(
   }(),
   targets: [
     .mainUmbrellaTarget(),
+    .mainUmbrellaTestTarget(),
     .reducersUmbrellaTarget(),
     .reducerUmbrellaTestTarget(),
     .dependenciesUmbrellaTarget(),
@@ -89,8 +101,14 @@ extension PackageDescription.Target {
     return .target(
       name: "ComposableArchitectureExtras",
       dependencies: [
-        "ReducersExtras",
-        "DependenciesExtras",
+        .target(
+          name: "ReducersExtras",
+          condition: .when(traits: ["Reducers"])
+        ),
+        .target(
+          name: "DependenciesExtras",
+          condition: .when(traits: ["Dependencies"])
+        ),
       ],
       resources: [.process("Resources")]
     )
@@ -156,6 +174,14 @@ extension PackageDescription.Target {
       dependencies: [tcaDep] + extraDependencies,
       path: "Sources/Dependencies/\(name)",
       exclude: ["README.md"]
+    )
+  }
+
+  static func mainUmbrellaTestTarget() -> PackageDescription.Target {
+    return .testTarget(
+      name: "ComposableArchitectureExtrasTests",
+      dependencies: [.target(name: "ComposableArchitectureExtras")],
+      path: "Tests/ComposableArchitectureExtrasTests"
     )
   }
 

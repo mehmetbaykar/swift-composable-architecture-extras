@@ -16,6 +16,14 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "ComposableArchitectureExtrasTests",
+        "name" : "ComposableArchitectureExtrasTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "DependenciesExtrasTests",
         "name" : "DependenciesExtrasTests"
       }
