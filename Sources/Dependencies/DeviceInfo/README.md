@@ -52,6 +52,8 @@ if jailbreak.confidence >= .moderate {
 #if !os(visionOS)
 let screen = await deviceInfo.screen()
 // screen.width, screen.height, screen.scale on all platforms
+// screen.nativePixelWidth, screen.nativePixelHeight on all platforms
+// (physical pixels, portrait-normalized: width is the shorter edge)
 // screen.diagonal, screen.ppi, screen.screenRatio on iOS/tvOS/watchOS
 // screen.hasNotch, screen.hasDynamicIsland, screen.hasRoundedDisplayCorners on iOS
 #endif
@@ -122,7 +124,7 @@ let store = TestStore(initialState: MyFeature.State()) {
 | `systemUptime` | `@Sendable () -> TimeInterval` | Seconds since last wake (excludes sleep) |
 | `battery` | `@Sendable () async -> BatteryInfo` | Battery level and state (not tvOS) |
 | `network` | `@Sendable () async -> NetworkInfo` | Connectivity, interface type, IP addresses (not watchOS) |
-| `screen` | `@Sendable () async -> ScreenInfo` | Screen resolution, scale, PPI, notch detection (not visionOS) |
+| `screen` | `@Sendable () async -> ScreenInfo` | Screen resolution (points + native pixels), scale, PPI, notch detection (not visionOS) |
 | `jailbreakStatus` | `@Sendable () async -> JailbreakStatus` | Jailbreak confidence level (iOS only) |
 | `identifierForVendor` | `@Sendable () async -> UUID?` | Vendor-scoped device UUID (iOS, tvOS, visionOS, watchOS) |
 | `serialNumber` | `@Sendable () -> String` | Hardware serial number (macOS only) |

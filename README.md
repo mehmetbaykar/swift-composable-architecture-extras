@@ -256,7 +256,7 @@ try await audioPlayer.play(URL(string: "sound.mp3")!)
 
 ### DeviceInfo
 
-A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity (with interface enumeration and primary IP), thermal state, low power mode, device identity (including core counts and `isiOSAppOnMac`), screen info (resolution, scale, PPI, notch/Dynamic Island detection), jailbreak detection (iOS), hostname, boot time, system uptime, vendor identifier, and macOS-specific features (serial number, model name, software updates, password expiry, Wi-Fi SSID).
+A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity (with interface enumeration and primary IP), thermal state, low power mode, device identity (including core counts and `isiOSAppOnMac`), screen info (point and native pixel resolution, scale, PPI, notch/Dynamic Island detection), jailbreak detection (iOS), hostname, boot time, system uptime, vendor identifier, and macOS-specific features (serial number, model name, software updates, password expiry, Wi-Fi SSID).
 
 ```swift
 @Dependency(\.deviceInfo) var deviceInfo

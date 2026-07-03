@@ -138,12 +138,68 @@ struct DeviceInfoModelTests {
         #expect(info.width == 0)
         #expect(info.height == 0)
         #expect(info.scale == 0)
+        #expect(info.nativePixelWidth == 0)
+        #expect(info.nativePixelHeight == 0)
       }
 
       @Test func `equality works`() {
         let a = ScreenInfo.zero
         let b = ScreenInfo.zero
         #expect(a == b)
+      }
+
+      @Test func `init stores native pixel dimensions`() {
+        #if os(iOS)
+          let info = ScreenInfo(
+            width: 390,
+            height: 844,
+            scale: 3,
+            nativePixelWidth: 1179,
+            nativePixelHeight: 2556,
+            screenRatio: .zero,
+            diagonal: 0,
+            ppi: 0,
+            hasNotch: false,
+            hasDynamicIsland: false,
+            hasRoundedDisplayCorners: false
+          )
+        #elseif os(tvOS)
+          let info = ScreenInfo(
+            width: 1920,
+            height: 1080,
+            scale: 1,
+            nativePixelWidth: 1179,
+            nativePixelHeight: 2556,
+            screenRatio: .zero
+          )
+        #elseif os(watchOS)
+          let info = ScreenInfo(
+            width: 198,
+            height: 242,
+            scale: 2,
+            nativePixelWidth: 1179,
+            nativePixelHeight: 2556,
+            screenRatio: .zero,
+            diagonal: 0,
+            ppi: 0
+          )
+        #elseif os(macOS)
+          let info = ScreenInfo(
+            width: 1512,
+            height: 982,
+            scale: 2,
+            nativePixelWidth: 1179,
+            nativePixelHeight: 2556
+          )
+        #endif
+        #expect(info.nativePixelWidth == 1179)
+        #expect(info.nativePixelHeight == 2556)
+      }
+
+      @Test @MainActor func `measured native pixels are portrait normalized`() {
+        let info = ScreenMeasurement.measure()
+        #expect(info.nativePixelWidth >= 0)
+        #expect(info.nativePixelWidth <= info.nativePixelHeight)
       }
 
       #if os(iOS)

@@ -170,7 +170,7 @@ let bundleId = appInfo.bundleIdentifier()
 - `ModelNameInfo` (macOS): `modelIdentifier`, `marketingName`, `shortName`, `year`, `iconSymbolName` (SF Symbol)
 - `SoftwareUpdateInfo` (macOS): `displayName`, `displayVersion`, `isMajorUpdate`, `productKey`
 - `NetworkInfo` extended: `primaryIPAddress`, `interfaces: [NetworkInterface]` with per-interface type/IP/active status
-- `ScreenInfo`: resolution (width/height/scale) on all non-visionOS platforms; iOS adds `screenRatio`, `diagonal`, `ppi`, `hasNotch`, `hasDynamicIsland`, `hasRoundedDisplayCorners` via DeviceKit; tvOS adds `screenRatio`; watchOS adds `screenRatio`, `diagonal`, `ppi`
+- `ScreenInfo`: resolution (width/height/scale) plus portrait-normalized `nativePixelWidth`/`nativePixelHeight` (physical pixels, width = shorter edge) on all non-visionOS platforms; iOS adds `screenRatio`, `diagonal`, `ppi`, `hasNotch`, `hasDynamicIsland`, `hasRoundedDisplayCorners` via DeviceKit; tvOS adds `screenRatio`; watchOS adds `screenRatio`, `diagonal`, `ppi`
 - `JailbreakStatus`: confidence-based result (`.nominal`, `.low`, `.moderate`, `.high`) from filesystem, sandbox, dyld, and environment checks
 - macOS battery includes extended IOKit properties (cycleCount, temperature, maxCapacity, adapterName)
 - `.noop` static for previews and tests

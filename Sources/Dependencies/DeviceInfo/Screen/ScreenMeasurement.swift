@@ -9,6 +9,7 @@
       let screen = UIScreen.main
       let bounds = screen.bounds
       let scale = screen.scale
+      let nativeBounds = screen.nativeBounds
       let ratio = device.screenRatio
       let ppiValue = device.ppi ?? 0
       let diagonalValue = device.diagonal < 0 ? 0 : device.diagonal
@@ -17,6 +18,8 @@
         width: bounds.width,
         height: bounds.height,
         scale: scale,
+        nativePixelWidth: Int(min(nativeBounds.width, nativeBounds.height)),
+        nativePixelHeight: Int(max(nativeBounds.width, nativeBounds.height)),
         screenRatio: ScreenRatio(width: ratio.width, height: ratio.height),
         diagonal: diagonalValue,
         ppi: ppiValue,
@@ -38,12 +41,15 @@
       let screen = UIScreen.main
       let bounds = screen.bounds
       let scale = screen.scale
+      let nativeBounds = screen.nativeBounds
       let ratio = device.screenRatio
 
       return ScreenInfo(
         width: bounds.width,
         height: bounds.height,
         scale: scale,
+        nativePixelWidth: Int(min(nativeBounds.width, nativeBounds.height)),
+        nativePixelHeight: Int(max(nativeBounds.width, nativeBounds.height)),
         screenRatio: ScreenRatio(width: ratio.width, height: ratio.height)
       )
     }
@@ -60,6 +66,8 @@
       let wkDevice = WKInterfaceDevice.current()
       let bounds = wkDevice.screenBounds
       let scale = wkDevice.screenScale
+      let pixelWidth = bounds.width * scale
+      let pixelHeight = bounds.height * scale
       let ratio = device.screenRatio
       let ppiValue = device.ppi ?? 0
       let diagonalValue = device.diagonal < 0 ? 0 : device.diagonal
@@ -68,6 +76,8 @@
         width: bounds.width,
         height: bounds.height,
         scale: scale,
+        nativePixelWidth: Int(min(pixelWidth, pixelHeight).rounded()),
+        nativePixelHeight: Int(max(pixelWidth, pixelHeight).rounded()),
         screenRatio: ScreenRatio(width: ratio.width, height: ratio.height),
         diagonal: diagonalValue,
         ppi: ppiValue
@@ -86,11 +96,15 @@
       }
       let frame = screen.frame
       let scale = screen.backingScaleFactor
+      let pixelWidth = frame.width * scale
+      let pixelHeight = frame.height * scale
 
       return ScreenInfo(
         width: frame.width,
         height: frame.height,
-        scale: scale
+        scale: scale,
+        nativePixelWidth: Int(min(pixelWidth, pixelHeight).rounded()),
+        nativePixelHeight: Int(max(pixelWidth, pixelHeight).rounded())
       )
     }
   }

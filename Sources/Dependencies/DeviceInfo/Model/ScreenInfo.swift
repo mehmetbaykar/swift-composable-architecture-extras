@@ -5,6 +5,8 @@
     public let width: CGFloat
     public let height: CGFloat
     public let scale: CGFloat
+    public let nativePixelWidth: Int
+    public let nativePixelHeight: Int
 
     #if os(iOS)
       public let screenRatio: ScreenRatio
@@ -18,6 +20,8 @@
         width: CGFloat,
         height: CGFloat,
         scale: CGFloat,
+        nativePixelWidth: Int = 0,
+        nativePixelHeight: Int = 0,
         screenRatio: ScreenRatio,
         diagonal: Double,
         ppi: Int,
@@ -28,6 +32,8 @@
         self.width = width
         self.height = height
         self.scale = scale
+        self.nativePixelWidth = nativePixelWidth
+        self.nativePixelHeight = nativePixelHeight
         self.screenRatio = screenRatio
         self.diagonal = diagonal
         self.ppi = ppi
@@ -40,6 +46,8 @@
         width: 0,
         height: 0,
         scale: 0,
+        nativePixelWidth: 0,
+        nativePixelHeight: 0,
         screenRatio: .zero,
         diagonal: 0,
         ppi: 0,
@@ -55,11 +63,15 @@
         width: CGFloat,
         height: CGFloat,
         scale: CGFloat,
+        nativePixelWidth: Int = 0,
+        nativePixelHeight: Int = 0,
         screenRatio: ScreenRatio
       ) {
         self.width = width
         self.height = height
         self.scale = scale
+        self.nativePixelWidth = nativePixelWidth
+        self.nativePixelHeight = nativePixelHeight
         self.screenRatio = screenRatio
       }
 
@@ -67,6 +79,8 @@
         width: 0,
         height: 0,
         scale: 0,
+        nativePixelWidth: 0,
+        nativePixelHeight: 0,
         screenRatio: .zero
       )
 
@@ -79,6 +93,8 @@
         width: CGFloat,
         height: CGFloat,
         scale: CGFloat,
+        nativePixelWidth: Int = 0,
+        nativePixelHeight: Int = 0,
         screenRatio: ScreenRatio,
         diagonal: Double,
         ppi: Int
@@ -86,6 +102,8 @@
         self.width = width
         self.height = height
         self.scale = scale
+        self.nativePixelWidth = nativePixelWidth
+        self.nativePixelHeight = nativePixelHeight
         self.screenRatio = screenRatio
         self.diagonal = diagonal
         self.ppi = ppi
@@ -95,6 +113,8 @@
         width: 0,
         height: 0,
         scale: 0,
+        nativePixelWidth: 0,
+        nativePixelHeight: 0,
         screenRatio: .zero,
         diagonal: 0,
         ppi: 0
@@ -104,17 +124,23 @@
       public init(
         width: CGFloat,
         height: CGFloat,
-        scale: CGFloat
+        scale: CGFloat,
+        nativePixelWidth: Int = 0,
+        nativePixelHeight: Int = 0
       ) {
         self.width = width
         self.height = height
         self.scale = scale
+        self.nativePixelWidth = nativePixelWidth
+        self.nativePixelHeight = nativePixelHeight
       }
 
       public static let zero = ScreenInfo(
         width: 0,
         height: 0,
-        scale: 0
+        scale: 0,
+        nativePixelWidth: 0,
+        nativePixelHeight: 0
       )
     #endif
   }
