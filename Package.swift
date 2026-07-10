@@ -213,7 +213,7 @@ extension Package.Dependency {
   static func deviceKit() -> Package.Dependency {
     return .package(
       url: "https://github.com/devicekit/DeviceKit.git",
-      from: "5.7.0")
+      from: "5.8.0")
   }
 
   static func subprocess() -> Package.Dependency {
