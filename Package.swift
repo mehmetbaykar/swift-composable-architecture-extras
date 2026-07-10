@@ -207,7 +207,7 @@ extension Package.Dependency {
   static func tca() -> Package.Dependency {
     return .package(
       url: "https://github.com/pointfreeco/swift-composable-architecture",
-      from: "1.25.2")
+      from: "1.26.0")
   }
 
   static func deviceKit() -> Package.Dependency {
