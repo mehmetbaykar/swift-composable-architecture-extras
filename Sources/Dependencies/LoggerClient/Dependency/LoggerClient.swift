@@ -1,6 +1,6 @@
 import Dependencies
 import Foundation
-import XCTestDynamicOverlay
+import IssueReporting
 import os
 
 public struct AppLoggerClient: Sendable {

@@ -219,7 +219,7 @@ extension Package.Dependency {
   static func subprocess() -> Package.Dependency {
     return .package(
       url: "https://github.com/swiftlang/swift-subprocess.git",
-      from: "0.1.0")
+      "0.4.0"..<"0.5.0")
   }
 }
 

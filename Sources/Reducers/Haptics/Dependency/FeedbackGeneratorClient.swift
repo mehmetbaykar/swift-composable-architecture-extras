@@ -1,7 +1,7 @@
 import Dependencies
 import DependenciesMacros
 import Foundation
-import XCTestDynamicOverlay
+import IssueReporting
 
 @DependencyClient
 public struct FeedbackGeneratorClient: Sendable {
@@ -178,10 +178,10 @@ extension FeedbackGeneratorClient: TestDependencyKey {
     #else
       Self(
         prepare: { _ in
-          XCTFail("Unimplemented: FeedbackGeneratorClient.prepare")
+          reportIssue("Unimplemented: FeedbackGeneratorClient.prepare")
         },
         generate: { _ in
-          XCTFail("Unimplemented: FeedbackGeneratorClient.generate")
+          reportIssue("Unimplemented: FeedbackGeneratorClient.generate")
         }
       )
     #endif

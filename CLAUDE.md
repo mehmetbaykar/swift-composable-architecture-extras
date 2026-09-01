@@ -631,7 +631,7 @@ extension DependencyValues {
 <!-- AUTO-MANAGED: dependencies -->
 - **ComposableArchitecture** (v1.23.1+): Core TCA framework
 - **DeviceKit** (v5.7.0+): Device hardware metadata for ScreenInfo (iOS/tvOS/watchOS only, conditional dependency)
-- **swift-subprocess** (v0.1.0+): Shell command execution for ShellClient module (macOS, swiftlang/swift-subprocess)
+- **swift-subprocess** (v0.4.x): Shell command execution for ShellClient module (macOS, swiftlang/swift-subprocess)
 - **Dependencies** / **DependenciesMacros**: Dependency injection (via TCA)
 - **XCTestDynamicOverlay**: Test doubles (via TCA)
 - **CustomDump**: Diff visualization in Printers module (via TCA)
