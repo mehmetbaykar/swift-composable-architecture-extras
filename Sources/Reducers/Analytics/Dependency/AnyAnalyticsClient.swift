@@ -1,5 +1,5 @@
 import Dependencies
-import XCTestDynamicOverlay
+import IssueReporting
 
 public struct AnyAnalyticsClient: Sendable {
   @usableFromInline
