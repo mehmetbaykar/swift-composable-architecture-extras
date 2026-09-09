@@ -198,7 +198,7 @@ The `NetworkInfo` struct includes extended network identity fields:
 
 The `ssid` property on `DeviceInfoClient` (macOS only) provides the SSID of the currently connected Wi-Fi network via CoreWLAN, separate from the `network` property.
 
-`externalIPAddress` performs an HTTPS request to `icanhazip.com` and returns `nil` when offline or the response is not an IP address.
+`externalIPAddress` performs an HTTPS request to `icanhazip.com` (Cloudflare-operated, plaintext IP, no API key) and returns `nil` when offline or the response is not an IP address.
 
 ## Notes
 
@@ -208,5 +208,6 @@ The `ssid` property on `DeviceInfoClient` (macOS only) provides the SSID of the 
 - **macOSVersionName**: `DeviceIdentity` includes a computed `macOSVersionName` property (macOS only) that maps the major version number to the marketing name (e.g., 15 = "Sequoia", 16 = "Tahoe"). Returns `nil` for unrecognized versions.
 - **System boot time**: Uses `sysctl` with `CTL_KERN` + `KERN_BOOTTIME` on all platforms. This is the wall-clock time of the last boot, not affected by clock changes.
 - **System uptime**: Uses `ProcessInfo.processInfo.systemUptime`, which counts only awake time (sleep duration is excluded).
-- **Carrier on iOS 16.4+**: `CTCarrier` returns placeholder values for third-party apps. `CarrierInfo` maps `"--"`, `"65535"`, and `"00000"` to `nil`. `radioAccessTechnology` still reflects the current radio when registered.
+- **Carrier on iOS 16.4+**: Apple deprecated `CTCarrier` with no third-party replacement. Name/MCC/MNC/ISO are `nil` when the system returns placeholders (`"--"`, `"65535"`, `"00000"`). `radioAccessTechnology` is still the live radio when a cellular service is registered (e.g. `LTE`, `NR`).
+- **Headphones**: Wired and Bluetooth outputs (`headphones`, `bluetoothA2DP`, `bluetoothHFP`, `bluetoothLE`) count as connected.
 - **Not ported from iOS-System-Services**: clipboard contents, random CFUUID, Core Motion streams, app version (`AppInfo`), screen brightness (`ScreenBrightness`), and Wi-Fi router address (private routing headers).
