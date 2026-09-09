@@ -23,7 +23,9 @@ import Foundation
               systemVersion: device.systemVersion,
               totalCoreCount: ProcessInfo.processInfo.processorCount,
               activeCoreCount: ProcessInfo.processInfo.activeProcessorCount,
-              isiOSAppOnMac: isiOSAppOnMac
+              isiOSAppOnMac: isiOSAppOnMac,
+              modelIdentifier: HardwareIdentifier.modelIdentifier(),
+              marketingName: MarketingName.current()
             )
           }
         },
@@ -59,7 +61,17 @@ import Foundation
         screen: { await MainActor.run { ScreenMeasurement.measure() } },
         identifierForVendor: {
           await MainActor.run { UIDevice.current.identifierForVendor }
-        }
+        },
+        localization: { LocalizationMeasurement.measure() },
+        process: { ProcessMeasurement.measure() },
+        isDebuggerAttached: { DebuggerCheck.isAttached() },
+        externalIPAddress: { await ExternalIPMeasurement.measure() },
+        carrier: { CarrierMeasurement.measure() },
+        accessories: { await MainActor.run { AccessoryMeasurement.measure() } },
+        hardwareCapabilities: {
+          await MainActor.run { HardwareCapabilitiesMeasurement.measure() }
+        },
+        orientation: { await MainActor.run { OrientationMeasurement.measure() } }
       )
     }
   }
@@ -80,7 +92,8 @@ import Foundation
               systemVersion: device.systemVersion,
               totalCoreCount: ProcessInfo.processInfo.processorCount,
               activeCoreCount: ProcessInfo.processInfo.activeProcessorCount,
-              isiOSAppOnMac: ProcessInfo.processInfo.isiOSAppOnMac
+              isiOSAppOnMac: ProcessInfo.processInfo.isiOSAppOnMac,
+              modelIdentifier: HardwareIdentifier.modelIdentifier()
             )
           }
         },
@@ -114,7 +127,11 @@ import Foundation
         network: { await NetworkMeasurement.measure() },
         identifierForVendor: {
           await MainActor.run { UIDevice.current.identifierForVendor }
-        }
+        },
+        localization: { LocalizationMeasurement.measure() },
+        process: { ProcessMeasurement.measure() },
+        isDebuggerAttached: { DebuggerCheck.isAttached() },
+        externalIPAddress: { await ExternalIPMeasurement.measure() }
       )
     }
   }
@@ -149,7 +166,8 @@ import Foundation
             systemVersion: processInfo.operatingSystemVersionString,
             totalCoreCount: processInfo.processorCount,
             activeCoreCount: processInfo.activeProcessorCount,
-            isiOSAppOnMac: isiOSAppOnMac
+            isiOSAppOnMac: isiOSAppOnMac,
+            modelIdentifier: HardwareIdentifier.modelIdentifier()
           )
         },
         cpu: { await CPUMeasurement.measure() },
@@ -210,7 +228,11 @@ import Foundation
         },
         ssid: {
           await SSIDReader.read()
-        }
+        },
+        localization: { LocalizationMeasurement.measure() },
+        process: { ProcessMeasurement.measure() },
+        isDebuggerAttached: { DebuggerCheck.isAttached() },
+        externalIPAddress: { await ExternalIPMeasurement.measure() }
       )
     }
   }
@@ -454,7 +476,9 @@ import Foundation
               systemVersion: device.systemVersion,
               totalCoreCount: ProcessInfo.processInfo.processorCount,
               activeCoreCount: ProcessInfo.processInfo.activeProcessorCount,
-              isiOSAppOnMac: isiOSAppOnMac
+              isiOSAppOnMac: isiOSAppOnMac,
+              modelIdentifier: HardwareIdentifier.modelIdentifier(),
+              marketingName: MarketingName.current()
             )
           }
         },
@@ -486,7 +510,11 @@ import Foundation
         screen: { await MainActor.run { ScreenMeasurement.measure() } },
         identifierForVendor: {
           await MainActor.run { UIDevice.current.identifierForVendor }
-        }
+        },
+        localization: { LocalizationMeasurement.measure() },
+        process: { ProcessMeasurement.measure() },
+        isDebuggerAttached: { DebuggerCheck.isAttached() },
+        externalIPAddress: { await ExternalIPMeasurement.measure() }
       )
     }
   }
@@ -513,7 +541,9 @@ import Foundation
               systemVersion: device.systemVersion,
               totalCoreCount: ProcessInfo.processInfo.processorCount,
               activeCoreCount: ProcessInfo.processInfo.activeProcessorCount,
-              isiOSAppOnMac: isiOSAppOnMac
+              isiOSAppOnMac: isiOSAppOnMac,
+              modelIdentifier: HardwareIdentifier.modelIdentifier(),
+              marketingName: MarketingName.current()
             )
           }
         },
@@ -545,7 +575,10 @@ import Foundation
         screen: { await MainActor.run { ScreenMeasurement.measure() } },
         identifierForVendor: {
           await MainActor.run { WKInterfaceDevice.current().identifierForVendor }
-        }
+        },
+        localization: { LocalizationMeasurement.measure() },
+        process: { ProcessMeasurement.measure() },
+        isDebuggerAttached: { DebuggerCheck.isAttached() }
       )
     }
   }

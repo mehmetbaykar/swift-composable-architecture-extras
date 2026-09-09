@@ -10,6 +10,9 @@
 
     /// The IPv4 address assigned to this interface.
     public let ipAddress: String
+    public let ipv6Address: String?
+    public let netmask: String?
+    public let broadcastAddress: String?
 
     /// The detected connection type based on interface name conventions.
     public let type: NetworkInterfaceType
@@ -21,11 +24,17 @@
       name: String,
       ipAddress: String,
       type: NetworkInterfaceType,
-      isActive: Bool
+      isActive: Bool,
+      ipv6Address: String? = nil,
+      netmask: String? = nil,
+      broadcastAddress: String? = nil
     ) {
       self.id = name
       self.name = name
       self.ipAddress = ipAddress
+      self.ipv6Address = ipv6Address
+      self.netmask = netmask
+      self.broadcastAddress = broadcastAddress
       self.type = type
       self.isActive = isActive
     }

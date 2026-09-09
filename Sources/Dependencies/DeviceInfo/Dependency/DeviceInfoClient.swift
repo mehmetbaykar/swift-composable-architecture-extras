@@ -98,6 +98,21 @@ public struct DeviceInfoClient: Sendable {
     public var ssid: @Sendable () async -> String?
   #endif
 
+  public var localization: @Sendable () -> LocalizationInfo
+  public var process: @Sendable () -> ProcessMetrics
+  public var isDebuggerAttached: @Sendable () -> Bool
+
+  #if !os(watchOS)
+    public var externalIPAddress: @Sendable () async -> String?
+  #endif
+
+  #if os(iOS)
+    public var carrier: @Sendable () -> CarrierInfo
+    public var accessories: @Sendable () async -> AccessoryInfo
+    public var hardwareCapabilities: @Sendable () async -> HardwareCapabilities
+    public var orientation: @Sendable () async -> DeviceInterfaceOrientation
+  #endif
+
   #if os(iOS)
     public init(
       identity: @escaping @Sendable () async -> DeviceIdentity,
@@ -113,7 +128,15 @@ public struct DeviceInfoClient: Sendable {
       network: @escaping @Sendable () async -> NetworkInfo,
       jailbreakStatus: @escaping @Sendable () async -> JailbreakStatus,
       screen: @escaping @Sendable () async -> ScreenInfo,
-      identifierForVendor: @escaping @Sendable () async -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?,
+      localization: @escaping @Sendable () -> LocalizationInfo = { .empty },
+      process: @escaping @Sendable () -> ProcessMetrics = { .zero },
+      isDebuggerAttached: @escaping @Sendable () -> Bool = { false },
+      externalIPAddress: @escaping @Sendable () async -> String? = { nil },
+      carrier: @escaping @Sendable () -> CarrierInfo = { .unknown },
+      accessories: @escaping @Sendable () async -> AccessoryInfo = { .none },
+      hardwareCapabilities: @escaping @Sendable () async -> HardwareCapabilities = { .none },
+      orientation: @escaping @Sendable () async -> DeviceInterfaceOrientation = { .unknown }
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -129,6 +152,14 @@ public struct DeviceInfoClient: Sendable {
       self.jailbreakStatus = jailbreakStatus
       self.screen = screen
       self.identifierForVendor = identifierForVendor
+      self.localization = localization
+      self.process = process
+      self.isDebuggerAttached = isDebuggerAttached
+      self.externalIPAddress = externalIPAddress
+      self.carrier = carrier
+      self.accessories = accessories
+      self.hardwareCapabilities = hardwareCapabilities
+      self.orientation = orientation
     }
   #elseif os(visionOS)
     public init(
@@ -143,7 +174,11 @@ public struct DeviceInfoClient: Sendable {
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,
       network: @escaping @Sendable () async -> NetworkInfo,
-      identifierForVendor: @escaping @Sendable () async -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?,
+      localization: @escaping @Sendable () -> LocalizationInfo = { .empty },
+      process: @escaping @Sendable () -> ProcessMetrics = { .zero },
+      isDebuggerAttached: @escaping @Sendable () -> Bool = { false },
+      externalIPAddress: @escaping @Sendable () async -> String? = { nil }
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -157,6 +192,10 @@ public struct DeviceInfoClient: Sendable {
       self.battery = battery
       self.network = network
       self.identifierForVendor = identifierForVendor
+      self.localization = localization
+      self.process = process
+      self.isDebuggerAttached = isDebuggerAttached
+      self.externalIPAddress = externalIPAddress
     }
   #elseif os(macOS)
     public init(
@@ -176,7 +215,11 @@ public struct DeviceInfoClient: Sendable {
       modelName: @escaping @Sendable () async -> ModelNameInfo,
       softwareUpdates: @escaping @Sendable () -> [SoftwareUpdateInfo],
       passwordExpiryDays: @escaping @Sendable () async -> Int?,
-      ssid: @escaping @Sendable () async -> String?
+      ssid: @escaping @Sendable () async -> String?,
+      localization: @escaping @Sendable () -> LocalizationInfo = { .empty },
+      process: @escaping @Sendable () -> ProcessMetrics = { .zero },
+      isDebuggerAttached: @escaping @Sendable () -> Bool = { false },
+      externalIPAddress: @escaping @Sendable () async -> String? = { nil }
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -195,6 +238,10 @@ public struct DeviceInfoClient: Sendable {
       self.softwareUpdates = softwareUpdates
       self.passwordExpiryDays = passwordExpiryDays
       self.ssid = ssid
+      self.localization = localization
+      self.process = process
+      self.isDebuggerAttached = isDebuggerAttached
+      self.externalIPAddress = externalIPAddress
     }
   #elseif os(tvOS)
     public init(
@@ -209,7 +256,11 @@ public struct DeviceInfoClient: Sendable {
       systemUptime: @escaping @Sendable () -> TimeInterval,
       network: @escaping @Sendable () async -> NetworkInfo,
       screen: @escaping @Sendable () async -> ScreenInfo,
-      identifierForVendor: @escaping @Sendable () async -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?,
+      localization: @escaping @Sendable () -> LocalizationInfo = { .empty },
+      process: @escaping @Sendable () -> ProcessMetrics = { .zero },
+      isDebuggerAttached: @escaping @Sendable () -> Bool = { false },
+      externalIPAddress: @escaping @Sendable () async -> String? = { nil }
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -223,6 +274,10 @@ public struct DeviceInfoClient: Sendable {
       self.network = network
       self.screen = screen
       self.identifierForVendor = identifierForVendor
+      self.localization = localization
+      self.process = process
+      self.isDebuggerAttached = isDebuggerAttached
+      self.externalIPAddress = externalIPAddress
     }
   #elseif os(watchOS)
     public init(
@@ -237,7 +292,10 @@ public struct DeviceInfoClient: Sendable {
       systemUptime: @escaping @Sendable () -> TimeInterval,
       battery: @escaping @Sendable () async -> BatteryInfo,
       screen: @escaping @Sendable () async -> ScreenInfo,
-      identifierForVendor: @escaping @Sendable () async -> UUID?
+      identifierForVendor: @escaping @Sendable () async -> UUID?,
+      localization: @escaping @Sendable () -> LocalizationInfo = { .empty },
+      process: @escaping @Sendable () -> ProcessMetrics = { .zero },
+      isDebuggerAttached: @escaping @Sendable () -> Bool = { false }
     ) {
       self.identity = identity
       self.cpu = cpu
@@ -251,6 +309,9 @@ public struct DeviceInfoClient: Sendable {
       self.battery = battery
       self.screen = screen
       self.identifierForVendor = identifierForVendor
+      self.localization = localization
+      self.process = process
+      self.isDebuggerAttached = isDebuggerAttached
     }
   #endif
 }
@@ -275,7 +336,15 @@ extension DeviceInfoClient: TestDependencyKey {
         network: { .disconnected },
         jailbreakStatus: { .nominal },
         screen: { .zero },
-        identifierForVendor: { nil }
+        identifierForVendor: { nil },
+        localization: { .empty },
+        process: { .zero },
+        isDebuggerAttached: { false },
+        externalIPAddress: { nil },
+        carrier: { .unknown },
+        accessories: { .none },
+        hardwareCapabilities: { .none },
+        orientation: { .unknown }
       )
     #elseif os(visionOS)
       .init(
@@ -290,7 +359,11 @@ extension DeviceInfoClient: TestDependencyKey {
         systemUptime: { 0 },
         battery: { .zero },
         network: { .disconnected },
-        identifierForVendor: { nil }
+        identifierForVendor: { nil },
+        localization: { .empty },
+        process: { .zero },
+        isDebuggerAttached: { false },
+        externalIPAddress: { nil }
       )
     #elseif os(macOS)
       .init(
@@ -310,7 +383,11 @@ extension DeviceInfoClient: TestDependencyKey {
         modelName: { .unknown },
         softwareUpdates: { [] },
         passwordExpiryDays: { nil },
-        ssid: { nil }
+        ssid: { nil },
+        localization: { .empty },
+        process: { .zero },
+        isDebuggerAttached: { false },
+        externalIPAddress: { nil }
       )
     #elseif os(tvOS)
       .init(
@@ -325,7 +402,11 @@ extension DeviceInfoClient: TestDependencyKey {
         systemUptime: { 0 },
         network: { .disconnected },
         screen: { .zero },
-        identifierForVendor: { nil }
+        identifierForVendor: { nil },
+        localization: { .empty },
+        process: { .zero },
+        isDebuggerAttached: { false },
+        externalIPAddress: { nil }
       )
     #elseif os(watchOS)
       .init(
@@ -340,7 +421,10 @@ extension DeviceInfoClient: TestDependencyKey {
         systemUptime: { 0 },
         battery: { .zero },
         screen: { .zero },
-        identifierForVendor: { nil }
+        identifierForVendor: { nil },
+        localization: { .empty },
+        process: { .zero },
+        isDebuggerAttached: { false }
       )
     #endif
   }

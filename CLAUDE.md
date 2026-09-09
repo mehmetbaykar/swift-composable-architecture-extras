@@ -2,7 +2,7 @@
 
 ## Project Description
 <!-- AUTO-MANAGED: project-description -->
-Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Exposes 19 products: 3 umbrellas (**ComposableArchitectureExtras**, **ReducersExtras**, **DependenciesExtras**) and 16 standalone modules. Includes: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **AudioPlayer** (cross-platform audio playback), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection + hostname + boot time + macOS serial/model/updates), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **LaunchAtLogin** (macOS launch-at-login via SMAppService), **LoggerClient** (composable logging with console + file destinations), **OpenSettings** (system settings navigation with ~30 macOS panes), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), **ScreenBrightness** (brightness control), and **ShellClient** (macOS shell command execution via swift-subprocess).
+Swift Composable Architecture Extras - A Swift Package providing production-ready reducer patterns, dependencies, and utilities for TCA applications. Exposes 19 products: 3 umbrellas (**ComposableArchitectureExtras**, **ReducersExtras**, **DependenciesExtras**) and 16 standalone modules. Includes: **Analytics** (event tracking), **AppInfo** (bundle metadata), **AppStoreOverlay** (state-driven App Store overlay, iOS only), **AudioPlayer** (cross-platform audio playback), **DeviceInfo** (device system information + core counts + low power mode + isiOSAppOnMac + screen info + jailbreak detection + hostname + boot time + localization + process metrics + macOS serial/model/updates), **Filter** (conditional execution), **FormValidation** (declarative validation), **Haptics** (universal haptic feedback), **LaunchAtLogin** (macOS launch-at-login via SMAppService), **LoggerClient** (composable logging with console + file destinations), **OpenSettings** (system settings navigation with ~30 macOS panes), **OpenURL** (URL opening with in-app browsing), **Printers** (debug output), **ScreenAwake** (display management), **ScreenBrightness** (brightness control), and **ShellClient** (macOS shell command execution via swift-subprocess).
 <!-- END AUTO-MANAGED -->
 
 ## Build Commands
@@ -84,10 +84,10 @@ Sources/
     │   ├── AudioPlayerClient.swift            # AudioPlayerClient dependency interface
     │   └── AudioPlayerClient+LiveValue.swift  # AVAudioPlayer-based live implementation
     │
-    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, screen, jailbreak, hostname, boot time, macOS serial/model/updates)
-    │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network)
+    ├── DeviceInfo/                # Device system information (CPU, memory, disk, battery, network, thermal, low power mode, identity, screen, jailbreak, hostname, boot time, localization, process, macOS serial/model/updates)
+    │   ├── Dependency/            # DeviceInfoClient, measurements (CPU, Memory, Disk, Battery, Network, Localization, Process, Carrier, Accessories)
     │   ├── Jailbreak/             # iOS-only jailbreak detection checks (Filesystem, Sandbox, Dyld, Environment)
-    │   ├── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, NetworkInterface, DeviceThermalState, ScreenInfo, ScreenRatio, JailbreakStatus, ModelNameInfo, SoftwareUpdateInfo, etc.
+    │   ├── Model/                 # DeviceIdentity, ByteCount, Percentage, CPUInfo, MemoryInfo, DiskInfo, BatteryInfo, NetworkInfo, NetworkInterface, DeviceThermalState, ScreenInfo, ScreenRatio, JailbreakStatus, ModelNameInfo, SoftwareUpdateInfo, LocalizationInfo, ProcessMetrics, CarrierInfo, AccessoryInfo, HardwareCapabilities, etc.
     │   └── Screen/                # ScreenMeasurement (DeviceKit on iOS/tvOS/watchOS, NSScreen on macOS)
     │
     ├── LoggerClient/              # Composable logging with console + file destinations
@@ -156,20 +156,21 @@ let bundleId = appInfo.bundleIdentifier()
 ```
 
 ### DeviceInfo
-**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, low power mode, identity with core counts, screen info, jailbreak detection, hostname, boot time, system uptime, macOS serial/model/updates/password/SSID)
+**Purpose**: Cross-platform testable access to device system information (CPU, memory, disk, battery, network, thermal state, low power mode, identity with core counts, screen info, jailbreak detection, hostname, boot time, system uptime, localization, process metrics, debugger attachment, macOS serial/model/updates/password/SSID)
 
 **Key Features**:
 - `DeviceInfoClient`: Manual struct (no `@DependencyClient` due to `#if` conditional properties)
-- One-shot queries: `identity` (async, includes `totalCoreCount`/`activeCoreCount`/`isiOSAppOnMac`), `cpu` (async, 100ms measurement), `memory`, `disk`, `thermalState`, `isLowPowerModeEnabled`
-- Cross-platform additions: `hostname` (sync, device name), `bootTime` (sync, kernel boot time via sysctl), `systemUptime` (sync, awake time via ProcessInfo)
-- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS), `screen` (async, not visionOS), `jailbreakStatus` (async, iOS only), `identifierForVendor` (iOS/tvOS/watchOS/visionOS)
+- One-shot queries: `identity` (async, includes `totalCoreCount`/`activeCoreCount`/`isiOSAppOnMac`/`modelIdentifier`/`marketingName`), `cpu` (async, 100ms measurement plus `perCoreUsage`), `memory` (includes active/inactive/wired/purgeable), `disk`, `thermalState`, `isLowPowerModeEnabled`
+- Cross-platform additions: `hostname` (async, device name), `bootTime` (sync, kernel boot time via sysctl), `systemUptime` (sync, awake time via ProcessInfo), `localization`, `process`, `isDebuggerAttached`
+- Platform-conditional: `battery` (async, not tvOS), `network` (async, not watchOS), `externalIPAddress` (async, not watchOS), `screen` (async, not visionOS), `jailbreakStatus` (async, iOS only), `identifierForVendor` (iOS/tvOS/watchOS/visionOS)
+- iOS-only: `carrier`, `accessories`, `hardwareCapabilities`, `orientation`
 - macOS-only: `serialNumber` (sync, IOKit), `modelName` (async, `ModelNameInfo` with identifier/marketing name/icon), `softwareUpdates` (sync, `[SoftwareUpdateInfo]`), `passwordExpiryDays` (async, OpenDirectory), `ssid` (async, CoreWLAN)
-- `DeviceIdentity` includes `totalCoreCount`, `activeCoreCount`, `isiOSAppOnMac`, and computed `macOSVersionName` (e.g. "Sequoia" for macOS 15)
+- `DeviceIdentity` includes `totalCoreCount`, `activeCoreCount`, `isiOSAppOnMac`, `modelIdentifier`, `marketingName`, and computed `macOSVersionName` (e.g. "Sequoia" for macOS 15)
 - `isLowPowerModeEnabled`: sync one-shot read, false on macOS < 12
 - Rich value types: `ByteCount` (formatted bytes), `Percentage` (0-1 raw, 0-100 display)
 - `ModelNameInfo` (macOS): `modelIdentifier`, `marketingName`, `shortName`, `year`, `iconSymbolName` (SF Symbol)
 - `SoftwareUpdateInfo` (macOS): `displayName`, `displayVersion`, `isMajorUpdate`, `productKey`
-- `NetworkInfo` extended: `primaryIPAddress`, `interfaces: [NetworkInterface]` with per-interface type/IP/active status
+- `NetworkInfo` extended: `primaryIPAddress`, `interfaces: [NetworkInterface]` with per-interface type/IP/IPv6/netmask/broadcast/active status
 - `ScreenInfo`: resolution (width/height/scale) plus portrait-normalized `nativePixelWidth`/`nativePixelHeight` (physical pixels, width = shorter edge) on all non-visionOS platforms; iOS adds `screenRatio`, `diagonal`, `ppi`, `hasNotch`, `hasDynamicIsland`, `hasRoundedDisplayCorners` via DeviceKit; tvOS adds `screenRatio`; watchOS adds `screenRatio`, `diagonal`, `ppi`
 - `JailbreakStatus`: confidence-based result (`.nominal`, `.low`, `.moderate`, `.high`) from filesystem, sandbox, dyld, and environment checks
 - macOS battery includes extended IOKit properties (cycleCount, temperature, maxCapacity, adapterName)
@@ -187,9 +188,11 @@ let thermal = deviceInfo.thermalState()
 let lowPower = deviceInfo.isLowPowerModeEnabled()
 
 // Cross-platform additions
-let host = deviceInfo.hostname()
+let host = await deviceInfo.hostname()
 let boot = deviceInfo.bootTime()
 let uptime = deviceInfo.systemUptime()
+let localization = deviceInfo.localization()
+let process = deviceInfo.process()
 
 #if !os(tvOS)
 let battery = await deviceInfo.battery()
@@ -197,6 +200,7 @@ let battery = await deviceInfo.battery()
 
 #if !os(watchOS)
 let network = await deviceInfo.network()
+let externalIP = await deviceInfo.externalIPAddress()
 #endif
 
 #if !os(visionOS)
@@ -205,6 +209,8 @@ let screen = await deviceInfo.screen()
 
 #if os(iOS)
 let jailbreak = await deviceInfo.jailbreakStatus()
+let carrier = deviceInfo.carrier()
+let accessories = await deviceInfo.accessories()
 #endif
 
 #if os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)
@@ -494,7 +500,7 @@ Reduce { state, action in ... }
 - **Nested `@Suite`** attributes for hierarchical test grouping
 - Each module has `Reducer/TestReducer.swift` fixture
 - **macOS-only tests**: ShellClient, LaunchAtLogin, and DeviceInfo extended tests use `#if os(macOS)` guards
-- **New DeviceInfo test files**: `ModelNameInfoTests`, `SoftwareUpdateInfoTests`, `NetworkInterfaceTests`, `DeviceIdentityExtendedTests`, `DeviceInfoExtendedTests`
+- **New DeviceInfo test files**: `ModelNameInfoTests`, `SoftwareUpdateInfoTests`, `NetworkInterfaceTests`, `DeviceIdentityExtendedTests`, `DeviceInfoExtendedTests`, `DeviceInfoSystemServicesTests`
 
 ### TestStore Patterns
 ```swift

@@ -14,6 +14,20 @@ struct DeviceInfoModelTests {
       #expect(info.user == .zero)
       #expect(info.system == .zero)
       #expect(info.idle == .zero)
+      #expect(info.perCoreUsage.isEmpty)
+    }
+
+    @Test func `per core usage is preserved`() {
+      let info = CPUInfo(
+        usage: Percentage(rawValue: 0.5),
+        user: Percentage(rawValue: 0.3),
+        system: Percentage(rawValue: 0.2),
+        idle: Percentage(rawValue: 0.5),
+        perCoreUsage: [Percentage(rawValue: 0.1), Percentage(rawValue: 0.9)]
+      )
+      #expect(info.perCoreUsage.count == 2)
+      #expect(info.perCoreUsage[0].rawValue == 0.1)
+      #expect(info.perCoreUsage[1].rawValue == 0.9)
     }
 
     @Test func `equality works`() {
@@ -42,6 +56,27 @@ struct DeviceInfoModelTests {
       #expect(info.total == .zero)
       #expect(info.used == .zero)
       #expect(info.available == .zero)
+      #expect(info.active == .zero)
+      #expect(info.inactive == .zero)
+      #expect(info.wired == .zero)
+      #expect(info.purgeable == .zero)
+    }
+
+    @Test func `breakdown values are preserved`() {
+      let info = MemoryInfo(
+        usage: Percentage(rawValue: 0.5),
+        total: ByteCount(bytes: 8_000_000_000),
+        used: ByteCount(bytes: 4_000_000_000),
+        available: ByteCount(bytes: 4_000_000_000),
+        active: ByteCount(bytes: 1_000_000_000),
+        inactive: ByteCount(bytes: 500_000_000),
+        wired: ByteCount(bytes: 2_000_000_000),
+        purgeable: ByteCount(bytes: 250_000_000)
+      )
+      #expect(info.active.bytes == 1_000_000_000)
+      #expect(info.inactive.bytes == 500_000_000)
+      #expect(info.wired.bytes == 2_000_000_000)
+      #expect(info.purgeable.bytes == 250_000_000)
     }
 
     @Test func `equality works`() {
@@ -95,6 +130,25 @@ struct DeviceInfoModelTests {
       #expect(identity.model == "")
       #expect(identity.systemName == "")
       #expect(identity.systemVersion == "")
+      #expect(identity.modelIdentifier == "")
+      #expect(identity.marketingName == "")
+    }
+
+    @Test func `equality includes model identifier and marketing name`() {
+      let a = DeviceIdentity(
+        name: "iPhone", model: "iPhone", systemName: "iOS", systemVersion: "17.0",
+        totalCoreCount: 6, activeCoreCount: 6, isiOSAppOnMac: false,
+        modelIdentifier: "iPhone15,2", marketingName: "iPhone 14 Pro")
+      let b = DeviceIdentity(
+        name: "iPhone", model: "iPhone", systemName: "iOS", systemVersion: "17.0",
+        totalCoreCount: 6, activeCoreCount: 6, isiOSAppOnMac: false,
+        modelIdentifier: "iPhone15,2", marketingName: "iPhone 14 Pro")
+      let c = DeviceIdentity(
+        name: "iPhone", model: "iPhone", systemName: "iOS", systemVersion: "17.0",
+        totalCoreCount: 6, activeCoreCount: 6, isiOSAppOnMac: false,
+        modelIdentifier: "iPhone16,1", marketingName: "iPhone 15 Pro")
+      #expect(a == b)
+      #expect(a != c)
     }
 
     @Test func `equality works`() {

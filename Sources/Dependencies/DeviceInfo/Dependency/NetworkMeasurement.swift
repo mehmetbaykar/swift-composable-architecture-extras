@@ -41,9 +41,17 @@
       )
     }
 
+    private struct InterfaceBuilder {
+      var ipAddress = ""
+      var ipv6Address: String?
+      var netmask: String?
+      var broadcastAddress: String?
+      var isActive = false
+      var isLoopback = false
+    }
+
     private static func enumerateInterfaces() -> (String?, [NetworkInterface]) {
-      var interfaces: [NetworkInterface] = []
-      var primaryIP: String? = nil
+      var builders: [String: InterfaceBuilder] = [:]
 
       var ifaddr: UnsafeMutablePointer<ifaddrs>?
       guard getifaddrs(&ifaddr) == 0, let firstAddr = ifaddr else { return (nil, []) }
@@ -53,36 +61,48 @@
       while let addr = ptr {
         defer { ptr = addr.pointee.ifa_next }
 
+        guard let sa = addr.pointee.ifa_addr else { continue }
+        let family = Int32(sa.pointee.sa_family)
+        guard family == AF_INET || family == AF_INET6 else { continue }
+
         let flags = Int32(addr.pointee.ifa_flags)
         let isUp = (flags & IFF_UP) != 0
         let isRunning = (flags & IFF_RUNNING) != 0
         let isLoopback = (flags & IFF_LOOPBACK) != 0
+        let name = String(cString: addr.pointee.ifa_name)
 
-        guard let sa = addr.pointee.ifa_addr, sa.pointee.sa_family == UInt8(AF_INET) else {
-          continue
+        var builder = builders[name] ?? InterfaceBuilder()
+        builder.isActive = isUp && isRunning
+        builder.isLoopback = isLoopback
+
+        if family == AF_INET {
+          if builder.ipAddress.isEmpty, let ip = numericHost(from: sa) {
+            builder.ipAddress = ip
+          }
+          if builder.netmask == nil, let netmaskAddr = addr.pointee.ifa_netmask {
+            builder.netmask = numericHost(from: netmaskAddr)
+          }
+          if builder.broadcastAddress == nil, (flags & IFF_BROADCAST) != 0,
+            let dst = addr.pointee.ifa_dstaddr
+          {
+            builder.broadcastAddress = numericHost(from: dst)
+          }
+        } else if let ip = numericHost(from: sa), shouldPreferIPv6(ip, existing: builder.ipv6Address)
+        {
+          builder.ipv6Address = ip
         }
 
-        var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-        guard
-          getnameinfo(
-            sa, socklen_t(sa.pointee.sa_len),
-            &hostname, socklen_t(hostname.count),
-            nil, 0, NI_NUMERICHOST
-          ) == 0
-        else { continue }
+        builders[name] = builder
+      }
 
-        let name = String(
-          decoding: [UInt8](
-            UnsafeBufferPointer(
-              start: UnsafeRawPointer(addr.pointee.ifa_name)
-                .assumingMemoryBound(to: UInt8.self),
-              count: Int(strlen(addr.pointee.ifa_name)))), as: UTF8.self)
-        let ip = String(
-          decoding: hostname.prefix(while: { $0 != 0 }).map(UInt8.init(bitPattern:)), as: UTF8.self)
-        let isActive = isUp && isRunning
+      var interfaces: [NetworkInterface] = []
+      var primaryIP: String? = nil
+      for (name, builder) in builders {
+        let ipAddress = builder.ipAddress.isEmpty ? (builder.ipv6Address ?? "") : builder.ipAddress
+        guard !ipAddress.isEmpty else { continue }
 
         let type: NetworkInterfaceType
-        if isLoopback {
+        if builder.isLoopback {
           type = .loopback
         } else if name.hasPrefix("en0") {
           type = .wifi
@@ -94,15 +114,47 @@
           type = .unknown
         }
 
-        let iface = NetworkInterface(name: name, ipAddress: ip, type: type, isActive: isActive)
-        interfaces.append(iface)
+        interfaces.append(
+          NetworkInterface(
+            name: name,
+            ipAddress: ipAddress,
+            type: type,
+            isActive: builder.isActive,
+            ipv6Address: builder.ipv6Address,
+            netmask: builder.netmask,
+            broadcastAddress: builder.broadcastAddress
+          )
+        )
 
-        if primaryIP == nil && isActive && !isLoopback {
-          primaryIP = ip
+        if primaryIP == nil && builder.isActive && !builder.isLoopback && !builder.ipAddress.isEmpty
+        {
+          primaryIP = builder.ipAddress
         }
       }
 
+      interfaces.sort { $0.name < $1.name }
       return (primaryIP, interfaces)
+    }
+
+    private static func shouldPreferIPv6(_ candidate: String, existing: String?) -> Bool {
+      guard let existing else { return true }
+      let candidateIsLinkLocal = candidate.lowercased().hasPrefix("fe80")
+      let existingIsLinkLocal = existing.lowercased().hasPrefix("fe80")
+      if existingIsLinkLocal && !candidateIsLinkLocal { return true }
+      return false
+    }
+
+    private static func numericHost(from sa: UnsafePointer<sockaddr>) -> String? {
+      var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+      let length = socklen_t(sa.pointee.sa_len)
+      guard
+        getnameinfo(
+          sa, length,
+          &hostname, socklen_t(hostname.count),
+          nil, 0, NI_NUMERICHOST
+        ) == 0
+      else { return nil }
+      return String(cString: hostname)
     }
   }
 

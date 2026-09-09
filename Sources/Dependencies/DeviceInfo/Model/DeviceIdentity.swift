@@ -21,6 +21,12 @@ public struct DeviceIdentity: Sendable, Equatable {
   /// Whether this is an iOS app running on a Mac via Mac Catalyst or Apple Silicon.
   public let isiOSAppOnMac: Bool
 
+  /// The raw hardware identifier (e.g., "iPhone17,1", "Mac16,1").
+  public let modelIdentifier: String
+
+  /// The marketing device name (e.g., "iPhone 16 Pro").
+  public let marketingName: String
+
   public init(
     name: String,
     model: String,
@@ -28,7 +34,9 @@ public struct DeviceIdentity: Sendable, Equatable {
     systemVersion: String,
     totalCoreCount: Int,
     activeCoreCount: Int,
-    isiOSAppOnMac: Bool
+    isiOSAppOnMac: Bool,
+    modelIdentifier: String = "",
+    marketingName: String = ""
   ) {
     self.name = name
     self.model = model
@@ -37,6 +45,8 @@ public struct DeviceIdentity: Sendable, Equatable {
     self.totalCoreCount = totalCoreCount
     self.activeCoreCount = activeCoreCount
     self.isiOSAppOnMac = isiOSAppOnMac
+    self.modelIdentifier = modelIdentifier
+    self.marketingName = marketingName
   }
 
   #if os(macOS)
