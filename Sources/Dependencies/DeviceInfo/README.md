@@ -5,12 +5,13 @@ A cross-platform TCA dependency for accessing device system information.
 ## Overview
 
 `DeviceInfoClient` provides testable, one-shot access to device hardware and
-system state: CPU usage, memory, disk storage, battery, network connectivity,
-thermal state, low power mode, device identity (including core counts and
-`isiOSAppOnMac`), screen info (resolution, scale, PPI, notch/Dynamic Island
-detection via [DeviceKit](https://github.com/devicekit/DeviceKit)),
-jailbreak detection (iOS), hostname, boot time, system uptime,
-vendor identifier, and macOS-specific features including serial number,
+system state: CPU usage (including per-core), memory (including active/inactive/wired/purgeable),
+disk storage, battery, network connectivity, thermal state, low power mode,
+device identity (core counts, `isiOSAppOnMac`, hardware identifier, marketing name),
+screen info (resolution, scale, PPI, notch/Dynamic Island detection via
+[DeviceKit](https://github.com/devicekit/DeviceKit)), jailbreak detection (iOS),
+hostname, boot time, system uptime, localization, process metrics, debugger
+attachment, vendor identifier, and macOS-specific features including serial number,
 model name, software updates, password expiry, and Wi-Fi SSID.
 
 ## Usage
@@ -31,6 +32,9 @@ let lowPower = deviceInfo.isLowPowerModeEnabled()
 let hostname = await deviceInfo.hostname()
 let bootTime = deviceInfo.bootTime()
 let uptime = deviceInfo.systemUptime()
+let localization = deviceInfo.localization()
+let process = deviceInfo.process()
+let debuggerAttached = deviceInfo.isDebuggerAttached()
 
 #if !os(tvOS)
 let battery = await deviceInfo.battery()
@@ -38,15 +42,15 @@ let battery = await deviceInfo.battery()
 
 #if !os(watchOS)
 let network = await deviceInfo.network()
-// network.primaryIPAddress — IPv4 of the primary active interface
-// network.interfaces — all detected interfaces with IPs and types
+let externalIP = await deviceInfo.externalIPAddress()
 #endif
 
 #if os(iOS)
 let jailbreak = await deviceInfo.jailbreakStatus()
-if jailbreak.confidence >= .moderate {
-  // Handle potentially compromised device
-}
+let carrier = deviceInfo.carrier()
+let accessories = await deviceInfo.accessories()
+let capabilities = await deviceInfo.hardwareCapabilities()
+let orientation = await deviceInfo.orientation()
 #endif
 
 #if !os(visionOS)
@@ -103,6 +107,14 @@ let store = TestStore(initialState: MyFeature.State()) {
 | Boot Time | sysctl (CTL_KERN + KERN_BOOTTIME) | sysctl (CTL_KERN + KERN_BOOTTIME) | sysctl (CTL_KERN + KERN_BOOTTIME) | sysctl (CTL_KERN + KERN_BOOTTIME) |
 | System Uptime | ProcessInfo.systemUptime | ProcessInfo.systemUptime | ProcessInfo.systemUptime | ProcessInfo.systemUptime |
 | Identifier for Vendor | UIDevice | N/A | UIDevice | WKInterfaceDevice |
+| Localization | Locale | Locale | Locale | Locale |
+| Process | getpid + task_threads | getpid + task_threads | getpid + task_threads | getpid + task_threads |
+| Debugger | sysctl P_TRACED | sysctl P_TRACED | sysctl P_TRACED | sysctl P_TRACED |
+| External IP | icanhazip.com | icanhazip.com | icanhazip.com | N/A |
+| Carrier | CoreTelephony | N/A | N/A | N/A |
+| Accessories | AVAudioSession + EAAccessory | N/A | N/A | N/A |
+| Hardware capabilities | UIDevice + CMPedometer | N/A | N/A | N/A |
+| Orientation | UIWindowScene | N/A | N/A | N/A |
 | Serial Number | N/A | IOKit (IOPlatformExpertDevice) | N/A | N/A |
 | Model Name | N/A | ioreg (Apple Silicon) / Apple API (Intel) | N/A | N/A |
 | Software Updates | N/A | com.apple.SoftwareUpdate domain | N/A | N/A |
@@ -113,10 +125,10 @@ let store = TestStore(initialState: MyFeature.State()) {
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `identity` | `@Sendable () async -> DeviceIdentity` | Device name, model, OS name/version, core counts, isiOSAppOnMac |
+| `identity` | `@Sendable () async -> DeviceIdentity` | Device name, model, OS name/version, core counts, isiOSAppOnMac, modelIdentifier, marketingName |
 | `isLowPowerModeEnabled` | `@Sendable () -> Bool` | Low Power Mode state (false on macOS < 12) |
-| `cpu` | `@Sendable () async -> CPUInfo` | CPU usage (100ms measurement) |
-| `memory` | `@Sendable () -> MemoryInfo` | RAM usage, total, used, available |
+| `cpu` | `@Sendable () async -> CPUInfo` | CPU usage (100ms measurement) plus `perCoreUsage` |
+| `memory` | `@Sendable () -> MemoryInfo` | RAM usage, total, used, available, active, inactive, wired, purgeable |
 | `disk` | `@Sendable () -> DiskInfo` | Disk usage, total, used, available |
 | `thermalState` | `@Sendable () -> DeviceThermalState` | Thermal state (nominal/fair/serious/critical) |
 | `hostname` | `@Sendable () async -> String` | User-assigned device name |
@@ -127,6 +139,14 @@ let store = TestStore(initialState: MyFeature.State()) {
 | `screen` | `@Sendable () async -> ScreenInfo` | Screen resolution (points + native pixels), scale, PPI, notch detection (not visionOS) |
 | `jailbreakStatus` | `@Sendable () async -> JailbreakStatus` | Jailbreak confidence level (iOS only) |
 | `identifierForVendor` | `@Sendable () async -> UUID?` | Vendor-scoped device UUID (iOS, tvOS, visionOS, watchOS) |
+| `localization` | `@Sendable () -> LocalizationInfo` | Locale, language, region, time zone, currency |
+| `process` | `@Sendable () -> ProcessMetrics` | Current process ID and this process's CPU usage |
+| `isDebuggerAttached` | `@Sendable () -> Bool` | Whether a debugger is attached to this process |
+| `externalIPAddress` | `@Sendable () async -> String?` | Public IP via HTTPS to icanhazip.com (not watchOS) |
+| `carrier` | `@Sendable () -> CarrierInfo` | Cellular carrier and radio (iOS; nil placeholders on iOS 16.4+) |
+| `accessories` | `@Sendable () async -> AccessoryInfo` | Headphones and MFi accessories (iOS) |
+| `hardwareCapabilities` | `@Sendable () async -> HardwareCapabilities` | Proximity and pedometer availability (iOS) |
+| `orientation` | `@Sendable () async -> DeviceInterfaceOrientation` | Foreground scene orientation (iOS) |
 | `serialNumber` | `@Sendable () -> String` | Hardware serial number (macOS only) |
 | `modelName` | `@Sendable () async -> ModelNameInfo` | Marketing name and metadata (macOS only) |
 | `softwareUpdates` | `@Sendable () -> [SoftwareUpdateInfo]` | Pending macOS software updates (macOS only) |
@@ -170,9 +190,15 @@ The `NetworkInfo` struct includes extended network identity fields:
 | `isConnected` | `Bool` | Whether the device has an active connection |
 | `interfaceType` | `NetworkInterfaceType` | Primary interface type (wifi, cellular, wiredEthernet, loopback, unknown) |
 | `primaryIPAddress` | `String?` | IPv4 address of the primary active non-loopback interface |
-| `interfaces` | `[NetworkInterface]` | All detected interfaces with name, IP, type, and active status |
+| `interfaces` | `[NetworkInterface]` | All detected interfaces with name, IP, IPv6, netmask, broadcast, type, and active status |
+| `isConnectedToWiFi` | `Bool` | Primary path is Wi-Fi |
+| `isConnectedToCellular` | `Bool` | Primary path is cellular |
+| `wifiIPAddress` | `String?` | IPv4 of the first active Wi-Fi interface |
+| `cellularIPAddress` | `String?` | IPv4 of the first active cellular interface |
 
 The `ssid` property on `DeviceInfoClient` (macOS only) provides the SSID of the currently connected Wi-Fi network via CoreWLAN, separate from the `network` property.
+
+`externalIPAddress` performs an HTTPS request to `icanhazip.com` and returns `nil` when offline or the response is not an IP address.
 
 ## Notes
 
@@ -182,3 +208,5 @@ The `ssid` property on `DeviceInfoClient` (macOS only) provides the SSID of the 
 - **macOSVersionName**: `DeviceIdentity` includes a computed `macOSVersionName` property (macOS only) that maps the major version number to the marketing name (e.g., 15 = "Sequoia", 16 = "Tahoe"). Returns `nil` for unrecognized versions.
 - **System boot time**: Uses `sysctl` with `CTL_KERN` + `KERN_BOOTTIME` on all platforms. This is the wall-clock time of the last boot, not affected by clock changes.
 - **System uptime**: Uses `ProcessInfo.processInfo.systemUptime`, which counts only awake time (sleep duration is excluded).
+- **Carrier on iOS 16.4+**: `CTCarrier` returns placeholder values for third-party apps. `CarrierInfo` maps `"--"`, `"65535"`, and `"00000"` to `nil`. `radioAccessTechnology` still reflects the current radio when registered.
+- **Not ported from iOS-System-Services**: clipboard contents, random CFUUID, Core Motion streams, app version (`AppInfo`), screen brightness (`ScreenBrightness`), and Wi-Fi router address (private routing headers).

@@ -26,6 +26,17 @@
       let info = BatteryInfo(level: Percentage(rawValue: 0.85), state: .charging)
       #expect(info.level.rawValue == 0.85)
       #expect(info.state == .charging)
+      #expect(info.isPluggedIn)
+    }
+
+    @Test func `unplugged battery is not plugged in`() {
+      let info = BatteryInfo(level: Percentage(rawValue: 0.4), state: .unplugged)
+      #expect(!info.isPluggedIn)
+    }
+
+    @Test func `full battery is plugged in`() {
+      let info = BatteryInfo(level: Percentage(rawValue: 1), state: .full)
+      #expect(info.isPluggedIn)
     }
 
     #if os(macOS)

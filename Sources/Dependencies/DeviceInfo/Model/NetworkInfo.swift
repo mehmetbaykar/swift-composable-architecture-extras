@@ -26,6 +26,22 @@
       self.interfaces = interfaces
     }
 
+    public var isConnectedToWiFi: Bool {
+      isConnected && interfaceType == .wifi
+    }
+
+    public var isConnectedToCellular: Bool {
+      isConnected && interfaceType == .cellular
+    }
+
+    public var wifiIPAddress: String? {
+      interfaces.first { $0.type == .wifi && $0.isActive }?.ipAddress
+    }
+
+    public var cellularIPAddress: String? {
+      interfaces.first { $0.type == .cellular && $0.isActive }?.ipAddress
+    }
+
     /// A default value representing a disconnected state.
     public static let disconnected = NetworkInfo(
       isConnected: false,

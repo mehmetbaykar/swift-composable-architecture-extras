@@ -7,15 +7,24 @@
   @Suite("NetworkInterface")
   struct NetworkInterfaceTests {
 
-    @Test func `init sets id from name`() {
+    @Test func `init stores optional addressing fields`() {
       let iface = NetworkInterface(
-        name: "en0", ipAddress: "192.168.1.10", type: .wifi, isActive: true
+        name: "en0",
+        ipAddress: "192.168.1.10",
+        type: .wifi,
+        isActive: true,
+        ipv6Address: "fe80::1",
+        netmask: "255.255.255.0",
+        broadcastAddress: "192.168.1.255"
       )
       #expect(iface.id == "en0")
       #expect(iface.name == "en0")
       #expect(iface.ipAddress == "192.168.1.10")
       #expect(iface.type == .wifi)
       #expect(iface.isActive)
+      #expect(iface.ipv6Address == "fe80::1")
+      #expect(iface.netmask == "255.255.255.0")
+      #expect(iface.broadcastAddress == "192.168.1.255")
     }
 
     @Test func `inactive interface has isActive false`() {
@@ -79,11 +88,21 @@
       #expect(info.interfaces.first?.name == "en0")
     }
 
-    @Test func `disconnected has nil IP and empty interfaces`() {
-      let info = NetworkInfo.disconnected
-      #expect(!info.isConnected)
-      #expect(info.primaryIPAddress == nil)
-      #expect(info.interfaces.isEmpty)
+    @Test func `wifi and cellular convenience properties`() {
+      let wifi = NetworkInterface(
+        name: "en0", ipAddress: "192.168.1.10", type: .wifi, isActive: true
+      )
+      let cell = NetworkInterface(
+        name: "pdp_ip0", ipAddress: "10.0.0.8", type: .cellular, isActive: true
+      )
+      let info = NetworkInfo(
+        isConnected: true, interfaceType: .wifi,
+        primaryIPAddress: "192.168.1.10", interfaces: [wifi, cell]
+      )
+      #expect(info.isConnectedToWiFi)
+      #expect(!info.isConnectedToCellular)
+      #expect(info.wifiIPAddress == "192.168.1.10")
+      #expect(info.cellularIPAddress == "10.0.0.8")
     }
 
     @Test func `multiple interfaces are preserved`() {

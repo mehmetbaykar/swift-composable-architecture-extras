@@ -19,7 +19,11 @@ import Foundation
         usage: Percentage(rawValue: min(usage, 1.0)),
         total: ByteCount(bytes: total),
         used: ByteCount(bytes: used),
-        available: ByteCount(bytes: available)
+        available: ByteCount(bytes: available),
+        active: .zero,
+        inactive: .zero,
+        wired: .zero,
+        purgeable: .zero
       )
     }
   }
@@ -55,7 +59,11 @@ import Foundation
         usage: Percentage(rawValue: usage),
         total: ByteCount(bytes: total),
         used: ByteCount(bytes: used),
-        available: ByteCount(bytes: available)
+        available: ByteCount(bytes: available),
+        active: ByteCount(bytes: active),
+        inactive: ByteCount(bytes: inactive),
+        wired: ByteCount(bytes: wired),
+        purgeable: ByteCount(bytes: purgeable)
       )
     }
 

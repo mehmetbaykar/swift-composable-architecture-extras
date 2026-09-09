@@ -35,6 +35,10 @@
 
       public static let zero = BatteryInfo(level: .zero, state: .unknown)
     #endif
+
+    public var isPluggedIn: Bool {
+      state == .charging || state == .full
+    }
   }
 
   public enum DeviceBatteryState: Sendable, Equatable {
