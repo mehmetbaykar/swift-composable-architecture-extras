@@ -8,5 +8,5 @@ DerivedData/
 .swiftpm/configuration/
 .netrc
 
-# Exclude auto-generated scheme (keep ComposableArchitectureExtras.xcscheme for CI)
+# Exclude auto-generated scheme (keep ComposableArchitectureExtras.xcscheme and AllTests.xcscheme for CI)
 .swiftpm/xcode/xcshareddata/xcschemes/swift-composable-architecture-extras.xcscheme
