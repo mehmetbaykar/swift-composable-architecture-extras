@@ -13,11 +13,10 @@ If you found this helpful, you can support more open source work!
 
 ---
 
-Production-ready reducer patterns and dependencies for The Composable Architecture.
+Reducer patterns and dependencies for The Composable Architecture. Each module solves one common problem, and you can import each module alone.
 
 ## Table of Contents
 
-- [Philosophy](#philosophy)
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Reducer Modules](#reducer-modules)
@@ -39,13 +38,10 @@ Production-ready reducer patterns and dependencies for The Composable Architectu
   - [OpenURL](#openurl)
   - [ShellClient](#shellclient)
 - [Privacy Manifest](#privacy-manifest)
+- [Star History](#star-history)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
-
-## Philosophy
-
-These are production-ready patterns extracted from real TCA applications. Each module solves a common problem with minimal API surface and maximum composability.
 
 ## Installation
 
@@ -53,7 +49,7 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-  .package(url: "https://github.com/mehmetbaykar/swift-composable-architecture-extras.git", from: "1.0.0")
+  .package(url: "https://github.com/mehmetbaykar/swift-composable-architecture-extras.git", from: "1.5.0")
 ]
 ```
 
@@ -74,9 +70,9 @@ The `ComposableArchitectureExtras` product supports SwiftPM package traits so yo
 
 | Configuration | Dependency declaration |
 | ------------- | ---------------------- |
-| Both (default) | `.package(url: "...", from: "1.0.0")` |
-| Dependencies only | `.package(url: "...", from: "1.0.0", traits: ["Dependencies"])` |
-| Reducers only | `.package(url: "...", from: "1.0.0", traits: ["Reducers"])` |
+| Both (default) | `.package(url: "...", from: "1.5.0")` |
+| Dependencies only | `.package(url: "...", from: "1.5.0", traits: ["Dependencies"])` |
+| Reducers only | `.package(url: "...", from: "1.5.0", traits: ["Reducers"])` |
 
 When no traits are specified, both `Dependencies` and `Reducers` are enabled by default. Specifying a trait disables defaults and enables only the traits you list.
 
@@ -96,7 +92,7 @@ Or import individual modules such as `Analytics`, `DeviceInfo`, or `LoggerClient
 | tvOS     | 16.0+           |
 | watchOS  | 9.0+            |
 | Swift    | 6.3+            |
-| TCA      | 1.23.1+         |
+| TCA      | 1.26.0+         |
 
 ## Reducer Modules
 
@@ -137,7 +133,7 @@ state.overlay = .init(appIdentifier: "1511409657")
 
 ### Filter
 
-A reducer modifier that conditionally executes the wrapped reducer based on state and action predicates. Perfect for feature flags, boundary enforcement, and action gating.
+A reducer modifier that conditionally executes the wrapped reducer based on state and action predicates. Use it for feature flags, boundary enforcement, and action gating.
 
 ```swift
 Reduce { state, action in
@@ -198,7 +194,7 @@ Reduce { state, action in
 
 ### ScreenAwake
 
-Prevents device screen from auto-locking during specific app states. Works across iOS, tvOS, macOS, and watchOS with platform-appropriate implementations.
+Prevents the device screen from auto-locking during specific app states.
 
 ```swift
 Reduce { state, action in
@@ -207,11 +203,13 @@ Reduce { state, action in
 .screenAwake(when: \.isPlaying)
 ```
 
+> **Platform Support**: iOS, tvOS, and macOS. watchOS compiles but is a no-op.
+
 [Full documentation](Sources/Reducers/ScreenAwake/README.md)
 
 ### ScreenBrightness
 
-State-triggered screen brightness control for TCA applications. Automatically adjusts screen brightness based on state changes with smart restoration to original brightness.
+State-triggered screen brightness control for TCA applications. Automatically adjusts screen brightness based on state changes and restores the original brightness.
 
 ```swift
 Reduce { state, action in
@@ -228,7 +226,7 @@ Reduce { state, action in
 
 ### AppInfo
 
-A lightweight TCA dependency for accessing app bundle metadata including version strings, build numbers, and bundle identifiers.
+A TCA dependency for accessing app bundle metadata including version strings, build numbers, and bundle identifiers.
 
 ```swift
 @Dependency(\.appInfo) var appInfo
@@ -247,7 +245,7 @@ Cross-platform fire-and-forget audio playback dependency. Designed for short UI 
 ```swift
 @Dependency(\.audioPlayer) var audioPlayer
 
-try await audioPlayer.play(URL(string: "sound.mp3")!)
+try await audioPlayer.play(Bundle.main.url(forResource: "sound", withExtension: "mp3")!)
 ```
 
 > **Platform Support**: iOS, macOS, tvOS, watchOS. Auto-configures `AVAudioSession` with `.ambient` category on iOS/tvOS/watchOS.
@@ -256,7 +254,7 @@ try await audioPlayer.play(URL(string: "sound.mp3")!)
 
 ### DeviceInfo
 
-A cross-platform TCA dependency for accessing device system information: CPU usage, memory, disk storage, battery, network connectivity (with interface enumeration and primary IP), thermal state, low power mode, device identity (including core counts, hardware identifier, and marketing name), screen info (point and native pixel resolution, scale, PPI, notch/Dynamic Island detection), jailbreak detection (iOS), hostname, boot time, system uptime, localization, process metrics, debugger attachment, vendor identifier, and macOS-specific features (serial number, model name, software updates, password expiry, Wi-Fi SSID).
+A cross-platform TCA dependency for device system information: CPU, memory, disk, battery, network, thermal state, low power mode, device identity, screen, localization, and process metrics. It also detects jailbreaks on iOS and reads macOS-only values such as the serial number, model name, and software updates.
 
 ```swift
 @Dependency(\.deviceInfo) var deviceInfo
@@ -323,27 +321,7 @@ logger.info("User logged in")
 logger.error("Network request failed: \(error)")
 ```
 
-Custom destinations for remote platforms (Sentry, Crashlytics, Datadog, etc.) are trivial — just implement `AppLoggerClient.init(log:)`:
-
-```swift
-extension AppLoggerClient {
-  static func crashlytics() -> Self {
-    .init { entry in
-      Crashlytics.crashlytics().log("\(entry.message)")
-      if entry.level == .error || entry.level == .fault {
-        Crashlytics.crashlytics().record(
-          error: NSError(domain: "AppLogger", code: 0, userInfo: [NSDebugDescriptionErrorKey: entry.message])
-        )
-      }
-    }
-  }
-}
-
-// Compose all destinations:
-prepareDependencies {
-  $0.loggerClient = .merge(.console(), .fileLogger(), .crashlytics(), .sentry(), .datadog())
-}
-```
+To send logs to Sentry, Crashlytics, Datadog, or another service, write a custom destination with `AppLoggerClient.init(log:)`. See [Custom Destinations](Sources/Dependencies/LoggerClient/README.md#custom-destinations).
 
 > **Destinations**: `.console()` (os.Logger), `.fileLogger()` (actor-based with rotation), `.noop()`, or any custom destination. Custom `LogFormatter` protocol for output format.
 
@@ -409,11 +387,11 @@ This package includes a `PrivacyInfo.xcprivacy` privacy manifest as required by 
 
 ### Declared API Categories
 
-| Category                                                       | Reason Code | Usage                                                                                                                             |
-| -------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Disk Space (`NSPrivacyAccessedAPICategoryDiskSpace`)           | `85F4.1`    | `DeviceInfo` module queries disk capacity via `URLResourceKey` to display storage information to the user                         |
-| File Timestamp (`NSPrivacyAccessedAPICategoryFileTimestamp`)   | `C617.1`    | `DeviceInfo` module's jailbreak detection (iOS only) uses `FileManager.attributesOfItem(atPath:)` which internally calls `stat()` |
-| System Boot Time (`NSPrivacyAccessedAPICategorySystemBootTime`) | `35F9.1`    | `DeviceInfo` module's `bootTime` property uses `sysctl` with `CTL_KERN` + `KERN_BOOTTIME` to read the last boot timestamp        |
+| Category                                                        | Reason Code | Usage                                                                                                                                                                      |
+| --------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Disk Space (`NSPrivacyAccessedAPICategoryDiskSpace`)            | `85F4.1`    | `DeviceInfo` module queries disk capacity via `URLResourceKey` to display storage information to the user                                                                  |
+| File Timestamp (`NSPrivacyAccessedAPICategoryFileTimestamp`)    | `C617.1`    | `DeviceInfo` jailbreak detection (iOS only) and the `LoggerClient` file logger (log rotation) use `FileManager.attributesOfItem(atPath:)`, which internally calls `stat()` |
+| System Boot Time (`NSPrivacyAccessedAPICategorySystemBootTime`) | `35F9.1`    | `DeviceInfo` module's `systemUptime` property reads `ProcessInfo.systemUptime`. `bootTime` uses it as a fallback when `sysctl` fails                                       |
 
 ### For App Developers
 
